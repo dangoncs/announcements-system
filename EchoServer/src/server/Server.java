@@ -52,7 +52,7 @@ public class Server {
 		try {
 			while((inputLine = in.readLine()) != null) {
 				System.out.println("Server: " + inputLine);
-				out.println(inputLine);
+				out.println(inputLine.toUpperCase());
 				
 				if(inputLine.equals("Bye")) {
 					break;
