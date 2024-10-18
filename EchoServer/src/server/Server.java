@@ -11,57 +11,40 @@ public class Server {
 	
 	public static void main(String[] args) {
 		int port = 23456;
-		
-		ServerSocket serverSocket = null;
-		try {
-			serverSocket = new ServerSocket(port);
-		} 
-	    catch(IOException e) {
-	    	System.out.printf("Falha ao escutar na porta %d.\n", port);
-	    	System.exit(1);
-	    }
-		
-		Socket clientSocket = null;
-		try {
-			clientSocket = serverSocket.accept();
-		}
-		catch(IOException e) {
-			System.out.println("Falha ao aceitar conexão com o cliente.");
-			System.exit(1);
-		}
-		
-		System.out.println("Conexão estabelecida. Aguardando cliente...");
-		
-		PrintWriter out = null;
-		try {
-			out = new PrintWriter(clientSocket.getOutputStream(), true);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		BufferedReader in = null;
-		try {
-			in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		String inputLine;
-		try {
-			while((inputLine = in.readLine()) != null) {
-				System.out.println("Server: " + inputLine);
-				out.println(inputLine.toUpperCase());
-				
-				if(inputLine.equals("Bye")) {
-					break;
+
+		try(ServerSocket serverSocket = new ServerSocket(port)) {
+			System.out.printf("Escutando na porta %d.\n", port);
+
+			while(true) {
+				try(Socket clientSocket = serverSocket.accept();
+					PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+					BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
+					) {
+					System.out.println("Conexão estabelecida com sucesso!");
+
+					String inputLine;
+					System.out.println("Aguardando cliente...");
+					while((inputLine = in.readLine()) != null) {
+						if (inputLine.equalsIgnoreCase("bye")) break;
+
+						System.out.println("Cliente diz: " + inputLine);
+						out.println(inputLine.toUpperCase());
+						System.out.println("Aguardando cliente...");
+					}
+					System.out.println("Conexão fechada pelo cliente.");
+				}
+				catch(IOException e) {
+					System.out.println("Falha ao conectar com o cliente:");
+					System.out.println(e.getMessage());
+					System.exit(1);
 				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+	    catch(IOException e) {
+	    	System.out.printf("Falha ao escutar na porta %d:\n", port);
+			System.out.println(e.getMessage());
+	    	System.exit(1);
+	    }
 	}
 
 	public String echo(String msg) {

@@ -17,56 +17,39 @@ public class Client {
 		int serverPort = 23456;
 		
 		System.out.printf("Conectando: %s/%d\n", serverHostname, serverPort);
-		
-		Socket echoSocket = null;
-		PrintWriter out = null;
-		BufferedReader in = null;
-		try {
-			echoSocket = new Socket(serverHostname, serverPort);
-			out = new PrintWriter(echoSocket.getOutputStream(), true);
-			in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-		} catch (UnknownHostException e) {
-			System.out.println("ERRO: Host não encontrado!");
-			e.printStackTrace();
-			System.exit(1);
-		} catch (IOException e) {
-			System.out.println("ERRO de entrada ou saída!");
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
-		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-		String userInput;
-		System.out.println("Input: ");
-		try {
+
+		try (Socket echoSocket = new Socket(serverHostname, serverPort);
+			 PrintWriter out = new PrintWriter(echoSocket.getOutputStream(), true);
+			 BufferedReader in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
+			 BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))
+		) {
+			System.out.println("Conexão estabelecida com sucesso!");
+
+			String userInput;
+			System.out.println("Input: ");
+
 			while((userInput = stdIn.readLine()) != null) {
+				if (userInput.equalsIgnoreCase("bye")) break;
+
 				out.println(userInput);
 				System.out.println("Echo: " + in.readLine());
+				//if((String response = in.readLine()) != null) {
+				//	System.out.println("Eco: " + response);
+				//}
+				//else {
+				//	System.out.println("Conexão com o servidor perdida.");
+				//	break;
+				//}
 				System.out.println("Input: ");
 			}
+		} catch (UnknownHostException e) {
+			System.out.println("ERRO: Host não encontrado:");
+			System.out.println(e.getMessage());
+			System.exit(1);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		out.close();
-		try {
-			in.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			stdIn.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			echoSocket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("ERRO de entrada ou saída:");
+			System.out.println(e.getMessage());
+			System.exit(1);
 		}
 	}
 	
