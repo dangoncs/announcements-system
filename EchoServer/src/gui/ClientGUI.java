@@ -39,7 +39,7 @@ public class ClientGUI extends JFrame {
 		btnTransform.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String input = txtMessage.getText();
-				String transformedMsg = server.echo(input);
+				String transformedMsg = input.toUpperCase();
 				serverGUI.setLabel(transformedMsg);
 			}
 		});

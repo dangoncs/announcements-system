@@ -8,8 +8,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-import server.Server;
-
 public class Client {
 	
 	public static void main(String[] args) {
@@ -23,52 +21,45 @@ public class Client {
 			 BufferedReader in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
 			 BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))
 		) {
-			System.out.println("Conexão estabelecida com sucesso!");
+			System.out.println("INFO: Conexão estabelecida com sucesso!");
 
 			String userInput;
 			System.out.println("Input: ");
 
 			while((userInput = stdIn.readLine()) != null) {
-				if (userInput.equalsIgnoreCase("bye")) break;
+				if(userInput.equalsIgnoreCase("bye")) break;
 
 				out.println(userInput);
 				System.out.println("Echo: " + in.readLine());
-				//if((String response = in.readLine()) != null) {
-				//	System.out.println("Eco: " + response);
-				//}
-				//else {
-				//	System.out.println("Conexão com o servidor perdida.");
-				//	break;
-				//}
 				System.out.println("Input: ");
 			}
+			
+			stdIn.close();
+			in.close();
+			out.close();
+			echoSocket.close();
+			
+			System.out.println("INFO: Conexão com o servidor encerrada.");
 		} catch (UnknownHostException e) {
 			System.out.println("ERRO: Host não encontrado:");
 			System.out.println(e.getMessage());
-			System.exit(1);
 		} catch (IOException e) {
 			System.out.println("ERRO de entrada ou saída:");
 			System.out.println(e.getMessage());
-			System.exit(1);
 		}
 	}
 	
-	private Server server;
-
-	public Client(Server server) {
-		this.server = server;
-	}
-	
-	private String readString() {
+	private static String readString() {
 		Scanner scanner = new Scanner(System.in);
 		String str = scanner.nextLine();
 		scanner.close();
 		return str;
 	}
-
-	public void transformString() {
-		String message = readString();
-		String uppercaseMessage = server.echo(message);
-		System.out.println(uppercaseMessage);
+	
+	private static int readInt() {
+		Scanner scanner = new Scanner(System.in);
+		int integer = scanner.nextInt();
+		scanner.close();
+		return integer;
 	}
 }
