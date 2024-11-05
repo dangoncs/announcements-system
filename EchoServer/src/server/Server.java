@@ -16,7 +16,7 @@ public class Server {
 			while(true) {
 				try {
 					new ServerThread(serverSocket.accept());
-					System.out.println("INFO: Conexão estabelecida com sucesso!");
+
 				}
 				catch(IOException e) {
 					System.err.println("ERRO: Falha ao conectar com o cliente: " + e.getMessage());

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Client {
@@ -24,14 +25,20 @@ public class Client {
 			System.out.println("INFO: Conexão estabelecida com sucesso!");
 
 			String userInput;
-			System.out.println("Input: ");
+			System.out.print("Login: ");
 
 			while((userInput = stdIn.readLine()) != null) {
-				if(userInput.equalsIgnoreCase("bye")) break;
+				if(userInput.equals("0")) break;
+				String userLogin = userInput;
 
-				out.println(userInput);
-				System.out.println("Echo: " + in.readLine());
-				System.out.println("Input: ");
+				System.out.print("Senha: ");
+				userInput = stdIn.readLine();
+				if(userInput == null || userInput.equals("0")) break;
+				String userPasswd = userInput;
+
+				out.println("{ op: 5, user: " + userLogin + ", password: " + userPasswd + " }");
+				System.out.println("Resposta do servidor: " + in.readLine());
+				System.out.print("Login: ");
 			}
 			
 			stdIn.close();
