@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import server.Server;
+import server.gui.ServerGUI;
 
 import java.awt.BorderLayout;
 import javax.swing.JTextField;

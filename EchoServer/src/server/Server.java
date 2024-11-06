@@ -3,10 +3,12 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import server.gui.ServerGUI;
+import server.gui.ServerStartupGUI;
+
 public class Server {
 	
-	public static void main(String[] args) {
-		int port = 23456;
+	public void startup(int port) {
 		ServerSocket serverSocket = null;
 
 		try {
@@ -16,7 +18,8 @@ public class Server {
 			while(true) {
 				try {
 					new ServerThread(serverSocket.accept());
-
+					ServerGUI frame = new ServerGUI();
+					frame.setVisible(true);
 				}
 				catch(IOException e) {
 					System.err.println("ERRO: Falha ao conectar com o cliente: " + e.getMessage());

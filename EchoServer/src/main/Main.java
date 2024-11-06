@@ -1,19 +1,35 @@
 package main;
 
+import java.util.Scanner;
+
+import client.Client;
+import client.gui.ClientStartupGUI;
 import gui.ClientGUI;
-import gui.ServerGUI;
 import server.Server;
+import server.gui.ServerGUI;
+import server.gui.ServerStartupGUI;
 
 public class Main {
 
 	public static void main(String[] args) {
-		Server server = new Server();
-		ServerGUI serverGUI = new ServerGUI(server);
-		serverGUI.setVisible(true);
-		
-		//Client client = new Client(server);
-		ClientGUI clientGUI = new ClientGUI(server, serverGUI);
-		clientGUI.setVisible(true);
+		Scanner scanner = new Scanner(System.in);
+		int input = 0;
+		do {
+			System.out.println("[1] Criar servidor");
+			System.out.println("[2] Criar cliente");
+			input = scanner.nextInt();
+			
+			switch(input) {
+			case 1:
+				new ServerStartupGUI(new Server()).setVisible(true);
+				break;
+			case 2:
+				new ClientStartupGUI(new Client()).setVisible(true);
+				break;
+			default: 
+				System.err.println("Entrada inválida, digite uma opção conforme o menu");
+			}
+		} while(input != 0);
 	}
 
 }
