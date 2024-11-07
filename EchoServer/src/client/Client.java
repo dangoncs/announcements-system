@@ -1,6 +1,10 @@
 package client;
 
+import com.google.gson.Gson;
+
 import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -9,12 +13,11 @@ import java.net.UnknownHostException;
 import java.util.Objects;
 import java.util.Scanner;
 
+import entities.Operation;
+
 public class Client {
 	
-	public static void main(String[] args) {
-		String serverHostname = "127.0.0.1";
-		int serverPort = 23456;
-		
+	public void connectToServer(String serverHostname, int serverPort) {
 		System.out.printf("Conectando: %s/%d\n", serverHostname, serverPort);
 
 		try (Socket echoSocket = new Socket(serverHostname, serverPort);
@@ -35,9 +38,18 @@ public class Client {
 				userInput = stdIn.readLine();
 				if(userInput == null || userInput.equals("0")) break;
 				String userPasswd = userInput;
-
-				out.println("{ op: 5, user: " + userLogin + ", password: " + userPasswd + " }");
+				
+				//Operação de login
+				Operation obj = new Operation("2", userLogin, userPasswd);
+				Gson gson = new Gson();
+				
+				// converte objetos Java para JSON e retorna JSON como String
+				String json = gson.toJson(obj);
+				System.out.println(json);
+				out.println(json);
+				
 				System.out.println("Resposta do servidor: " + in.readLine());
+				
 				System.out.print("Login: ");
 			}
 			

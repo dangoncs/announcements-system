@@ -50,4 +50,7 @@ public class ClientGUI extends JFrame {
 		contentPane.add(lblTitle, BorderLayout.NORTH);
 	}
 
+	public void json() {
+		
+	}
 }

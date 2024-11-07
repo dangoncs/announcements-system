@@ -12,9 +12,9 @@ import server.gui.ServerStartupGUI;
 public class Main {
 
 	public static void main(String[] args) {
-		Scanner scanner = new Scanner(System.in);
-		int input = 0;
-		do {
+		try (Scanner scanner = new Scanner(System.in)) {
+			int input = 0;
+			
 			System.out.println("[1] Criar servidor");
 			System.out.println("[2] Criar cliente");
 			input = scanner.nextInt();
@@ -26,10 +26,13 @@ public class Main {
 			case 2:
 				new ClientStartupGUI(new Client()).setVisible(true);
 				break;
+			case 0:
+				System.out.println("Encerrando");
+				break;
 			default: 
 				System.err.println("Entrada inválida, digite uma opção conforme o menu");
 			}
-		} while(input != 0);
+		}
 	}
 
 }

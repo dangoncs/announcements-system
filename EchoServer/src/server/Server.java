@@ -18,8 +18,6 @@ public class Server {
 			while(true) {
 				try {
 					new ServerThread(serverSocket.accept());
-					ServerGUI frame = new ServerGUI();
-					frame.setVisible(true);
 				}
 				catch(IOException e) {
 					System.err.println("ERRO: Falha ao conectar com o cliente: " + e.getMessage());

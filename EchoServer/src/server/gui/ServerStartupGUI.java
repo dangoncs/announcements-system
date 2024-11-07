@@ -6,6 +6,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import client.Client;
+import client.gui.ClientStartupGUI;
 import server.Server;
 
 import java.awt.BorderLayout;
@@ -22,6 +24,19 @@ public class ServerStartupGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField txtPort;
+	
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ServerStartupGUI frame = new ServerStartupGUI(new Server());
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 
 	public ServerStartupGUI(Server server) {
 		setTitle("SERVIDOR");
