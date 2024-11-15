@@ -1,81 +1,82 @@
 package client;
 
-import com.google.gson.Gson;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
-import client.operations.Operation;
+import client.gui.ClientGUI;
+import client.gui.ClientStartupGUI;
 
 public class Client {
-	
+	private Socket socket;
+	private PrintWriter out;
+	private BufferedReader in;
+	private BufferedReader stdIn;
+
+	public Client() {
+		this.socket = null;
+		this.out = null;
+		this.in = null;
+		this.stdIn = null;
+		new ClientStartupGUI(this).setVisible(true);
+	}
+
 	public void connectToServer(String serverHostname, int serverPort) {
-		System.out.printf("Conectando: %s/%d\n", serverHostname, serverPort);
+        System.out.printf("Conectando: %s/%d\n", serverHostname, serverPort);
 
-		try (Socket echoSocket = new Socket(serverHostname, serverPort);
-			 PrintWriter out = new PrintWriter(echoSocket.getOutputStream(), true);
-			 BufferedReader in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-			 BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))
-		) {
-			System.out.println("INFO: Conexão estabelecida com sucesso!");
+        try {
+            socket = new Socket(serverHostname, serverPort);
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            stdIn = new BufferedReader(new InputStreamReader(System.in));
 
-			String userInput;
-			System.out.print("Login: ");
+            System.out.println("INFO: Conexão estabelecida com sucesso!");
 
-			while((userInput = stdIn.readLine()) != null) {
-				if(userInput.equals("0")) break;
-				String userLogin = userInput;
+			new ClientGUI(this).setVisible(true);
+        } catch (UnknownHostException e) {
+            System.err.println("ERRO: Host não encontrado:");
+            System.err.println(e.getLocalizedMessage());
+			disconnectAndExit();
+        } catch (IOException ioe) {
+            System.err.println("ERRO de entrada ou saída:");
+            System.err.println(ioe.getLocalizedMessage());
+			disconnectAndExit();
+        }
+    }
 
-				System.out.print("Senha: ");
-				userInput = stdIn.readLine();
-				if(userInput == null || userInput.equals("0")) break;
-				String userPasswd = userInput;
-				
-				//Operação de login
-				Operation obj = new Operation("2", userLogin, userPasswd);
-				Gson gson = new Gson();
-				
-				// converte objetos Java para JSON e retorna JSON como String
-				String json = gson.toJson(obj);
-				System.out.println(json);
-				out.println(json);
-				
-				System.out.println("Resposta do servidor: " + in.readLine());
-				
-				System.out.print("Login: ");
+	public void sendToServer(String input) {
+		if (!input.isEmpty()) {
+			out.println(input);
+			System.out.println("Echo: " + input + "\n");
+
+			if (input.equals("0")) {
+				System.out.println("INFO: Encerrando conexão com o servidor.");
+				disconnectAndExit();
+				return;
 			}
-			
-			stdIn.close();
-			in.close();
-			out.close();
-			echoSocket.close();
-			
-			System.out.println("INFO: Conexão com o servidor encerrada.");
-		} catch (UnknownHostException e) {
-			System.out.println("ERRO: Host não encontrado:");
-			System.out.println(e.getMessage());
-		} catch (IOException e) {
-			System.out.println("ERRO de entrada ou saída:");
-			System.out.println(e.getMessage());
+
+			try {
+				String serverResponse = in.readLine();
+				System.out.println("Resposta do servidor: " + serverResponse + "\n");
+			} catch (IOException ioe) {
+				System.err.println("ERRO ao receber resposta do servidor.\n");
+			}
 		}
 	}
-	
-	private static String readString() {
-		Scanner scanner = new Scanner(System.in);
-		String str = scanner.nextLine();
-		scanner.close();
-		return str;
-	}
-	
-	private static int readInt() {
-		Scanner scanner = new Scanner(System.in);
-		int integer = scanner.nextInt();
-		scanner.close();
-		return integer;
+
+	public void disconnectAndExit() {
+		try {
+			if(stdIn != null) stdIn.close();
+			if(in != null) in.close();
+			if(out != null) out.close();
+			if(socket != null) socket.close();
+			System.exit(0);
+		} catch (Exception e) {
+			System.err.println(e.getLocalizedMessage());
+			System.exit(1);
+		}
 	}
 }

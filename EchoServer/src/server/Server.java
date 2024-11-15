@@ -3,14 +3,17 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import server.gui.ServerGUI;
 import server.gui.ServerStartupGUI;
 
 public class Server {
+	private ServerSocket serverSocket;
+
+	public Server() {
+		this.serverSocket = null;
+		new ServerStartupGUI(this).setVisible(true);
+	}
 	
 	public void startup(int port) {
-		ServerSocket serverSocket = null;
-
 		try {
 			serverSocket = new ServerSocket(port);
 			System.out.printf("INFO: Escutando na porta %d.\n", port);

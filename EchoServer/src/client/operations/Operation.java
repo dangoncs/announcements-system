@@ -1,5 +1,7 @@
 package client.operations;
 
+import com.google.gson.Gson;
+
 public class Operation {
 
 	protected String op;
@@ -8,7 +10,7 @@ public class Operation {
 		this.op = op;
 	}
 
-	public Operation(String op, String username, String password) {
-		this.op = op;
+	public String toJson() {
+		return new Gson().toJson(this);
 	}
 }

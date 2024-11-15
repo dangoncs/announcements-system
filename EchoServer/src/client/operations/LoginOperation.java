@@ -1,8 +1,8 @@
 package client.operations;
 
 public class LoginOperation extends Operation {
-    private String user;
-    private String password;
+    private final String user;
+    private final String password;
 
     public LoginOperation(String op, String user, String password) {
         super(op);
