@@ -9,7 +9,7 @@ import server.Server;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
-import java.awt.Font;
+import java.awt.*;
 import java.io.Serial;
 
 public class ServerStartupGUI extends JFrame {
@@ -17,11 +17,22 @@ public class ServerStartupGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
     private JTextField txtPort;
 
-	public ServerStartupGUI(Server server) {
-		setupGUI(server);
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				ServerStartupGUI frame = new ServerStartupGUI();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				System.err.println(e.getLocalizedMessage());
+			}
+		});
 	}
 
-	private void setupGUI(Server server) {
+	public ServerStartupGUI() {
+		setupGUI();
+	}
+
+	private void setupGUI() {
 		setTitle("SERVIDOR");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -49,7 +60,8 @@ public class ServerStartupGUI extends JFrame {
 		btnStartup.setBounds(5, 233, 424, 23);
 		btnStartup.addActionListener(e -> {
             int port = Integer.parseInt(txtPort.getText());
-            server.startup(port);
+			setVisible(false);
+			new Server(port);
         });
 		contentPane.add(btnStartup);
 	}

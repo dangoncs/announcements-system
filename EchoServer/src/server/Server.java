@@ -3,20 +3,24 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import server.gui.ServerStartupGUI;
+import server.gui.ServerGUI;
 
-public class Server {
+public class Server extends Thread {
+	private final int port;
 	private ServerSocket serverSocket;
 
-	public Server() {
+	public Server(int port) {
 		this.serverSocket = null;
-		new ServerStartupGUI(this).setVisible(true);
+		this.port = port;
+		this.start();
 	}
 	
-	public void startup(int port) {
+	public void run() {
 		try {
 			serverSocket = new ServerSocket(port);
 			System.out.printf("INFO: Escutando na porta %d.\n", port);
+
+			new ServerGUI();
 
 			while(true) {
 				try {
@@ -28,9 +32,9 @@ public class Server {
 				}
 			}
 		}
-	    catch(IOException e) {
-	    	System.err.printf("ERRO: Falha ao escutar na porta %d: %s\n", port, e.getMessage());
-	    }
+		catch(IOException e) {
+			System.err.printf("ERRO: Falha ao escutar na porta %d: %s\n", port, e.getMessage());
+		}
 		finally {
 			try {
 				serverSocket.close();

@@ -6,7 +6,7 @@ import javax.swing.border.EmptyBorder;
 
 import server.Server;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.io.Serial;
 import javax.swing.JLabel;
 
@@ -15,11 +15,11 @@ public class ServerGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
     private JLabel lblTransformedMsg;
 
-	public ServerGUI(Server server) {
-		setupGUI(server);
+	public ServerGUI() {
+		setupGUI();
 	}
 
-	private void setupGUI(Server server) {
+	private void setupGUI() {
 		setTitle("SERVIDOR");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(750, 100, 450, 300);
@@ -34,6 +34,7 @@ public class ServerGUI extends JFrame {
 
 		lblTransformedMsg = new JLabel("Aguardando cliente...");
 		contentPane.add(lblTransformedMsg, BorderLayout.CENTER);
+		setVisible(true);
 	}
 
 	public void setLabel(String msg) {

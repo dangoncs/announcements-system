@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class ServerThread extends Thread {
 	
-	protected Socket clientSocket;
+	private Socket clientSocket;
 	
 	public ServerThread(Socket clientSocket) {
 		this.clientSocket = clientSocket;

@@ -16,6 +16,10 @@ public class Client {
 	private BufferedReader in;
 	private BufferedReader stdIn;
 
+	public static void main(String[] args) {
+		new Client();
+	}
+
 	public Client() {
 		this.socket = null;
 		this.out = null;
