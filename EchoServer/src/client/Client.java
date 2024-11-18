@@ -51,24 +51,24 @@ public class Client {
         }
     }
 
-	public void sendToServer(String input) {
-		if (!input.isEmpty()) {
-			out.println(input);
-			System.out.println("Echo: " + input + "\n");
-
-			if (input.equals("0")) {
-				System.out.println("INFO: Encerrando conexão com o servidor.");
-				disconnectAndExit();
-				return;
-			}
-
-			try {
-				String serverResponse = in.readLine();
-				System.out.println("Resposta do servidor: " + serverResponse + "\n");
-			} catch (IOException ioe) {
-				System.err.println("ERRO ao receber resposta do servidor.\n");
-			}
+	public String sendToServer(String input) {
+		if (input.isEmpty() || input.equals("0")) {
+			System.out.println("INFO: Encerrando conexão com o servidor.");
+			disconnectAndExit();
+			return input;
 		}
+
+		out.println(input);
+		System.out.println("Enviando: " + input);
+
+		String serverResponse = null;
+		try {
+			serverResponse = in.readLine();
+		} catch (IOException ioe) {
+			System.err.println("ERRO ao receber resposta do servidor.\n");
+		}
+
+		return serverResponse;
 	}
 
 	public void disconnectAndExit() {

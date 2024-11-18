@@ -20,22 +20,7 @@ public class JsonTest {
 	}
 
 	public static void readJson(String json) {
-		//Converter String JSON para objeto Java
-		JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-		System.out.println("Recebido: " + jsonObject);
 
-		//Realizar a operação conforme código recebido
-		String operationCode = jsonObject.get("op").getAsString();
-		switch(operationCode) {
-			case "5":
-				System.out.println("OPERAÇÃO LOGIN");
-				break;
-			case "6":
-				System.out.println("OPERAÇÃO LOGOUT");
-				break;
-			default:
-				System.err.println("OPERAÇÃO NÃO RECONHECIDA");
-		}
 
 		//Operation obj2 = gson.fromJson(br, JsonObject.class);
 	}
