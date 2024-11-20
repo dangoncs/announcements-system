@@ -2,6 +2,9 @@ package server;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import server.entities.Account;
+import server.services.AccountService;
+import test.AccountTest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,13 +31,20 @@ public class ServerThread extends Thread {
 	    	while ((inputLine = in.readLine()) != null) {
 				if (inputLine.equals("0")) break;
 
-				//Converter String JSON para objeto Java
 				JsonObject jsonObject = JsonParser.parseString(inputLine).getAsJsonObject();
 				System.out.println("Recebido: " + jsonObject);
 
-				//Realizar a operação conforme código recebido
 				String operationCode = jsonObject.get("op").getAsString();
 				switch(operationCode) {
+					case "1":
+						Account accountCreation = new Account();
+						accountCreation.setUser(jsonObject.get("user").getAsString());
+						accountCreation.setPassword(jsonObject.get("password").getAsString());
+						accountCreation.setName(jsonObject.get("name").getAsString());
+
+						new AccountService().create(accountCreation);
+						//TODO: Send appropriate response to client
+						break;
 					case "5":
 						System.out.println("OPERAÇÃO LOGIN");
 						break;
