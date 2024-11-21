@@ -42,7 +42,8 @@ public class ServerThread extends Thread {
 						accountCreation.setName(jsonObject.get("name").getAsString());
 
 						new AccountService().create(accountCreation);
-						//TODO: Send appropriate response to client
+						//TODO: Improve response to client
+						out.println(operationCode + " success");
 						break;
 					case "5":
 						System.out.println("OPERAÇÃO LOGIN");

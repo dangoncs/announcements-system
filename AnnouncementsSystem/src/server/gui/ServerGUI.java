@@ -16,23 +16,11 @@ public class ServerGUI extends JFrame {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	public static void main(String[] args) {
-		EventQueue.invokeLater(() -> {
-			try {
-				ServerGUI frame = new ServerGUI();
-				frame.setVisible(true);
-			} catch (Exception e) {
-				System.err.println(e.getLocalizedMessage());
-			}
-		});
-	}
-
 	public ServerGUI() {
 		setTitle("SERVIDOR");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		setupStartGUI();
-		setVisible(true);
 	}
 
 	private void setupStartGUI() {

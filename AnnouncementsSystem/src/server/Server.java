@@ -3,8 +3,6 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import server.gui.ServerGUI;
-
 public class Server {
 	private final int port;
 	private ServerSocket serverSocket;

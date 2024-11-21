@@ -7,8 +7,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import client.gui.ClientGUI;
-
 public class Client {
 	private Socket socket;
 	private PrintWriter out;
@@ -36,8 +34,6 @@ public class Client {
             stdIn = new BufferedReader(new InputStreamReader(System.in));
 
             System.out.println("INFO: Conexão estabelecida com sucesso!");
-
-			new ClientGUI(this).setVisible(true);
         } catch (UnknownHostException e) {
             System.err.println("ERRO: Host não encontrado:");
             System.err.println(e.getLocalizedMessage());
