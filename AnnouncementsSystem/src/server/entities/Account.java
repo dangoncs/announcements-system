@@ -1,16 +1,28 @@
 package server.entities;
 
 public class Account {
-    private String user;
+    private String userId;
     private String password;
     private String name;
 
-    public String getUser() {
-        return user;
+    public Account() {
+        this.userId = null;
+        this.password = null;
+        this.name = null;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public Account(String userId, String password, String name) {
+        this.userId = userId;
+        this.password = password;
+        this.name = name;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getPassword() {
@@ -32,7 +44,7 @@ public class Account {
     @Override
     public String toString() {
         return "Account [" +
-                "user='" + user + '\'' +
+                "userId='" + userId + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
                 ']';

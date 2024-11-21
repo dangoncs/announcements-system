@@ -6,15 +6,15 @@ import server.services.AccountService;
 public class AccountTest {
     public static void createAccountTest() {
         Account account = new Account();
-        account.setUser("1234567");
+        account.setUserId("1234567");
         account.setName("Beraldo da Silva");
-        account.setPassword("verysafepassword123");
+        account.setPassword("0123");
 
         new AccountService().create(account);
     }
 
     public static void readAccountTest() {
-        String username = "3456789";
+        String username = "1234567";
         Account account = new AccountService().read(username);
 
         if(account != null) System.out.println(account);
@@ -22,15 +22,15 @@ public class AccountTest {
 
     public static void updateAccountTest() {
         Account account = new Account();
-        account.setUser("3456789");
+        account.setUserId("1234567");
         account.setName("Beraldo da Silva");
-        account.setPassword("verysafepassword123");
+        account.setPassword("1234");
 
-        new AccountService().create(account);
+        new AccountService().update(account);
     }
 
     public static void deleteAccountTest() {
-        String username = "3456789";
+        String username = "1234567";
         new AccountService().delete(username);
     }
 

@@ -6,7 +6,6 @@ import server.entities.Account;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 public class AccountService {
     public void create(Account account) {
@@ -14,6 +13,7 @@ public class AccountService {
             Connection conn = Database.connect();
 
             //TODO: Validate input in GUI
+            
 
             new AccountDAO(conn).create(account);
             System.out.println("INFO: Conta criada.");
@@ -46,7 +46,7 @@ public class AccountService {
 
             //TODO: Validate input in GUI
 
-            new AccountDAO(conn).create(account);
+            new AccountDAO(conn).update(account);
             System.out.println("INFO: Conta atualizada.");
         } catch (SQLException e) {
             System.err.println("ERRO ao atualizar conta: " + e.getLocalizedMessage());
@@ -64,6 +64,9 @@ public class AccountService {
             int manipulatedLines = new AccountDAO(conn).delete(username);
             if(manipulatedLines < 1) {
                 System.out.println("INFO: Conta não encontrada.");
+            }
+            else {
+                System.out.println("INFO: Conta excluída.");
             }
         } catch (SQLException e) {
             System.err.println("ERRO ao excluir conta: " + e.getLocalizedMessage());

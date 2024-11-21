@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 
 import server.gui.ServerGUI;
 
-public class Server extends Thread {
+public class Server {
 	private final int port;
 	private ServerSocket serverSocket;
 
@@ -15,12 +15,10 @@ public class Server extends Thread {
 		this.start();
 	}
 	
-	public void run() {
+	public void start() {
 		try {
 			serverSocket = new ServerSocket(port);
 			System.out.printf("INFO: Escutando na porta %d.\n", port);
-
-			new ServerGUI();
 
 			while(true) {
 				try {

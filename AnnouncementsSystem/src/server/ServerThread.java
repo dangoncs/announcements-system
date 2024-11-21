@@ -37,7 +37,7 @@ public class ServerThread extends Thread {
 				switch(operationCode) {
 					case "1":
 						Account accountCreation = new Account();
-						accountCreation.setUser(jsonObject.get("user").getAsString());
+						accountCreation.setUserId(jsonObject.get("user").getAsString());
 						accountCreation.setPassword(jsonObject.get("password").getAsString());
 						accountCreation.setName(jsonObject.get("name").getAsString());
 

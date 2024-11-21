@@ -20,30 +20,34 @@ public class AccountDAO {
         PreparedStatement ps = null;
 
         try {
-            //TODO: Create database and sql statement
-            ps = conn.prepareStatement("");
+            ps = conn.prepareStatement("INSERT INTO user (user_id, name, password) VALUES (?, ?, ?)");
+            ps.setString(1, account.getUserId());
+            ps.setString(2, account.getName());
+            ps.setString(3, account.getPassword());
 
             ps.executeUpdate();
         } finally {
             if(ps != null) ps.close();
+            Database.disconnect();
         }
     }
 
-    public Account searchByUser(String user) throws SQLException {
+    public Account searchByUser(String userId) throws SQLException {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
-            //TODO: Create database and sql statement
-            ps = conn.prepareStatement("");
+            ps = conn.prepareStatement("SELECT * FROM user WHERE user_id = ?");
+            ps.setString(1, userId);
+
             rs = ps.executeQuery();
 
             if (rs.next()) {
                 Account account = new Account();
 
-                account.setUser(rs.getString(""));
-                account.setPassword(rs.getString(""));
-                account.setName(rs.getString(""));
+                account.setUserId(rs.getString("user_id"));
+                account.setPassword(rs.getString("name"));
+                account.setName(rs.getString("password"));
 
                 return account;
             }
@@ -52,6 +56,7 @@ public class AccountDAO {
         } finally {
             if(ps != null) ps.close();
             if(rs != null) rs.close();
+            Database.disconnect();
         }
     }
 
@@ -61,16 +66,15 @@ public class AccountDAO {
         List<Account> allAccounts = new ArrayList<>();
 
         try {
-            //TODO: Create database and sql statement
-            ps = conn.prepareStatement("");
+            ps = conn.prepareStatement("SELECT * FROM user ORDER BY user_id");
             rs = ps.executeQuery();
 
             while (rs.next()) {
                 Account account = new Account();
 
-                account.setUser(rs.getString(""));
-                account.setPassword(rs.getString(""));
-                account.setName(rs.getString(""));
+                account.setUserId(rs.getString("user_id"));
+                account.setName(rs.getString("name"));
+                account.setPassword(rs.getString("password"));
 
                 allAccounts.add(account);
             }
@@ -79,19 +83,38 @@ public class AccountDAO {
         } finally {
             if(ps != null) ps.close();
             if(rs != null) rs.close();
+            Database.disconnect();
         }
     }
 
-    public int delete(String username) throws SQLException {
+    public void update(Account account) throws SQLException {
         PreparedStatement ps = null;
 
         try {
-            //TODO: Create database and sql statement
-            ps = conn.prepareStatement("");
+            ps = conn.prepareStatement("UPDATE user SET name = ?, password = ? WHERE user_id = ?");
+            ps.setString(1, account.getName());
+            ps.setString(2, account.getPassword());
+            ps.setString(3, account.getUserId());
+
+            ps.executeUpdate();
+        }
+        finally {
+            if(ps != null) ps.close();
+            Database.disconnect();
+        }
+    }
+
+    public int delete(String userId) throws SQLException {
+        PreparedStatement ps = null;
+
+        try {
+            ps = conn.prepareStatement("DELETE FROM user WHERE user_id = ?");
+            ps.setString(1, userId);
             return ps.executeUpdate();
         }
         finally {
             if(ps != null) ps.close();
+            Database.disconnect();
         }
     }
 }

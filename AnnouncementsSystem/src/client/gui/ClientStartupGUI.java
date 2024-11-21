@@ -1,5 +1,6 @@
 package client.gui;
 
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.io.Serial;
 
@@ -19,11 +20,22 @@ public class ClientStartupGUI extends JFrame {
     private JTextField txtAddr;
 	private JTextField txtPort;
 
-	public ClientStartupGUI(Client client) {
-		setupGUI(client);
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				ClientStartupGUI frame = new ClientStartupGUI();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				System.err.println(e.getLocalizedMessage());
+			}
+		});
 	}
 
-	private void setupGUI(Client client) {
+	public ClientStartupGUI() {
+		setupGUI();
+	}
+
+	private void setupGUI() {
 		setTitle("CLIENTE");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -61,7 +73,7 @@ public class ClientStartupGUI extends JFrame {
 		btnStartup.addActionListener(_ -> {
             String addr = txtAddr.getText();
             int port = Integer.parseInt(txtPort.getText());
-            client.connectToServer(addr, port);
+            new Client().connectToServer(addr, port);
         });
 		contentPane.add(btnStartup);
 	}

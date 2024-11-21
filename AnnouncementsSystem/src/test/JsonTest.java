@@ -2,9 +2,6 @@ package test;
 
 import client.operations.LoginOperation;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 public class JsonTest {
 
 	public static void main(String[] args) {
@@ -20,8 +17,6 @@ public class JsonTest {
 	}
 
 	public static void readJson(String json) {
-
-
 		//Operation obj2 = gson.fromJson(br, JsonObject.class);
 	}
 }

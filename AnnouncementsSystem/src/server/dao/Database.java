@@ -35,7 +35,6 @@ public class Database {
     }
 
     private static Properties loadProperties() {
-        //TODO: Create database and change properties
         Properties props = new Properties();
         props.setProperty("user", "root");
         props.setProperty("password", "root");

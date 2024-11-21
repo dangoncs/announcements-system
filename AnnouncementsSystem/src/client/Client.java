@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import client.gui.ClientGUI;
-import client.gui.ClientStartupGUI;
 
 public class Client {
 	private Socket socket;
@@ -25,7 +24,6 @@ public class Client {
 		this.out = null;
 		this.in = null;
 		this.stdIn = null;
-		new ClientStartupGUI(this).setVisible(true);
 	}
 
 	public void connectToServer(String serverHostname, int serverPort) {
