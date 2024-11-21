@@ -58,7 +58,7 @@ public class ClientStartupGUI extends JFrame {
 
 		JButton btnStartup = new JButton("Conectar");
 		btnStartup.setBounds(5, 233, 424, 23);
-		btnStartup.addActionListener(e -> {
+		btnStartup.addActionListener(_ -> {
             String addr = txtAddr.getText();
             int port = Integer.parseInt(txtPort.getText());
             client.connectToServer(addr, port);

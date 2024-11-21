@@ -38,8 +38,8 @@ public class Database {
         //TODO: Create database and change properties
         Properties props = new Properties();
         props.setProperty("user", "root");
-        props.setProperty("password", "");
-        props.setProperty("dburl", "jdbc:mysql://localhost:3306/clinica");
+        props.setProperty("password", "root");
+        props.setProperty("dburl", "jdbc:mysql://localhost:3306/announcements_system");
         props.setProperty("useSSL", "false");
 
         return props;

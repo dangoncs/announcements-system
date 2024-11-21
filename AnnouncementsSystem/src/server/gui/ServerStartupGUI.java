@@ -58,7 +58,7 @@ public class ServerStartupGUI extends JFrame {
 
 		JButton btnStartup = new JButton("Iniciar");
 		btnStartup.setBounds(5, 233, 424, 23);
-		btnStartup.addActionListener(e -> {
+		btnStartup.addActionListener(_ -> {
             int port = Integer.parseInt(txtPort.getText());
 			setVisible(false);
 			new Server(port);

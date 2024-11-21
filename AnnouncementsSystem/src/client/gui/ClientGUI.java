@@ -36,7 +36,7 @@ public class ClientGUI extends JFrame {
 		txtMessage.setColumns(10);
 
         JButton btnTransform = new JButton("Transformar");
-		btnTransform.addActionListener(e -> {
+		btnTransform.addActionListener(_ -> {
             String userInput = txtMessage.getText();
             txtMessage.setText("");
             client.sendToServer(userInput);

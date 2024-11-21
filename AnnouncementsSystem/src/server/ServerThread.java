@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import server.entities.Account;
 import server.services.AccountService;
-import test.AccountTest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
