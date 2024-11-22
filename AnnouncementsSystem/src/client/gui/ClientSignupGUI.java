@@ -14,12 +14,20 @@ import client.operations.SignupOperation;
 
 public class ClientSignupGUI {
 
-    public JPanel setup(Client client) {
+	private final Client client;
+	private final ClientGUI clientGUI;
+
+	public ClientSignupGUI(Client client, ClientGUI clientGUI) {
+		this.client = client;
+		this.clientGUI = clientGUI;
+	}
+
+    public JPanel setup() {
         JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
 
-        JLabel lblWindowTitle = new JLabel("Insira os dados do servidor");
+        JLabel lblWindowTitle = new JLabel("Insira os dados da conta:");
 		lblWindowTitle.setFont(new Font("Tahoma", Font.BOLD, 20));
 		lblWindowTitle.setBounds(5, 5, 424, 23);
 		contentPane.add(lblWindowTitle);
@@ -65,8 +73,10 @@ public class ClientSignupGUI {
 
 			String response = client.sendToServer(json);
 			handleResponse(response);
+			clientGUI.showMainContentPane();
         });
 		contentPane.add(btnSignup, BorderLayout.SOUTH);
+
         return contentPane;
 	}
 
@@ -76,5 +86,6 @@ public class ClientSignupGUI {
 
 	private void handleResponse(String response) {
 		System.out.println(response);
+		clientGUI.showMainContentPane();
 	}
 }
