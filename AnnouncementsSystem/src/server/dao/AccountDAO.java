@@ -16,18 +16,15 @@ public class AccountDAO {
         this.conn = conn;
     }
 
-    public void create(Account account) throws SQLException {
-        PreparedStatement ps = null;
+    public void create(String userId, String name, String password) throws SQLException {
 
-        try {
-            ps = conn.prepareStatement("INSERT INTO user (user_id, name, password) VALUES (?, ?, ?)");
-            ps.setString(1, account.getUserId());
-            ps.setString(2, account.getName());
-            ps.setString(3, account.getPassword());
+        try (PreparedStatement ps = conn.prepareStatement("INSERT INTO user (user_id, name, password) VALUES (?, ?, ?)")) {
+            ps.setString(1, userId);
+            ps.setString(2, name);
+            ps.setString(3, password);
 
             ps.executeUpdate();
         } finally {
-            if(ps != null) ps.close();
             Database.disconnect();
         }
     }

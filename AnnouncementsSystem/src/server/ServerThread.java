@@ -2,8 +2,8 @@ package server;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import server.entities.Account;
 import server.services.AccountService;
+import server.services.LoginService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,10 +13,13 @@ import java.net.Socket;
 
 public class ServerThread extends Thread {
 	
-	private Socket clientSocket;
+	private final Socket clientSocket;
+	private LoginService loginService;
 	
 	public ServerThread(Socket clientSocket) {
 		this.clientSocket = clientSocket;
+		this.loggedInUserId = null;
+		this.loginService = new LoginService();
 		this.start();
 	}
 	
@@ -30,30 +33,39 @@ public class ServerThread extends Thread {
 	    	while ((inputLine = in.readLine()) != null) {
 				if (inputLine.equals("0")) break;
 
-				JsonObject jsonObject = JsonParser.parseString(inputLine).getAsJsonObject();
-				System.out.println("Recebido: " + jsonObject);
+				JsonObject receivedJson = JsonParser.parseString(inputLine).getAsJsonObject();
+				System.out.println("Recebido: " + receivedJson);
 
-				String operationCode = jsonObject.get("op").getAsString();
+				String responseJson = "{}";
+
+				String operationCode = receivedJson.get("op").getAsString();
 				switch(operationCode) {
 					case "1":
-						Account accountCreation = new Account();
-						accountCreation.setUserId(jsonObject.get("user").getAsString());
-						accountCreation.setPassword(jsonObject.get("password").getAsString());
-						accountCreation.setName(jsonObject.get("name").getAsString());
-
-						new AccountService().create(accountCreation);
-						//TODO: Improve response to client
-						out.println(operationCode + " success");
+						responseJson = AccountService.create(receivedJson);
+						break;
+					case "2":
+						responseJson = AccountService.read(receivedJson);
+						break;
+					case "3":
+						responseJson = AccountService.update(receivedJson);
+						break;
+					case "4":
+						responseJson = AccountService.delete(receivedJson);
 						break;
 					case "5":
+						responseJson = loginService.login(receivedJson);
 						System.out.println("OPERAÇÃO LOGIN");
+
 						break;
 					case "6":
-						System.out.println("OPERAÇÃO LOGOUT");
+						responseJson = loginService.logout(receivedJson);
 						break;
 					default:
 						System.err.println("OPERAÇÃO NÃO RECONHECIDA");
 				}
+
+				System.out.println("Enviando: " + responseJson);
+				out.println(responseJson);
 	    	}
 	    	
 	    	out.close();
