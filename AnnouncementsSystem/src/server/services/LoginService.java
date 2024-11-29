@@ -1,5 +1,6 @@
 package server.services;
 
+import com.google.gson.JsonObject;
 import server.entities.Account;
 import server.dao.AccountDAO;
 import server.dao.Database;
@@ -11,10 +12,20 @@ import java.sql.SQLException;
 
 public class LoginService {
 
+    private String loggedInUserId;
     private String loggedInUserToken;
 
+    public String generateToken(String userId) {
+       return userId;
+    }
+
+    public void destroyToken() {
+        loggedInUserId = null;
+        loggedInUserToken = null;
+    }
+
     public String login(JsonObject jsonObject) {
-        if (loggedInUserToken != null)
+        if (loggedInUserId != null || loggedInUserToken != null)
             return new Response("004", "Need to logout before logging in again").toJson();
 
         String userId = jsonObject.get("user").getAsString();
@@ -30,8 +41,9 @@ public class LoginService {
             if(account == null || !password.equals(account.getPassword()))
                 return new Response("003", "Login failed").toJson();
 
-            setLoggedInUserToken(userId);
-            return new LoginResponse("000", "Successful login", account.getUserId()).toJson();
+            this.loggedInUserId = userId;
+            this.loggedInUserToken = generateToken(userId);
+            return new LoginResponse("000", "Successful login", loggedInUserToken).toJson();
             //TODO: implement admin login
         } catch (SQLException e) {
             return new Response("003", "Login failed").toJson();
@@ -41,7 +53,7 @@ public class LoginService {
     }
 
     public String logout(JsonObject jsonObject) {
-        if (loggedInUserToken == null)
+        if (loggedInUserId == null || loggedInUserToken == null)
             return new Response("012", "Already logged out").toJson();
 
         String token = jsonObject.get("token").getAsString();
@@ -52,15 +64,15 @@ public class LoginService {
         if(!token.equals(loggedInUserToken))
             return new Response("013", "Incorrect token").toJson();
 
-        loggedInUserToken = null;
+        destroyToken();
         return new Response("010", "Successful logout").toJson();
     }
 
-    public String getLoggedInUserToken() {
-        return loggedInUserToken;
+    public String getLoggedInUserId() {
+        return this.loggedInUserId;
     }
 
-    public void setLoggedInUserToken(String loggedInUserToken) {
-        this.loggedInUserToken = loggedInUserToken;
+    public String getLoggedInUserToken() {
+        return this.loggedInUserToken;
     }
 }

@@ -1,5 +1,7 @@
 package server.responses;
 
+import com.google.gson.Gson;
+
 public class Response {
 
     protected String response;

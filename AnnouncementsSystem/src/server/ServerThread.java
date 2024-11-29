@@ -14,11 +14,10 @@ import java.net.Socket;
 public class ServerThread extends Thread {
 	
 	private final Socket clientSocket;
-	private LoginService loginService;
+	private final LoginService loginService;
 	
 	public ServerThread(Socket clientSocket) {
 		this.clientSocket = clientSocket;
-		this.loggedInUserId = null;
 		this.loginService = new LoginService();
 		this.start();
 	}
@@ -44,18 +43,16 @@ public class ServerThread extends Thread {
 						responseJson = AccountService.create(receivedJson);
 						break;
 					case "2":
-						responseJson = AccountService.read(receivedJson);
+						responseJson = AccountService.read(receivedJson, loginService);
 						break;
 					case "3":
-						responseJson = AccountService.update(receivedJson);
+						responseJson = AccountService.update(receivedJson, loginService);
 						break;
 					case "4":
-						responseJson = AccountService.delete(receivedJson);
+						responseJson = AccountService.delete(receivedJson, loginService);
 						break;
 					case "5":
 						responseJson = loginService.login(receivedJson);
-						System.out.println("OPERAÇÃO LOGIN");
-
 						break;
 					case "6":
 						responseJson = loginService.logout(receivedJson);

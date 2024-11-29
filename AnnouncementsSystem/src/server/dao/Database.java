@@ -26,11 +26,10 @@ public class Database {
         if(conn != null) {
             try {
                 conn.close();
+                conn = null;
             } catch (SQLException e) {
                 System.err.println("ERRO ao dessconectar do banco de dados: " + e.getLocalizedMessage());
             }
-
-            conn = null;
         }
     }
 
