@@ -19,7 +19,11 @@ public class ServerThread extends Thread {
 	public ServerThread(Socket clientSocket) {
 		this.clientSocket = clientSocket;
 		this.loginService = new LoginService();
-		this.start();
+	}
+
+	public ServerThread() {
+		this.clientSocket = null;
+		this.loginService = new LoginService();
 	}
 	
 	public void run() {
@@ -32,35 +36,7 @@ public class ServerThread extends Thread {
 	    	while ((inputLine = in.readLine()) != null) {
 				if (inputLine.equals("0")) break;
 
-				JsonObject receivedJson = JsonParser.parseString(inputLine).getAsJsonObject();
-				System.out.println("Recebido: " + receivedJson);
-
-				String responseJson = "{}";
-
-				String operationCode = receivedJson.get("op").getAsString();
-				switch(operationCode) {
-					case "1":
-						responseJson = AccountService.create(receivedJson);
-						break;
-					case "2":
-						responseJson = AccountService.read(receivedJson, loginService);
-						break;
-					case "3":
-						responseJson = AccountService.update(receivedJson, loginService);
-						break;
-					case "4":
-						responseJson = AccountService.delete(receivedJson, loginService);
-						break;
-					case "5":
-						responseJson = loginService.login(receivedJson);
-						break;
-					case "6":
-						responseJson = loginService.logout(receivedJson);
-						break;
-					default:
-						System.err.println("OPERAÇÃO NÃO RECONHECIDA");
-				}
-
+				String responseJson = processJson(inputLine);
 				System.out.println("Enviando: " + responseJson);
 				out.println(responseJson);
 	    	}
@@ -73,5 +49,38 @@ public class ServerThread extends Thread {
 	    catch (IOException e) {
 	    	System.err.println("ERRO: Problema na comunicação com um cliente: " + e.getMessage());
 	    }
+	}
+
+	public String processJson(String inputLine) {
+		JsonObject receivedJson = JsonParser.parseString(inputLine).getAsJsonObject();
+		System.out.println("Recebido: " + receivedJson);
+
+		String responseJson = "{}";
+
+		String operationCode = receivedJson.get("op").getAsString();
+		switch(operationCode) {
+			case "1":
+				responseJson = AccountService.create(receivedJson);
+				break;
+			case "2":
+				responseJson = AccountService.read(receivedJson, loginService);
+				break;
+			case "3":
+				responseJson = AccountService.update(receivedJson, loginService);
+				break;
+			case "4":
+				responseJson = AccountService.delete(receivedJson, loginService);
+				break;
+			case "5":
+				responseJson = loginService.login(receivedJson);
+				break;
+			case "6":
+				responseJson = loginService.logout(receivedJson);
+				break;
+			default:
+				System.err.println("OPERAÇÃO NÃO RECONHECIDA");
+		}
+
+		return responseJson;
 	}
 }

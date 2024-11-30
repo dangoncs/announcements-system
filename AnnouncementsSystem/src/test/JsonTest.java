@@ -1,22 +1,22 @@
 package test;
 
-import client.operations.LoginOperation;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import server.ServerThread;
+
+import java.util.Scanner;
 
 public class JsonTest {
 
 	public static void main(String[] args) {
-		//String json = "{ \"op\": \"5\", \"username\": \"a1234567\", \"password\": \"abc123\" }";
-		String json = createJson();
-		System.out.println("Enviando: " + json);
-        readJson(json);
-	}
+		// Exemplo de JSON:
+		// {"op":"5","user":"a1234567","password":"abc123"}
 
-	//Cria objeto, insere dados, converte objeto Java para JSON e retorna JSON como String
-	public static String createJson() {
-		return new LoginOperation("6", "a9876543", "1234").toJson();
-	}
+		Scanner scanner = new Scanner(System.in);
 
-	public static void readJson(String json) {
-		//Operation obj2 = gson.fromJson(br, JsonObject.class);
+		System.out.println("Digite o JSON: ");
+		String inputLine = scanner.nextLine();
+		String response = new ServerThread().processJson(inputLine);
+		System.out.println("Recebido: " + response);
 	}
 }
