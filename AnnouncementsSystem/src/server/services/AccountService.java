@@ -1,6 +1,7 @@
 package server.services;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import server.dao.AccountDAO;
 import server.dao.Database;
 import server.entities.Account;
@@ -17,11 +18,15 @@ public class AccountService {
     }
 
     private static boolean isValidUserId(String userId) {
-        return (userId.length() == 7) && (userId.matches("\\d{7}"));
+        return (userId != null) && (userId.length() == 7) && (userId.matches("\\d{7}"));
     }
 
     private static boolean isValidPassword(String password) {
-        return (password.length() == 4) && (password.matches("\\d{4}"));
+        return (password != null) && (password.length() == 4) && (password.matches("\\d{4}"));
+    }
+
+    private static boolean isValidName(String name) {
+        return (name != null) && (name.length() > 1);
     }
 
     private static String truncateString(String str) {
@@ -35,21 +40,25 @@ public class AccountService {
     }
 
     public static String create(JsonObject jsonObject) {
-        String userId = jsonObject.get("user").getAsString();
-        String password = jsonObject.get("password").getAsString();
-        String name = jsonObject.get("name").getAsString();
+        JsonElement userElement = jsonObject.get("user");
+        JsonElement passwordElement = jsonObject.get("password");
+        JsonElement nameElement = jsonObject.get("name");
 
-        if (userId == null || name == null || password == null) {
+        if(userElement == null || passwordElement == null || nameElement == null) {
             return new Response(
                     "101",
                     "Fields missing"
             ).toJson();
         }
 
-        if (!isValidUserId(userId) || !isValidPassword(password)) {
+        String userId = userElement.getAsString();
+        String password = passwordElement.getAsString();
+        String name = nameElement.getAsString();
+
+        if (!isValidUserId(userId) || !isValidPassword(password) || !isValidName(name)) {
             return new Response(
                     "102",
-                    "Invalid information inserted: user or password"
+                    "Invalid information inserted"
             ).toJson();
         }
 
@@ -76,11 +85,6 @@ public class AccountService {
     public static String read(JsonObject jsonObject, LoginService loginService) {
         String loggedInUserId = loginService.getLoggedInUserId();
         String loggedInUserToken = loginService.getLoggedInUserToken();
-        String userId = jsonObject.get("user").getAsString();
-        String token = jsonObject.get("token").getAsString();
-
-        if (userId == null)
-            userId = loggedInUserId;
 
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
@@ -89,7 +93,20 @@ public class AccountService {
             ).toJson();
         }
 
+        JsonElement userElement = jsonObject.get("user");
+        JsonElement tokenElement = jsonObject.get("token");
+
+        String userId = (userElement != null) ? userElement.getAsString() : loggedInUserId;
+
         if (!isAdmin(loggedInUserId)) {
+            if(tokenElement == null) {
+                return new Response(
+                        "112",
+                        "Invalid or empty token"
+                ).toJson();
+            }
+
+            String token = tokenElement.getAsString();
             if (!loggedInUserToken.equals(token)) {
                 return new Response(
                         "112",
@@ -141,13 +158,6 @@ public class AccountService {
     public static String update(JsonObject jsonObject, LoginService loginService) {
         String loggedInUserId = loginService.getLoggedInUserId();
         String loggedInUserToken = loginService.getLoggedInUserToken();
-        String userId = jsonObject.get("user").getAsString();
-        String password = jsonObject.get("password").getAsString();
-        String name = jsonObject.get("name").getAsString();
-        String token = jsonObject.get("token").getAsString();
-
-        if (userId == null)
-            userId = loggedInUserId;
 
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
@@ -155,6 +165,16 @@ public class AccountService {
                     "Cannot perform operation while logged out."
             ).toJson();
         }
+
+        JsonElement userElement = jsonObject.get("user");
+        JsonElement passwordElement = jsonObject.get("password");
+        JsonElement nameElement = jsonObject.get("name");
+        JsonElement tokenElement = jsonObject.get("token");
+
+        String userId = (userElement != null) ? userElement.getAsString() : loggedInUserId;
+        String password = (passwordElement != null) ? passwordElement.getAsString() : null;
+        String name = (nameElement != null) ? nameElement.getAsString() : null;
+        String token = (tokenElement != null) ? tokenElement.getAsString() : null;
 
         if (!loggedInUserToken.equals(token)) {
             return new Response(
@@ -173,10 +193,15 @@ public class AccountService {
         try {
             Connection conn = Database.connect();
 
-            if (name != null) {
-                name = truncateString(name);
-                new AccountDAO(conn).updateName(userId, name);
+            if((name != null && !isValidName(name)) || (password != null && !isValidPassword(password))) {
+                return new Response(
+                        "124",
+                        "Invalid information inserted"
+                ).toJson();
             }
+
+            if(name != null)
+                new AccountDAO(conn).updateName(userId, truncateString(name));
 
             if (password != null)
                 new AccountDAO(conn).updatePassword(userId, password);
@@ -198,11 +223,6 @@ public class AccountService {
     public static String delete(JsonObject jsonObject, LoginService loginService) {
         String loggedInUserId = loginService.getLoggedInUserId();
         String loggedInUserToken = loginService.getLoggedInUserToken();
-        String userId = jsonObject.get("user").getAsString();
-        String token = jsonObject.get("token").getAsString();
-
-        if (userId == null)
-            userId = loggedInUserId;
 
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
@@ -210,6 +230,12 @@ public class AccountService {
                     "Cannot perform operation while logged out."
             ).toJson();
         }
+
+        JsonElement userElement = jsonObject.get("user");
+        JsonElement tokenElement = jsonObject.get("token");
+
+        String userId = (userElement != null) ? userElement.getAsString() : loggedInUserId;
+        String token = (tokenElement != null) ? tokenElement.getAsString() : "";
 
         if (!loggedInUserToken.equals(token)) {
             return new Response(

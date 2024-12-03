@@ -1,16 +1,12 @@
 package client.gui;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import client.Client;
 
-import java.awt.BorderLayout;
 import java.awt.Font;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import java.io.Serial;
 
 public class ClientGUI extends JFrame {
@@ -20,31 +16,34 @@ public class ClientGUI extends JFrame {
 	JPanel mainContentPane;
 
     public ClientGUI() {
-		client = new Client();
-		setTitle("CLIENTE");
+		super("CLIENTE");
+		client = new Client(this);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 
-		new ClientStartupGUI().setup(client, this);
+		JPanel setupContentPane = new ClientStartupGUI().setup(client);
+		setContentPane(setupContentPane);
 	}
 
-	public void setupMainGUI() {
+	public void setupMainGUI(String serverHostname, int serverPort) {
 		mainContentPane = new JPanel();
 		mainContentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		mainContentPane.setLayout(new BorderLayout(0, 0));
+		mainContentPane.setLayout(null);
 
 		JLabel lblWindowTitle = new JLabel("Bem-vindo(a)");
 		lblWindowTitle.setFont(new Font("Tahoma", Font.BOLD, 20));
-		mainContentPane.add(lblWindowTitle, BorderLayout.NORTH);
+		lblWindowTitle.setBounds(5, 5, 440, 23);
+		mainContentPane.add(lblWindowTitle);
 
         JButton btnSignup = new JButton("Cadastrar");
+		btnSignup.setBounds(5, 233, 424, 23);
 		btnSignup.addActionListener(_ -> {
 			JPanel newContentPane = new ClientSignupGUI(client, this).setup();
 			setContentPane(newContentPane);
 			revalidate();
         	repaint();
         });
-		mainContentPane.add(btnSignup, BorderLayout.SOUTH);
+		mainContentPane.add(btnSignup);
 
 		showMainContentPane();
 	}
@@ -53,5 +52,9 @@ public class ClientGUI extends JFrame {
 		setContentPane(mainContentPane);
 		revalidate();
 		repaint();
+	}
+
+	public void showErrorMessage(String title, String message) {
+		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
 	}
 }

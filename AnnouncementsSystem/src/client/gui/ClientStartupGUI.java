@@ -12,7 +12,7 @@ import client.Client;
 
 public class ClientStartupGUI {
 
-	public void setup(Client client, ClientGUI clientGUI) {
+	public JPanel setup(Client client) {
         JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(null);
@@ -46,10 +46,9 @@ public class ClientStartupGUI {
             String addr = txtAddr.getText();
             int port = Integer.parseInt(txtPort.getText());
             client.connectToServer(addr, port);
-			clientGUI.setupMainGUI();
         });
 		contentPane.add(btnStartup);
 
-		clientGUI.setContentPane(contentPane);
+		return contentPane;
 	}
 }

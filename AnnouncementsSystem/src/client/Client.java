@@ -1,5 +1,7 @@
 package client;
 
+import client.gui.ClientGUI;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,20 +10,18 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
+	private final ClientGUI clientGUI;
 	private Socket socket;
 	private PrintWriter out;
 	private BufferedReader in;
 	private BufferedReader stdIn;
 
-	public static void main(String[] args) {
-		new Client();
-	}
-
-	public Client() {
+	public Client(ClientGUI clientGUI) {
 		this.socket = null;
 		this.out = null;
 		this.in = null;
 		this.stdIn = null;
+		this.clientGUI = clientGUI;
 	}
 
 	public void connectToServer(String serverHostname, int serverPort) {
@@ -34,32 +34,26 @@ public class Client {
             stdIn = new BufferedReader(new InputStreamReader(System.in));
 
             System.out.println("INFO: Conexão estabelecida com sucesso!");
+			clientGUI.setupMainGUI(serverHostname, serverPort);
         } catch (UnknownHostException e) {
-            System.err.println("ERRO: Host não encontrado:");
-            System.err.println(e.getLocalizedMessage());
+            clientGUI.showErrorMessage("Host não encontrado", e.getLocalizedMessage());
 			disconnectAndExit();
-        } catch (IOException ioe) {
-            System.err.println("ERRO de entrada ou saída:");
-            System.err.println(ioe.getLocalizedMessage());
+        } catch (IOException e) {
+			clientGUI.showErrorMessage("Erro de entrada ou saída", e.getLocalizedMessage());
 			disconnectAndExit();
         }
     }
 
 	public String sendToServer(String input) {
-		if (input.isEmpty() || input.equals("0")) {
-			System.out.println("INFO: Encerrando conexão com o servidor.");
-			disconnectAndExit();
-			return input;
-		}
-
 		out.println(input);
 		System.out.println("Enviando: " + input);
 
-		String serverResponse = null;
+		String serverResponse = "{}";
 		try {
 			serverResponse = in.readLine();
-		} catch (IOException ioe) {
-			System.err.println("ERRO ao receber resposta do servidor.\n");
+		} catch (IOException e) {
+			clientGUI.showErrorMessage("Erro ao receber resposta do servidor", e.getLocalizedMessage());
+			disconnectAndExit();
 		}
 
 		return serverResponse;
@@ -73,8 +67,8 @@ public class Client {
 			if(socket != null) socket.close();
 			System.exit(0);
 		} catch (Exception e) {
-			System.err.println(e.getLocalizedMessage());
-			System.exit(1);
+			clientGUI.showErrorMessage("Erro desconhecido", e.getLocalizedMessage());
+			System.exit(0);
 		}
 	}
 }

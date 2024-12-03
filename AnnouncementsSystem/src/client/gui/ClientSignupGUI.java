@@ -3,14 +3,14 @@ package client.gui;
 import java.awt.BorderLayout;
 import java.awt.Font;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import client.Client;
 import client.operations.SignupOperation;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ClientSignupGUI {
 
@@ -80,12 +80,36 @@ public class ClientSignupGUI {
         return contentPane;
 	}
 
-	public static String createJson(String userId, String passwd, String name) {
+	private static String createJson(String userId, String passwd, String name) {
 		return new SignupOperation("1", userId, passwd, name).toJson();
 	}
 
 	private void handleResponse(String response) {
-		System.out.println(response);
+		if(response == null)
+			showErrorMessage("Erro", "A resposta recebida foi inválida.");
+
+		JsonObject receivedJson = JsonParser.parseString(response).getAsJsonObject();
+		System.out.println("Recebido: " + receivedJson);
+
+		JsonElement responseElement = receivedJson.get("response");
+		JsonElement messageElement = receivedJson.get("message");
+
+		String responseCode = (responseElement != null) ? responseElement.getAsString() : "";
+		String message = (messageElement != null) ? messageElement.getAsString() : "";
+
+		if(responseCode.equals("100"))
+			showSuccessMessage(message);
+		else
+			showErrorMessage("Erro ao realizar cadastro", message);
+
 		clientGUI.showMainContentPane();
+	}
+
+	private void showErrorMessage(String title, String message) {
+		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+	}
+
+	private void showSuccessMessage(String message) {
+		JOptionPane.showMessageDialog(null, message, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 	}
 }

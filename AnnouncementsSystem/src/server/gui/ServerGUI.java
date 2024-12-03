@@ -1,20 +1,17 @@
 package server.gui;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import server.Server;
 
 import java.awt.*;
 import java.io.Serial;
-import javax.swing.JLabel;
 
 public class ServerGUI extends JFrame {
 	@Serial
 	private static final long serialVersionUID = 1L;
+	private JLabel lblMessage;
 
 	public ServerGUI() {
 		setTitle("SERVIDOR");
@@ -32,7 +29,7 @@ public class ServerGUI extends JFrame {
 
 		JLabel lblWindowTitle = new JLabel("Iniciar servidor");
 		lblWindowTitle.setFont(new Font("Tahoma", Font.BOLD, 20));
-		lblWindowTitle.setBounds(5, 5, 424, 23);
+		lblWindowTitle.setBounds(5, 5, 440, 23);
 		contentPane.add(lblWindowTitle);
 
 		JLabel lblPort = new JLabel("Número da porta a ser utilizada:");
@@ -50,28 +47,48 @@ public class ServerGUI extends JFrame {
             int port = Integer.parseInt(txtPort.getText());
 
 			new Thread(() -> {
-				new Server(port);
+				new Server(port, this);
 			}).start();
 
-			setupMainGUI();
+			setupMainGUI(port);
         });
 		contentPane.add(btnStartup);
 	}
 
-	private void setupMainGUI() {
+	private void setupMainGUI(int port) {
 		JPanel mainContentPane = new JPanel();
 		mainContentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(mainContentPane);
-		mainContentPane.setLayout(new BorderLayout(0, 0));
+		mainContentPane.setLayout(null);
 
-        JLabel lblTitle = new JLabel("A mensagem transformada é:");
-		mainContentPane.add(lblTitle, BorderLayout.NORTH);
+		JLabel lblWindowTitle = new JLabel("Servidor iniciado");
+		lblWindowTitle.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblWindowTitle.setBounds(5, 5, 424, 23);
+		mainContentPane.add(lblWindowTitle);
 
-		JLabel lblTransformedMsg = new JLabel("Aguardando cliente...");
-		mainContentPane.add(lblTransformedMsg, BorderLayout.CENTER);
+		JLabel lblPort = new JLabel("Escutando na porta " + port);
+		lblPort.setBounds(5, 50, 440, 23);
+		mainContentPane.add(lblPort);
+
+        JLabel lblInfo = new JLabel("Mensagem mais recente recebida:");
+		lblInfo.setBounds(5, 70, 440, 23);
+		mainContentPane.add(lblInfo);
+
+		lblMessage = new JLabel("Aguardando cliente...");
+		lblMessage.setBounds(5, 90, 440, 50);
+		mainContentPane.add(lblMessage);
 
 		revalidate();
 		repaint();
+	}
+
+	public void setMessageText(String text) {
+		if(text != null)
+			this.lblMessage.setText(text);
+	}
+
+	public void showErrorMessage(String title, String message) {
+		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
 	}
 }

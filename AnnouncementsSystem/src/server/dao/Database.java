@@ -15,6 +15,7 @@ public class Database {
                 String url = props.getProperty("dburl");
                 conn = DriverManager.getConnection(url, props);
             } catch (SQLException e) {
+
                 System.err.println("ERRO ao conectar ao banco de dados: " + e.getLocalizedMessage());
             }
         }
@@ -38,6 +39,7 @@ public class Database {
         props.setProperty("user", "root");
         props.setProperty("password", "root");
         props.setProperty("dburl", "jdbc:mysql://localhost:3306/announcements_system");
+        props.setProperty("allowPublicKeyRetrieval", "true");
         props.setProperty("useSSL", "false");
 
         return props;

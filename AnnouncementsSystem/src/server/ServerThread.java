@@ -1,7 +1,10 @@
 package server;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import server.gui.ServerGUI;
+import server.responses.Response;
 import server.services.AccountService;
 import server.services.LoginService;
 
@@ -15,14 +18,17 @@ public class ServerThread extends Thread {
 	
 	private final Socket clientSocket;
 	private final LoginService loginService;
-	
-	public ServerThread(Socket clientSocket) {
+	private final ServerGUI serverGUI;
+
+	public ServerThread(Socket clientSocket, ServerGUI serverGUI) {
 		this.clientSocket = clientSocket;
+		this.serverGUI = serverGUI;
 		this.loginService = new LoginService();
 	}
 
 	public ServerThread() {
 		this.clientSocket = null;
+		this.serverGUI = null;
 		this.loginService = new LoginService();
 	}
 	
@@ -36,6 +42,7 @@ public class ServerThread extends Thread {
 	    	while ((inputLine = in.readLine()) != null) {
 				if (inputLine.equals("0")) break;
 
+				serverGUI.setMessageText(inputLine);
 				String responseJson = processJson(inputLine);
 				System.out.println("Enviando: " + responseJson);
 				out.println(responseJson);
@@ -54,6 +61,15 @@ public class ServerThread extends Thread {
 	public String processJson(String inputLine) {
 		JsonObject receivedJson = JsonParser.parseString(inputLine).getAsJsonObject();
 		System.out.println("Recebido: " + receivedJson);
+
+		JsonElement opElement = receivedJson.get("op");
+
+		if(opElement == null) {
+			return new Response(
+					"003",
+					"Operation not included in request"
+			).toJson();
+		}
 
 		String responseJson = "{}";
 

@@ -1,15 +1,15 @@
-package server;
+package client;
 
 import java.awt.EventQueue;
 
-import server.gui.ServerGUI;
+import client.gui.ClientGUI;
 
-public class ServerMain {
+public class ClientLauncher {
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
 			try {
-				ServerGUI frame = new ServerGUI();
+				ClientGUI frame = new ClientGUI();
 				frame.setVisible(true);
 			} catch (Exception e) {
 				System.err.println(e.getLocalizedMessage());
