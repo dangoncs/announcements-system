@@ -40,8 +40,8 @@ public class AccountDAO {
                 Account account = new Account();
 
                 account.setUserId(rs.getString("user_id"));
-                account.setPassword(rs.getString("name"));
-                account.setName(rs.getString("password"));
+                account.setPassword(rs.getString("password"));
+                account.setName(rs.getString("name"));
 
                 return account;
             }

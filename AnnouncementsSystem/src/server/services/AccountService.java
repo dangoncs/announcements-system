@@ -13,20 +13,16 @@ import java.sql.SQLException;
 
 public class AccountService {
 
-    private static boolean isAdmin(String userId) {
-        return userId.startsWith("a");
+    private static boolean isNotValidUserId(String userId) {
+        return (userId == null) || (userId.length() != 7) || (!userId.matches("\\d{7}"));
     }
 
-    private static boolean isValidUserId(String userId) {
-        return (userId != null) && (userId.length() == 7) && (userId.matches("\\d{7}"));
+    private static boolean isNotValidPassword(String password) {
+        return (password == null) || (password.length() != 4) || (!password.matches("\\d{4}"));
     }
 
-    private static boolean isValidPassword(String password) {
-        return (password != null) && (password.length() == 4) && (password.matches("\\d{4}"));
-    }
-
-    private static boolean isValidName(String name) {
-        return (name != null) && (name.length() > 1);
+    private static boolean isNotValidName(String name) {
+        return (name == null) || (name.length() <= 1);
     }
 
     private static String truncateString(String str) {
@@ -55,7 +51,7 @@ public class AccountService {
         String password = passwordElement.getAsString();
         String name = nameElement.getAsString();
 
-        if (!isValidUserId(userId) || !isValidPassword(password) || !isValidName(name)) {
+        if (isNotValidUserId(userId) || isNotValidPassword(password) || isNotValidName(name)) {
             return new Response(
                     "102",
                     "Invalid information inserted"
@@ -85,6 +81,7 @@ public class AccountService {
     public static String read(JsonObject jsonObject, LoginService loginService) {
         String loggedInUserId = loginService.getLoggedInUserId();
         String loggedInUserToken = loginService.getLoggedInUserToken();
+        int loggedInUserRole = loginService.getLoggedInUserRole();
 
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
@@ -98,7 +95,7 @@ public class AccountService {
 
         String userId = (userElement != null) ? userElement.getAsString() : loggedInUserId;
 
-        if (!isAdmin(loggedInUserId)) {
+        if (loggedInUserRole != 1) {
             if(tokenElement == null) {
                 return new Response(
                         "112",
@@ -126,19 +123,12 @@ public class AccountService {
             Connection conn = Database.connect();
             Account account = new AccountDAO(conn).searchByUser(userId);
 
-            if (isAdmin(account.getUserId())) {
-                return new AccountResponse(
-                        "111",
-                        "Returns all information of the account",
-                        loginService.generateToken(account.getUserId()),
-                        account.getUserId(),
-                        account.getName(),
-                        account.getPassword()
-                ).toJson();
-            }
+            int accountRole = 0;
+            if (loginService.isAdmin(account.getUserId()))
+                accountRole = 1;
 
             return new AccountResponse(
-                    "110",
+                    "11" + accountRole,
                     "Returns all information of the account",
                     loginService.generateToken(account.getUserId()),
                     account.getUserId(),
@@ -158,6 +148,7 @@ public class AccountService {
     public static String update(JsonObject jsonObject, LoginService loginService) {
         String loggedInUserId = loginService.getLoggedInUserId();
         String loggedInUserToken = loginService.getLoggedInUserToken();
+        int loggedInUserRole = loginService.getLoggedInUserRole();
 
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
@@ -183,7 +174,7 @@ public class AccountService {
             ).toJson();
         }
 
-        if (!isAdmin(loggedInUserId) && !loggedInUserId.equals(userId)) {
+        if (loggedInUserRole != 1 && !loggedInUserId.equals(userId)) {
             return new Response(
                     "122",
                     "Invalid Permission, user does not have permission to update other users data"
@@ -193,7 +184,7 @@ public class AccountService {
         try {
             Connection conn = Database.connect();
 
-            if((name != null && !isValidName(name)) || (password != null && !isValidPassword(password))) {
+            if((name != null && isNotValidName(name)) || (password != null && isNotValidPassword(password))) {
                 return new Response(
                         "124",
                         "Invalid information inserted"
@@ -223,6 +214,7 @@ public class AccountService {
     public static String delete(JsonObject jsonObject, LoginService loginService) {
         String loggedInUserId = loginService.getLoggedInUserId();
         String loggedInUserToken = loginService.getLoggedInUserToken();
+        int loggedInUserRole = loginService.getLoggedInUserRole();
 
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
@@ -244,7 +236,7 @@ public class AccountService {
             ).toJson();
         }
 
-        if (!isAdmin(loggedInUserId) && !loggedInUserId.equals(userId)) {
+        if (loggedInUserRole != 1 && !loggedInUserId.equals(userId)) {
             return new Response(
                     "133",
                     "Invalid Permission, user does not have permission to delete other users data"

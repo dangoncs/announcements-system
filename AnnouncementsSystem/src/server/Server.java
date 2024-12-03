@@ -23,7 +23,7 @@ public class Server {
 
 			while(true) {
 				try {
-					new ServerThread(serverSocket.accept(), serverGUI).start();
+					new ServerThread(serverSocket.accept()).start();
 				}
 				catch(IOException e) {
 					System.err.println("ERRO ao conectar com um cliente: " + e.getLocalizedMessage());

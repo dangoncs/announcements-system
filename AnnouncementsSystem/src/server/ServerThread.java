@@ -3,7 +3,6 @@ package server;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import server.gui.ServerGUI;
 import server.responses.Response;
 import server.services.AccountService;
 import server.services.LoginService;
@@ -18,17 +17,14 @@ public class ServerThread extends Thread {
 	
 	private final Socket clientSocket;
 	private final LoginService loginService;
-	private final ServerGUI serverGUI;
 
-	public ServerThread(Socket clientSocket, ServerGUI serverGUI) {
+	public ServerThread(Socket clientSocket) {
 		this.clientSocket = clientSocket;
-		this.serverGUI = serverGUI;
 		this.loginService = new LoginService();
 	}
 
 	public ServerThread() {
 		this.clientSocket = null;
-		this.serverGUI = null;
 		this.loginService = new LoginService();
 	}
 	
@@ -42,9 +38,8 @@ public class ServerThread extends Thread {
 	    	while ((inputLine = in.readLine()) != null) {
 				if (inputLine.equals("0")) break;
 
-				serverGUI.setMessageText(inputLine);
 				String responseJson = processJson(inputLine);
-				System.out.println("Enviando: " + responseJson);
+				System.out.println("Resposta: " + responseJson);
 				out.println(responseJson);
 	    	}
 	    	
@@ -59,43 +54,38 @@ public class ServerThread extends Thread {
 	}
 
 	public String processJson(String inputLine) {
-		JsonObject receivedJson = JsonParser.parseString(inputLine).getAsJsonObject();
-		System.out.println("Recebido: " + receivedJson);
+		System.out.println("Recebido: " + inputLine);
+		JsonObject receivedJson;
+
+		try {
+			receivedJson = JsonParser.parseString(inputLine).getAsJsonObject();
+		} catch (Exception e) {
+			return new Response(
+					"002",
+					"Received JSON is invalid"
+			).toJson();
+		}
 
 		JsonElement opElement = receivedJson.get("op");
 
-		if(opElement == null) {
+		if(opElement == null || opElement.isJsonNull()) {
 			return new Response(
 					"003",
 					"Operation not included in request"
 			).toJson();
 		}
 
-		String responseJson = "{}";
-
-		String operationCode = receivedJson.get("op").getAsString();
-		switch(operationCode) {
-			case "1":
-				responseJson = AccountService.create(receivedJson);
-				break;
-			case "2":
-				responseJson = AccountService.read(receivedJson, loginService);
-				break;
-			case "3":
-				responseJson = AccountService.update(receivedJson, loginService);
-				break;
-			case "4":
-				responseJson = AccountService.delete(receivedJson, loginService);
-				break;
-			case "5":
-				responseJson = loginService.login(receivedJson);
-				break;
-			case "6":
-				responseJson = loginService.logout(receivedJson);
-				break;
-			default:
-				System.err.println("OPERAÇÃO NÃO RECONHECIDA");
-		}
+		String operationCode = opElement.getAsString();
+		String responseJson;
+        responseJson = switch (operationCode) {
+            case "1" -> AccountService.create(receivedJson);
+            case "2" -> AccountService.read(receivedJson, loginService);
+            case "3" -> AccountService.update(receivedJson, loginService);
+            case "4" -> AccountService.delete(receivedJson, loginService);
+            case "5" -> loginService.login(receivedJson);
+            case "6" -> loginService.logout(receivedJson);
+            default -> "{}";
+        };
 
 		return responseJson;
 	}

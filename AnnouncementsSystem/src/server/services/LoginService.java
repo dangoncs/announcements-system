@@ -1,5 +1,6 @@
 package server.services;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import server.entities.Account;
 import server.dao.AccountDAO;
@@ -14,58 +15,106 @@ public class LoginService {
 
     private String loggedInUserId;
     private String loggedInUserToken;
+    private int loggedInUserRole;
 
-    public String generateToken(String userId) {
+    boolean isAdmin(String userId) {
+        return userId.startsWith("a");
+    }
+
+    String generateToken(String userId) {
        return userId;
     }
 
-    public void destroyToken() {
+    void destroyToken() {
         loggedInUserId = null;
         loggedInUserToken = null;
+        loggedInUserRole = 0;
     }
 
     public String login(JsonObject jsonObject) {
-        if (loggedInUserId != null || loggedInUserToken != null)
-            return new Response("004", "Need to logout before logging in again").toJson();
+        if (loggedInUserId != null || loggedInUserToken != null) {
+            return new Response(
+                    "004",
+                    "Need to logout before logging in again"
+            ).toJson();
+        }
 
-        String userId = jsonObject.get("user").getAsString();
-        String password = jsonObject.get("password").getAsString();
+        JsonElement userElement = jsonObject.get("user");
+        JsonElement passwordElement = jsonObject.get("password");
 
-        if(userId == null || password == null)
-            return new Response("002", "Fields missing").toJson();
+        if(userElement == null || passwordElement == null) {
+            return new Response(
+                    "002",
+                    "Fields missing"
+            ).toJson();
+        }
+
+        String userId = userElement.getAsString();
+        String password = passwordElement.getAsString();
 
         try {
             Connection conn = Database.connect();
             Account account = new AccountDAO(conn).searchByUser(userId);
 
-            if(account == null || !password.equals(account.getPassword()))
-                return new Response("003", "Login failed").toJson();
+            if(account == null || !password.equals(account.getPassword())) {
+                return new Response(
+                        "003",
+                        "Login failed"
+                ).toJson();
+            }
 
             this.loggedInUserId = userId;
             this.loggedInUserToken = generateToken(userId);
-            return new LoginResponse("000", "Successful login", loggedInUserToken).toJson();
-            //TODO: implement admin login
+
+            if(isAdmin(userId))
+                this.loggedInUserRole = 1;
+
+            return new LoginResponse(
+                    "00" + loggedInUserRole,
+                    "Successful login",
+                    loggedInUserToken
+            ).toJson();
         } catch (SQLException e) {
-            return new Response("003", "Login failed").toJson();
+            return new Response(
+                    "003",
+                    "Login failed"
+            ).toJson();
         } finally {
             Database.disconnect();
         }
     }
 
     public String logout(JsonObject jsonObject) {
-        if (loggedInUserId == null || loggedInUserToken == null)
-            return new Response("012", "Already logged out").toJson();
+        if (loggedInUserId == null || loggedInUserToken == null) {
+            return new Response(
+                    "012",
+                    "Already logged out"
+            ).toJson();
+        }
 
-        String token = jsonObject.get("token").getAsString();
+        JsonElement tokenElement = jsonObject.get("token");
 
-        if(token == null)
-            return new Response("011", "Fields missing").toJson();
+        if(tokenElement == null || tokenElement.isJsonNull()) {
+            return new Response(
+                    "011",
+                    "Fields missing"
+            ).toJson();
+        }
 
-        if(!token.equals(loggedInUserToken))
-            return new Response("013", "Incorrect token").toJson();
+        String token = tokenElement.getAsString();
+
+        if(!token.equals(loggedInUserToken)) {
+            return new Response(
+                    "013",
+                    "Incorrect token"
+            ).toJson();
+        }
 
         destroyToken();
-        return new Response("010", "Successful logout").toJson();
+        return new Response(
+                "010",
+                "Successful logout"
+        ).toJson();
     }
 
     public String getLoggedInUserId() {
@@ -74,5 +123,9 @@ public class LoginService {
 
     public String getLoggedInUserToken() {
         return this.loggedInUserToken;
+    }
+
+    public int getLoggedInUserRole() {
+        return this.loggedInUserRole;
     }
 }
