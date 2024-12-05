@@ -1,18 +1,27 @@
-## Getting Started
+## Requirements
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+- [MySQL Community Server v9.1.0](https://dev.mysql.com/downloads/mysql/)
+- A Java IDE (reccomended: [Intellij IDEA Community](https://www.jetbrains.com/idea/download/?section=linux#:~:text=IntelliJ%20IDEA%20Community%20Edition))
 
 ## Folder Structure
 
-The workspace contains two folders by default, where:
+The workspace contains two main folders, where:
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+- `src`: the folder that contains the source code, divided in the "client" and "server" packages.
+- `lib`: the folder that contains dependencies (GSON v2.11.0, MySQL Connector J v9.1.0).
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+## Running the Server
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+- Create the `announcements_system` MySQL database. User has to be root with password "root".
 
-## Dependency Management
+  `mysql -u root -p -e "create database announcements_system";`
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+- Import the dump into the database.
+
+  `mysql -u root -p announcements_system < database.sql`
+
+- Build and run the "ServerLauncher" class to start the server
+
+## Running the Client
+
+- Build and run the "ClientLauncher" class to start the client.
