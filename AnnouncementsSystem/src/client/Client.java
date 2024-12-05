@@ -34,7 +34,7 @@ public class Client {
             stdIn = new BufferedReader(new InputStreamReader(System.in));
 
             System.out.println("INFO: Conexão estabelecida com sucesso!");
-			clientGUI.setupMainGUI(serverHostname, serverPort);
+			clientGUI.setupMainGUI();
         } catch (UnknownHostException e) {
             clientGUI.showErrorMessage("Host não encontrado", e.getLocalizedMessage());
 			disconnectAndExit();

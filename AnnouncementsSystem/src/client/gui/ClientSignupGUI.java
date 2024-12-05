@@ -85,8 +85,10 @@ public class ClientSignupGUI {
 	}
 
 	private void handleResponse(String response) {
-		if(response == null)
+		if(response == null) {
 			showErrorMessage("Erro", "A resposta recebida foi inválida.");
+			return;
+		}
 
 		JsonObject receivedJson = JsonParser.parseString(response).getAsJsonObject();
 		System.out.println("Recebido: " + receivedJson);
@@ -101,8 +103,6 @@ public class ClientSignupGUI {
 			showSuccessMessage(message);
 		else
 			showErrorMessage("Erro ao realizar cadastro", message);
-
-		clientGUI.showMainContentPane();
 	}
 
 	private void showErrorMessage(String title, String message) {

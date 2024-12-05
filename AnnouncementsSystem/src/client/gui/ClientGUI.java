@@ -25,7 +25,7 @@ public class ClientGUI extends JFrame {
 		setContentPane(setupContentPane);
 	}
 
-	public void setupMainGUI(String serverHostname, int serverPort) {
+	public void setupMainGUI() {
 		mainContentPane = new JPanel();
 		mainContentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		mainContentPane.setLayout(null);
@@ -35,8 +35,8 @@ public class ClientGUI extends JFrame {
 		lblWindowTitle.setBounds(5, 5, 440, 23);
 		mainContentPane.add(lblWindowTitle);
 
-        JButton btnSignup = new JButton("Cadastrar");
-		btnSignup.setBounds(5, 233, 424, 23);
+        JButton btnSignup = new JButton("Cadastro");
+		btnSignup.setBounds(5, 120, 424, 23);
 		btnSignup.addActionListener(_ -> {
 			JPanel newContentPane = new ClientSignupGUI(client, this).setup();
 			setContentPane(newContentPane);
@@ -44,6 +44,16 @@ public class ClientGUI extends JFrame {
         	repaint();
         });
 		mainContentPane.add(btnSignup);
+
+		JButton btnLogin = new JButton("Login");
+		btnLogin.setBounds(5, 150, 424, 23);
+		btnLogin.addActionListener(_ -> {
+			JPanel newContentPane = new ClientLoginGUI(client, this).setup();
+			setContentPane(newContentPane);
+			revalidate();
+			repaint();
+		});
+		mainContentPane.add(btnLogin);
 
 		showMainContentPane();
 	}
@@ -56,5 +66,9 @@ public class ClientGUI extends JFrame {
 
 	public void showErrorMessage(String title, String message) {
 		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+	}
+
+	public void showSuccessMessage(String message) {
+		JOptionPane.showMessageDialog(null, message, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 	}
 }

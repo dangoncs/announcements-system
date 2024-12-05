@@ -1,10 +1,10 @@
 package client.operations;
 
 public class SignupOperation extends Operation {
-    private String user;
-    private String password;
-    private String name;
-        
+    private final String user;
+    private final String password;
+    private final String name;
+
     public SignupOperation(String op, String user, String password, String name) {
         super(op);
         this.user = user;
