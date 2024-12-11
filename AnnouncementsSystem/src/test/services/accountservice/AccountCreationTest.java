@@ -13,9 +13,9 @@ public class AccountCreationTest {
 
     private static void testSuccessfulAccountCreation() {
         JsonObject input = new JsonObject();
-        input.addProperty("user", "1234567");
-        input.addProperty("password", "2345");
-        input.addProperty("name", "John Doe");
+        input.addProperty("user", "2459582");
+        input.addProperty("password", "1122");
+        input.addProperty("name", "Danilo");
 
         String responseJson = AccountService.create(input);
         System.out.println("Ao tentar criar nova conta, recebi: " + responseJson);

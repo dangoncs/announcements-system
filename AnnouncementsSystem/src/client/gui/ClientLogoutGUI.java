@@ -37,7 +37,7 @@ public class ClientLogoutGUI {
         lblLoggedIn.setBounds(5, 50, 440, 23);
         contentPane.add(lblLoggedIn);
 
-        JButton btnLogout = new JButton("Logout");
+        JButton btnLogout = new JButton("Fazer logout e sair");
         btnLogout.setBounds(5, 233, 424, 23);
         btnLogout.addActionListener(_ -> {
             String json = createJson(clientToken);
@@ -71,7 +71,7 @@ public class ClientLogoutGUI {
 
         if(responseCode.equals("010")) {
             clientGUI.showSuccessMessage(message);
-            clientGUI.showMainContentPane();
+            client.disconnectAndExit();
         }
         else {
             clientGUI.showErrorMessage("Erro ao realizar logout", message);
