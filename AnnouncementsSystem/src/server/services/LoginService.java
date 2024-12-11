@@ -35,7 +35,7 @@ public class LoginService {
         if (loggedInUserId != null || loggedInUserToken != null) {
             return new Response(
                     "004",
-                    "Need to logout before logging in again"
+                    "Already logged in"
             ).toJson();
         }
 

@@ -17,6 +17,8 @@ public class ServerThread extends Thread {
 	
 	private final Socket clientSocket;
 	private final LoginService loginService;
+	private PrintWriter out;
+	private BufferedReader in;
 
 	public ServerThread(Socket clientSocket) {
 		this.clientSocket = clientSocket;
@@ -24,29 +26,30 @@ public class ServerThread extends Thread {
 	}
 
 	public ServerThread() {
-		this.clientSocket = null;
 		this.loginService = new LoginService();
+		this.clientSocket = null;
+		this.out = null;
+		this.in = null;
 	}
 	
 	public void run() {
 		System.out.println("INFO: Conexão estabelecida com novo cliente.");
 	    try {
-	    	PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-	    	BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			out = new PrintWriter(clientSocket.getOutputStream(), true);
+	    	in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 	    	
 	    	String inputLine;
 	    	while ((inputLine = in.readLine()) != null) {
-				if (inputLine.equals("0")) break;
-
 				String responseJson = processJson(inputLine);
 				System.out.println("Resposta: " + responseJson);
 				out.println(responseJson);
+
+				if(shouldCloseConnection(responseJson))
+					break;
 	    	}
-	    	
-	    	out.close();
-	    	in.close();
-	    	clientSocket.close();
-	    	System.out.println("INFO: Conexão fechada por um cliente.");
+
+			System.out.println("INFO: Conexão com um cliente fechada.");
+	    	closeConnection();
 	    }
 	    catch (IOException e) {
 	    	System.err.println("ERRO: Problema na comunicação com um cliente: " + e.getMessage());
@@ -88,5 +91,29 @@ public class ServerThread extends Thread {
         };
 
 		return responseJson;
+	}
+
+	private boolean shouldCloseConnection(String responseJson) {
+		JsonObject jsonObject;
+
+		try {
+			jsonObject = JsonParser.parseString(responseJson).getAsJsonObject();
+		} catch (Exception e) {
+			return false;
+		}
+
+		JsonElement responseElement = jsonObject.get("response");
+
+        return (responseElement != null) && (responseElement.getAsString().equals("010"));
+    }
+
+	public void closeConnection() {
+		try {
+			if(out != null) out.close();
+			if(in != null) in.close();
+			if(clientSocket != null) clientSocket.close();
+		} catch (Exception e) {
+			System.err.println("Erro ao fechar conexão com o cliente: " + e.getLocalizedMessage());
+		}
 	}
 }

@@ -54,14 +54,24 @@ public class AccountService {
         if (isNotValidUserId(userId) || isNotValidPassword(password) || isNotValidName(name)) {
             return new Response(
                     "102",
-                    "Invalid information inserted"
+                    "Invalid information inserted: user or password"
             ).toJson();
         }
 
         try {
-            name = truncateString(name);
-
             Connection conn = Database.connect();
+
+            if(new AccountDAO(conn).searchByUser(userId) != null) {
+                return new Response(
+                        "103",
+                        "Already exists an account with the username"
+                ).toJson();
+            }
+
+            Database.disconnect();
+            conn = Database.connect();
+
+            name = truncateString(name);
             new AccountDAO(conn).create(userId, name, password);
 
             return new Response(
@@ -69,9 +79,10 @@ public class AccountService {
                     "Successful account creation"
             ).toJson();
         } catch (SQLException e) {
+            System.err.println(e.getLocalizedMessage());
             return new Response(
-                    "103",
-                    "Already exists an account with the username"
+                    "104",
+                    "Unknown error"
             ).toJson();
         } finally {
             Database.disconnect();
@@ -85,7 +96,7 @@ public class AccountService {
 
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
-                    "115",
+                    "116",
                     "Cannot perform operation while logged out."
             ).toJson();
         }
@@ -123,6 +134,13 @@ public class AccountService {
             Connection conn = Database.connect();
             Account account = new AccountDAO(conn).searchByUser(userId);
 
+            if(account == null) {
+                return new Response(
+                        "114",
+                        "User not found ( Admin Only )"
+                ).toJson();
+            }
+
             int accountRole = 0;
             if (loginService.isAdmin(account.getUserId()))
                 accountRole = 1;
@@ -137,8 +155,8 @@ public class AccountService {
             ).toJson();
         } catch (SQLException e) {
             return new Response(
-                    "114",
-                    "User not found ( Admin Only )"
+                    "115",
+                    "Unknown error"
             ).toJson();
         } finally {
             Database.disconnect();
@@ -152,7 +170,7 @@ public class AccountService {
 
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
-                    "124",
+                    "125",
                     "Cannot perform operation while logged out."
             ).toJson();
         }
@@ -186,8 +204,15 @@ public class AccountService {
 
             if((name != null && isNotValidName(name)) || (password != null && isNotValidPassword(password))) {
                 return new Response(
-                        "124",
+                        "126",
                         "Invalid information inserted"
+                ).toJson();
+            }
+
+            if(new AccountDAO(conn).searchByUser(userId) == null) {
+                return new Response(
+                        "123",
+                        "User not found ( Admin Only )"
                 ).toJson();
             }
 
@@ -203,8 +228,8 @@ public class AccountService {
             ).toJson();
         } catch (SQLException e) {
             return new Response(
-                    "123",
-                    "No user or token found ( Admin Only)"
+                    "124",
+                    "Unknown error"
             ).toJson();
         } finally {
             Database.disconnect();
@@ -218,7 +243,7 @@ public class AccountService {
 
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
-                    "135",
+                    "136",
                     "Cannot perform operation while logged out."
             ).toJson();
         }
@@ -226,8 +251,15 @@ public class AccountService {
         JsonElement userElement = jsonObject.get("user");
         JsonElement tokenElement = jsonObject.get("token");
 
+        if (tokenElement == null) {
+            return new Response(
+                    "131",
+                    "Fields missing"
+            ).toJson();
+        }
+
         String userId = (userElement != null) ? userElement.getAsString() : loggedInUserId;
-        String token = (tokenElement != null) ? tokenElement.getAsString() : "";
+        String token = tokenElement.getAsString();
 
         if (!loggedInUserToken.equals(token)) {
             return new Response(
@@ -263,8 +295,8 @@ public class AccountService {
             ).toJson();
         } catch (SQLException e) {
             return new Response(
-                    "131",
-                    "Fields missing"
+                    "135",
+                    "Unknown error"
             ).toJson();
         } finally {
             Database.disconnect();
