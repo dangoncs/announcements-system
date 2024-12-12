@@ -12,7 +12,7 @@ The workspace contains two main folders, where:
 
 ## Running the Server
 
-- Create the `announcements_system` MySQL database. User has to be root with password "root".
+- Create the `announcements_system` MySQL database. User has to be root with password "" (empty string).
 
   `mysql -u root -p -e "create database announcements_system";`
 
@@ -20,7 +20,7 @@ The workspace contains two main folders, where:
 
   `mysql -u root -p announcements_system < database.sql`
 
-- Build and run the "ServerLauncher" class to start the server
+- Build and run the "ServerLauncher" class to start the server.
 
 ## Running the Client
 
