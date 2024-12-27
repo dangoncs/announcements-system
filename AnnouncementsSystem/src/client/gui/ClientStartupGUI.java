@@ -1,6 +1,8 @@
 package client.gui;
 
 import java.awt.Font;
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -8,11 +10,20 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import client.Client;
+import client.ServerConnection;
 
 public class ClientStartupGUI {
+	private final ServerConnection serverConnection;
+	private final ClientGUI clientGUI;
+	private JTextField txtAddr;
+	private JTextField txtPort;
 
-	public JPanel setup(Client client) {
+	public ClientStartupGUI(ServerConnection serverConnection, ClientGUI clientGUI) {
+		this.serverConnection = serverConnection;
+		this.clientGUI = clientGUI;
+	}
+
+	public JPanel setup() {
         JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(null);
@@ -26,7 +37,7 @@ public class ClientStartupGUI {
 		lblAddr.setBounds(5, 73, 135, 23);
 		contentPane.add(lblAddr);
 
-		JTextField txtAddr = new JTextField();
+		txtAddr = new JTextField();
 		txtAddr.setBounds(150, 73, 100, 23);
 		contentPane.add(txtAddr);
 		txtAddr.setColumns(10);
@@ -35,20 +46,32 @@ public class ClientStartupGUI {
 		lblPort.setBounds(5, 116, 135, 23);
 		contentPane.add(lblPort);
 
-		JTextField txtPort = new JTextField();
+		txtPort = new JTextField();
 		txtPort.setBounds(150, 116, 100, 23);
 		contentPane.add(txtPort);
 		txtPort.setColumns(10);
 
 		JButton btnStartup = new JButton("Conectar");
 		btnStartup.setBounds(5, 233, 424, 23);
-		btnStartup.addActionListener(_ -> {
-            String addr = txtAddr.getText();
-            int port = Integer.parseInt(txtPort.getText());
-            client.connectToServer(addr, port);
-        });
+		btnStartup.addActionListener(_ -> startConnection());
 		contentPane.add(btnStartup);
 
 		return contentPane;
+	}
+
+	private void startConnection() {
+		String addr = txtAddr.getText();
+		int port = Integer.parseInt(txtPort.getText());
+		txtAddr.setText("");
+		txtPort.setText("");
+
+		try {
+			serverConnection.start(addr, port);
+			clientGUI.setupMainGUI();
+		} catch (UnknownHostException e) {
+			clientGUI.showErrorMessage("Host não encontrado", e.getLocalizedMessage());
+		} catch (IOException e) {
+			clientGUI.showErrorMessage("Erro de entrada ou saída", e.getLocalizedMessage());
+		}
 	}
 }

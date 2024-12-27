@@ -1,22 +1,22 @@
 package client.gui;
 
-import client.Client;
+import client.ServerConnection;
 import client.operations.LoginOperation;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import client.responses.LoginResponse;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.IOException;
 
 public class ClientLoginGUI {
-
-    private final Client client;
+    private final ServerConnection serverConnection;
     private final ClientGUI clientGUI;
+    private JTextField txtUserId;
+    private JTextField txtPasswd;
 
-    public ClientLoginGUI(Client client, ClientGUI clientGUI) {
-        this.client = client;
+    public ClientLoginGUI(ServerConnection serverConnection, ClientGUI clientGUI) {
+        this.serverConnection = serverConnection;
         this.clientGUI = clientGUI;
     }
 
@@ -34,7 +34,7 @@ public class ClientLoginGUI {
         lblUserId.setBounds(5, 116, 135, 23);
         contentPane.add(lblUserId);
 
-        JTextField txtUserId = new JTextField();
+        txtUserId = new JTextField();
         txtUserId.setBounds(150, 116, 100, 23);
         contentPane.add(txtUserId);
         txtUserId.setColumns(10);
@@ -43,61 +43,48 @@ public class ClientLoginGUI {
         lblPasswd.setBounds(5, 159, 135, 23);
         contentPane.add(lblPasswd);
 
-        JTextField txtPasswd = new JTextField();
+        txtPasswd = new JTextField();
         txtPasswd.setBounds(150, 159, 100, 23);
         contentPane.add(txtPasswd);
         txtPasswd.setColumns(10);
 
         JButton btnLogin = new JButton("Login");
         btnLogin.setBounds(5, 233, 424, 23);
-        btnLogin.addActionListener(_ -> {
-            String userId = txtUserId.getText();
-            String passwd = txtPasswd.getText();
-            txtUserId.setText("");
-            txtPasswd.setText("");
-
-            String json = createJson(userId, passwd);
-
-            String response = client.sendToServer(json);
-            handleResponse(response, userId);
-        });
+        btnLogin.addActionListener(_ -> doLogin());
         contentPane.add(btnLogin);
 
         return contentPane;
     }
 
-    private String createJson(String userId, String password) {
-        return new LoginOperation("5", userId, password).toJson();
-    }
+    private void doLogin() {
+        String userId = txtUserId.getText();
+        String passwd = txtPasswd.getText();
+        txtUserId.setText("");
+        txtPasswd.setText("");
 
-    private void handleResponse(String response, String userId) {
-        if(response == null) {
-            clientGUI.showErrorMessage("Erro", "A resposta recebida foi inválida.");
+        LoginOperation loginOp = new LoginOperation("5", userId, passwd);
+        String json = loginOp.toJson();
+        String responseJson;
+
+        try {
+            responseJson = serverConnection.sendToServer(json);
+        } catch (IOException e) {
+            clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;
         }
 
-        JsonObject receivedJson = JsonParser.parseString(response).getAsJsonObject();
-        System.out.println("Recebido: " + receivedJson);
-
-        JsonElement responseElement = receivedJson.get("response");
-        JsonElement messageElement = receivedJson.get("message");
-        JsonElement tokenElement = receivedJson.get("token");
-
-        String responseCode = (responseElement != null) ? responseElement.getAsString() : "";
-        String message = (messageElement != null) ? messageElement.getAsString() : "";
-        String token = (tokenElement != null) ? tokenElement.getAsString() : "";
+        LoginResponse loginResponse = new LoginResponse(responseJson);
+        String responseCode = loginResponse.getResponseCode();
 
         if(responseCode.equals("000") || responseCode.equals("001")) {
-            clientGUI.showSuccessMessage(message);
-            JPanel logoutContentPane = new ClientLogoutGUI(client, clientGUI, userId, token).setup();
+            String token = loginResponse.getToken();
+
+            clientGUI.showSuccessMessage(loginResponse.getMessage());
+            JPanel logoutContentPane = new ClientLogoutGUI(serverConnection, clientGUI, userId, token).setup();
             clientGUI.setContentPane(logoutContentPane);
-            clientGUI.revalidate();
-            clientGUI.repaint();
         }
-        else {
-            clientGUI.showErrorMessage("Erro ao realizar login", message);
-            clientGUI.showMainContentPane();
-        }
+        else
+            clientGUI.showErrorMessage("Erro ao realizar login", loginResponse.getMessage());
     }
 
 }

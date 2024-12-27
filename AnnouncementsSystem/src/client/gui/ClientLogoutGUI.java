@@ -1,6 +1,6 @@
 package client.gui;
 
-import client.Client;
+import client.ServerConnection;
 import client.operations.LogoutOperation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,15 +9,16 @@ import com.google.gson.JsonParser;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.IOException;
 
 public class ClientLogoutGUI {
-    private final Client client;
+    private final ServerConnection serverConnection;
     private final ClientGUI clientGUI;
     private final String clientUser;
     private final String clientToken;
 
-    public ClientLogoutGUI(Client client, ClientGUI clientGUI, String clientUser, String clientToken) {
-        this.client = client;
+    public ClientLogoutGUI(ServerConnection serverConnection, ClientGUI clientGUI, String clientUser, String clientToken) {
+        this.serverConnection = serverConnection;
         this.clientGUI = clientGUI;
         this.clientUser = clientUser;
         this.clientToken = clientToken;
@@ -42,7 +43,13 @@ public class ClientLogoutGUI {
         btnLogout.addActionListener(_ -> {
             String json = createJson(clientToken);
 
-            String response = client.sendToServer(json);
+            String response = null;
+            try {
+                response = serverConnection.sendToServer(json);
+            } catch (IOException e) {
+                clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+            }
+
             handleResponse(response);
         });
         contentPane.add(btnLogout);
@@ -56,14 +63,13 @@ public class ClientLogoutGUI {
 
     private void handleResponse(String response) {
         if(response == null) {
-            clientGUI.showErrorMessage("Erro", "A resposta recebida foi inválida.");
             return;
         }
 
         JsonObject receivedJson = JsonParser.parseString(response).getAsJsonObject();
         System.out.println("Recebido: " + receivedJson);
 
-        JsonElement responseElement = receivedJson.get("response");
+        JsonElement responseElement = receivedJson.get("responseCode");
         JsonElement messageElement = receivedJson.get("message");
 
         String responseCode = (responseElement != null) ? responseElement.getAsString() : "";
@@ -71,7 +77,7 @@ public class ClientLogoutGUI {
 
         if(responseCode.equals("010")) {
             clientGUI.showSuccessMessage(message);
-            client.disconnectAndExit();
+            serverConnection.disconnectAndExit();
         }
         else {
             clientGUI.showErrorMessage("Erro ao realizar logout", message);

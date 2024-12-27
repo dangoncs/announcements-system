@@ -2,11 +2,12 @@ package client.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.io.IOException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import client.Client;
+import client.ServerConnection;
 import client.operations.SignupOperation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,11 +15,11 @@ import com.google.gson.JsonParser;
 
 public class ClientSignupGUI {
 
-	private final Client client;
+	private final ServerConnection serverConnection;
 	private final ClientGUI clientGUI;
 
-	public ClientSignupGUI(Client client, ClientGUI clientGUI) {
-		this.client = client;
+	public ClientSignupGUI(ServerConnection serverConnection, ClientGUI clientGUI) {
+		this.serverConnection = serverConnection;
 		this.clientGUI = clientGUI;
 	}
 
@@ -69,9 +70,16 @@ public class ClientSignupGUI {
             txtName.setText("");
 			txtPasswd.setText("");
 
-			String json = createJson(userId, passwd, name);
+			String json = new SignupOperation("1", userId, passwd, name).toJson();
 
-			String response = client.sendToServer(json);
+			String response;
+            try {
+				response = serverConnection.sendToServer(json);
+            } catch (IOException e) {
+				clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+				return;
+            }
+
 			handleResponse(response);
 			clientGUI.showMainContentPane();
         });
@@ -80,36 +88,23 @@ public class ClientSignupGUI {
         return contentPane;
 	}
 
-	private static String createJson(String userId, String passwd, String name) {
-		return new SignupOperation("1", userId, passwd, name).toJson();
-	}
-
 	private void handleResponse(String response) {
 		if(response == null) {
-			showErrorMessage("Erro", "A resposta recebida foi inválida.");
 			return;
 		}
 
 		JsonObject receivedJson = JsonParser.parseString(response).getAsJsonObject();
 		System.out.println("Recebido: " + receivedJson);
 
-		JsonElement responseElement = receivedJson.get("response");
+		JsonElement responseElement = receivedJson.get("responseCode");
 		JsonElement messageElement = receivedJson.get("message");
 
 		String responseCode = (responseElement != null) ? responseElement.getAsString() : "";
 		String message = (messageElement != null) ? messageElement.getAsString() : "";
 
 		if(responseCode.equals("100"))
-			showSuccessMessage(message);
+			clientGUI.showSuccessMessage(message);
 		else
-			showErrorMessage("Erro ao realizar cadastro", message);
-	}
-
-	private void showErrorMessage(String title, String message) {
-		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
-	}
-
-	private void showSuccessMessage(String message) {
-		JOptionPane.showMessageDialog(null, message, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+			clientGUI.showErrorMessage("Erro ao realizar cadastro", message);
 	}
 }

@@ -3,7 +3,7 @@ package client.gui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import client.Client;
+import client.ServerConnection;
 
 import java.awt.Font;
 
@@ -12,17 +12,17 @@ import java.io.Serial;
 public class ClientGUI extends JFrame {
 	@Serial
 	private static final long serialVersionUID = 1L;
-	private final Client client;
+	private final ServerConnection serverConnection;
 	JPanel mainContentPane;
 
-    public ClientGUI() {
+    public ClientGUI(ServerConnection serverConnection) {
 		super("CLIENTE");
-		client = new Client(this);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 
-		JPanel setupContentPane = new ClientStartupGUI().setup(client);
-		setContentPane(setupContentPane);
+		this.serverConnection = serverConnection;
+		JPanel startupContentPane = new ClientStartupGUI(serverConnection, this).setup();
+		setContentPane(startupContentPane);
 	}
 
 	public void setupMainGUI() {
@@ -38,30 +38,30 @@ public class ClientGUI extends JFrame {
         JButton btnSignup = new JButton("Cadastro");
 		btnSignup.setBounds(5, 120, 424, 23);
 		btnSignup.addActionListener(_ -> {
-			JPanel newContentPane = new ClientSignupGUI(client, this).setup();
-			setContentPane(newContentPane);
-			revalidate();
-        	repaint();
+			JPanel signupContentPane = new ClientSignupGUI(serverConnection, this).setup();
+			changeContentPane(signupContentPane);
         });
 		mainContentPane.add(btnSignup);
 
 		JButton btnLogin = new JButton("Login");
 		btnLogin.setBounds(5, 150, 424, 23);
 		btnLogin.addActionListener(_ -> {
-			JPanel newContentPane = new ClientLoginGUI(client, this).setup();
-			setContentPane(newContentPane);
-			revalidate();
-			repaint();
+			JPanel loginContentPane = new ClientLoginGUI(serverConnection, this).setup();
+			changeContentPane(loginContentPane);
 		});
 		mainContentPane.add(btnLogin);
 
 		showMainContentPane();
 	}
 
-	public void showMainContentPane() {
-		setContentPane(mainContentPane);
+	public void changeContentPane(JPanel contentPane) {
+		setContentPane(contentPane);
 		revalidate();
 		repaint();
+	}
+
+	public void showMainContentPane() {
+		changeContentPane(mainContentPane);
 	}
 
 	public void showErrorMessage(String title, String message) {
