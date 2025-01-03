@@ -50,13 +50,13 @@ public class ClientLoginGUI {
 
         JButton btnLogin = new JButton("Login");
         btnLogin.setBounds(5, 233, 424, 23);
-        btnLogin.addActionListener(_ -> doLogin());
+        btnLogin.addActionListener(_ -> loginActionHandler());
         contentPane.add(btnLogin);
 
         return contentPane;
     }
 
-    private void doLogin() {
+    private void loginActionHandler() {
         String userId = txtUserId.getText();
         String passwd = txtPasswd.getText();
         txtUserId.setText("");
@@ -75,16 +75,16 @@ public class ClientLoginGUI {
 
         LoginResponse loginResponse = new LoginResponse(responseJson);
         String responseCode = loginResponse.getResponseCode();
+        String message = loginResponse.getMessage();
 
         if(responseCode.equals("000") || responseCode.equals("001")) {
             String token = loginResponse.getToken();
 
-            clientGUI.showSuccessMessage(loginResponse.getMessage());
+            clientGUI.showSuccessMessage(message);
             JPanel logoutContentPane = new ClientLogoutGUI(serverConnection, clientGUI, userId, token).setup();
             clientGUI.setContentPane(logoutContentPane);
         }
         else
-            clientGUI.showErrorMessage("Erro ao realizar login", loginResponse.getMessage());
+            clientGUI.showErrorMessage("Erro ao realizar login", message);
     }
-
 }

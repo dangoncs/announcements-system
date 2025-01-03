@@ -2,9 +2,7 @@ package client.gui;
 
 import client.ServerConnection;
 import client.operations.LogoutOperation;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import client.responses.Response;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -34,46 +32,33 @@ public class ClientLogoutGUI {
         lblWindowTitle.setBounds(5, 5, 440, 23);
         contentPane.add(lblWindowTitle);
 
-        JLabel lblLoggedIn = new JLabel("Você está logado como: " + clientUser);
+        JLabel lblLoggedIn = new JLabel("Você está logado como: %s%n" + clientUser);
         lblLoggedIn.setBounds(5, 50, 440, 23);
         contentPane.add(lblLoggedIn);
 
         JButton btnLogout = new JButton("Fazer logout e sair");
         btnLogout.setBounds(5, 233, 424, 23);
-        btnLogout.addActionListener(_ -> {
-            String json = createJson(clientToken);
-
-            String response = null;
-            try {
-                response = serverConnection.sendToServer(json);
-            } catch (IOException e) {
-                clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
-            }
-
-            handleResponse(response);
-        });
+        btnLogout.addActionListener(_ -> logoutActionHandler());
         contentPane.add(btnLogout);
 
         return contentPane;
     }
 
-    private static String createJson(String token) {
-        return new LogoutOperation("6", token).toJson();
-    }
+    private void logoutActionHandler() {
+        LogoutOperation logoutOp = new LogoutOperation("6", clientToken);
+        String json = logoutOp.toJson();
+        String responseJson;
 
-    private void handleResponse(String response) {
-        if(response == null) {
+        try {
+            responseJson = serverConnection.sendToServer(json);
+        } catch (IOException e) {
+            clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;
         }
 
-        JsonObject receivedJson = JsonParser.parseString(response).getAsJsonObject();
-        System.out.println("Recebido: " + receivedJson);
-
-        JsonElement responseElement = receivedJson.get("responseCode");
-        JsonElement messageElement = receivedJson.get("message");
-
-        String responseCode = (responseElement != null) ? responseElement.getAsString() : "";
-        String message = (messageElement != null) ? messageElement.getAsString() : "";
+        Response logoutResponse = new Response(responseJson);
+        String responseCode = logoutResponse.getResponseCode();
+        String message = logoutResponse.getMessage();
 
         if(responseCode.equals("010")) {
             clientGUI.showSuccessMessage(message);

@@ -20,14 +20,10 @@ public class ServerConnection {
 	}
 
 	public void start(String serverHostname, int serverPort) throws IOException {
-        System.out.printf("Conectando: %s/%d%n", serverHostname, serverPort);
-
 		socket = new Socket(serverHostname, serverPort);
 		out = new PrintWriter(socket.getOutputStream(), true);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		stdIn = new BufferedReader(new InputStreamReader(System.in));
-
-		System.out.println("INFO: Conexão estabelecida com sucesso!");
     }
 
 	public String sendToServer(String input) throws IOException {
@@ -47,6 +43,7 @@ public class ServerConnection {
 			if(socket != null) socket.close();
 			System.exit(0);
 		} catch (IOException e) {
+			System.err.printf("Something went wrong while exiting, exiting anyways. %s%n", e.getLocalizedMessage());
 			System.exit(1);
 		}
 	}

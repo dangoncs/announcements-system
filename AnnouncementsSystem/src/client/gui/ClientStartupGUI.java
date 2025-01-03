@@ -53,25 +53,24 @@ public class ClientStartupGUI {
 
 		JButton btnStartup = new JButton("Conectar");
 		btnStartup.setBounds(5, 233, 424, 23);
-		btnStartup.addActionListener(_ -> startConnection());
+		btnStartup.addActionListener(_ -> connectActionHandler());
 		contentPane.add(btnStartup);
 
 		return contentPane;
 	}
 
-	private void startConnection() {
+	private void connectActionHandler() {
 		String addr = txtAddr.getText();
 		int port = Integer.parseInt(txtPort.getText());
-		txtAddr.setText("");
-		txtPort.setText("");
 
 		try {
 			serverConnection.start(addr, port);
+			clientGUI.showSuccessMessage("Conexão estabelecida com o servidor.");
 			clientGUI.setupMainGUI();
 		} catch (UnknownHostException e) {
 			clientGUI.showErrorMessage("Host não encontrado", e.getLocalizedMessage());
 		} catch (IOException e) {
-			clientGUI.showErrorMessage("Erro de entrada ou saída", e.getLocalizedMessage());
+			clientGUI.showErrorMessage("Erro de conexão com o servidor", e.getLocalizedMessage());
 		}
 	}
 }

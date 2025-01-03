@@ -9,14 +9,15 @@ import javax.swing.border.EmptyBorder;
 
 import client.ServerConnection;
 import client.operations.SignupOperation;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import client.responses.Response;
 
 public class ClientSignupGUI {
 
 	private final ServerConnection serverConnection;
 	private final ClientGUI clientGUI;
+	private JTextField txtUserId;
+	private JTextField txtName;
+	private JTextField txtPasswd;
 
 	public ClientSignupGUI(ServerConnection serverConnection, ClientGUI clientGUI) {
 		this.serverConnection = serverConnection;
@@ -37,7 +38,7 @@ public class ClientSignupGUI {
 		lblUserId.setBounds(5, 73, 135, 23);
 		contentPane.add(lblUserId);
 
-		JTextField txtUserId = new JTextField();
+		txtUserId = new JTextField();
 		txtUserId.setBounds(150, 73, 100, 23);
 		contentPane.add(txtUserId);
 		txtUserId.setColumns(10);
@@ -46,7 +47,7 @@ public class ClientSignupGUI {
 		lblName.setBounds(5, 116, 135, 23);
 		contentPane.add(lblName);
 
-		JTextField txtName = new JTextField();
+		txtName = new JTextField();
 		txtName.setBounds(150, 116, 100, 23);
 		contentPane.add(txtName);
 		txtName.setColumns(10);
@@ -55,56 +56,47 @@ public class ClientSignupGUI {
 		lblPasswd.setBounds(5, 159, 135, 23);
 		contentPane.add(lblPasswd);
 
-		JTextField txtPasswd = new JTextField();
+		txtPasswd = new JTextField();
 		txtPasswd.setBounds(150, 159, 100, 23);
 		contentPane.add(txtPasswd);
 		txtPasswd.setColumns(10);
 
 		JButton btnSignup = new JButton("Cadastrar");
 		btnSignup.setBounds(5, 233, 424, 23);
-		btnSignup.addActionListener(_ -> {
-            String userId = txtUserId.getText();
-            String name = txtName.getText();
-			String passwd = txtPasswd.getText();
-            txtUserId.setText("");
-            txtName.setText("");
-			txtPasswd.setText("");
-
-			String json = new SignupOperation("1", userId, passwd, name).toJson();
-
-			String response;
-            try {
-				response = serverConnection.sendToServer(json);
-            } catch (IOException e) {
-				clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
-				return;
-            }
-
-			handleResponse(response);
-			clientGUI.showMainContentPane();
-        });
+		btnSignup.addActionListener(_ -> signupActionHandler());
 		contentPane.add(btnSignup, BorderLayout.SOUTH);
 
         return contentPane;
 	}
 
-	private void handleResponse(String response) {
-		if(response == null) {
+	private void signupActionHandler() {
+		String userId = txtUserId.getText();
+		String name = txtName.getText();
+		String passwd = txtPasswd.getText();
+		txtUserId.setText("");
+		txtName.setText("");
+		txtPasswd.setText("");
+
+		SignupOperation signupOperation = new SignupOperation("1", userId, passwd, name);
+		String json = signupOperation.toJson();
+		String responseJson;
+
+		try {
+			responseJson = serverConnection.sendToServer(json);
+		} catch (IOException e) {
+			clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
 			return;
 		}
 
-		JsonObject receivedJson = JsonParser.parseString(response).getAsJsonObject();
-		System.out.println("Recebido: " + receivedJson);
-
-		JsonElement responseElement = receivedJson.get("responseCode");
-		JsonElement messageElement = receivedJson.get("message");
-
-		String responseCode = (responseElement != null) ? responseElement.getAsString() : "";
-		String message = (messageElement != null) ? messageElement.getAsString() : "";
+		Response signupResponse = new Response(responseJson);
+		String responseCode = signupResponse.getResponseCode();
+		String message = signupResponse.getMessage();
 
 		if(responseCode.equals("100"))
 			clientGUI.showSuccessMessage(message);
 		else
 			clientGUI.showErrorMessage("Erro ao realizar cadastro", message);
+
+		clientGUI.showMainContentPane();
 	}
 }

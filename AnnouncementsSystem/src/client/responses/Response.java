@@ -10,10 +10,10 @@ public class Response {
 
     public Response(String responseJson) {
         this.responseJson = responseJson;
-        this.jsonObject = deserializeJson();
+        this.jsonObject = parseJson();
     }
 
-    public JsonObject deserializeJson() {
+    public JsonObject parseJson() {
         System.out.printf("Recebido: %s%n", responseJson);
 
         if(responseJson != null)
