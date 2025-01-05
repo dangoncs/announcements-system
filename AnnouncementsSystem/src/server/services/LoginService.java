@@ -12,14 +12,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class LoginService {
-
     private String loggedInUserId;
     private String loggedInUserToken;
     private int loggedInUserRole;
-
-    boolean isAdmin(String userId) {
-        return userId.startsWith("a");
-    }
 
     String generateToken(String userId) {
        return userId;
@@ -65,9 +60,7 @@ public class LoginService {
 
             this.loggedInUserId = userId;
             this.loggedInUserToken = generateToken(userId);
-
-            if(isAdmin(userId))
-                this.loggedInUserRole = 1;
+            this.loggedInUserRole = AccountService.getAccountRole(userId);
 
             return new LoginResponse(
                     "00" + loggedInUserRole,
