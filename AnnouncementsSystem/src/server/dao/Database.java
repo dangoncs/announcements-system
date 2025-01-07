@@ -9,7 +9,7 @@ public class Database {
 
     public static Connection connect() throws SQLException {
         if(conn == null) {
-            String url = "jdbc:sqlite:announcements_system";
+            String url = "jdbc:sqlite:announcements_system.db";
             return DriverManager.getConnection(url);
         }
 
