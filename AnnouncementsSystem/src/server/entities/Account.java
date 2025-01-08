@@ -11,12 +11,6 @@ public class Account {
         this.name = null;
     }
 
-    public Account(String userId, String password, String name) {
-        this.userId = userId;
-        this.password = password;
-        this.name = name;
-    }
-
     public String getUserId() {
         return userId;
     }
