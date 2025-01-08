@@ -6,7 +6,7 @@ import client.gui.ClientGUI;
 
 public class ClientLauncher {
 	
-	public static void main(String[] args) {
+	public static void main(String[] ignoredArgs) {
 		ServerConnection serverConnection = new ServerConnection();
 
 		EventQueue.invokeLater(() -> {

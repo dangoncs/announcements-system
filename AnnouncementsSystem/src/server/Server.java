@@ -26,18 +26,19 @@ public class Server {
 					new ServerThread(serverSocket.accept()).start();
 				}
 				catch(IOException e) {
-					System.err.println("ERRO ao conectar com um cliente: " + e.getLocalizedMessage());
+                    System.err.printf("[AVISO] Não foi possível conectar com um cliente: %s%n", e.getLocalizedMessage());
 				}
 			}
 		}
 		catch(IOException e) {
-			serverGUI.showErrorMessage("Falha ao escutar na porta " + port, e.getLocalizedMessage());
+			serverGUI.showErrorMessage("[ERRO] Falha ao escutar na porta " + port, e.getLocalizedMessage());
 		}
 		finally {
 			try {
-				serverSocket.close();
+				if(serverSocket != null) serverSocket.close();
 			} catch (IOException e) {
-				serverGUI.showErrorMessage("Não foi possível fechar a porta " + port, e.getLocalizedMessage());
+				serverGUI.showErrorMessage("[ERRO] Não foi possível fechar a porta " + port, e.getLocalizedMessage());
+				System.exit(1);
 			}
 		}
 	}

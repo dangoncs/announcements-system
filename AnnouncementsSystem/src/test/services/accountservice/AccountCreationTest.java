@@ -4,7 +4,7 @@ import server.services.AccountService;
 
 public class AccountCreationTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] ignoredArgs) {
         testSuccessfulAccountCreation();
         testMissingFields();
         testInvalidUserIdOrPassword();

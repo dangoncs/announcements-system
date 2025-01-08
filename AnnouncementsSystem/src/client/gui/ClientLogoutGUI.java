@@ -32,7 +32,7 @@ public class ClientLogoutGUI {
         lblWindowTitle.setBounds(5, 5, 440, 23);
         contentPane.add(lblWindowTitle);
 
-        JLabel lblLoggedIn = new JLabel("Você está logado como: %s%n" + clientUser);
+        JLabel lblLoggedIn = new JLabel("Você está logado como: " + clientUser);
         lblLoggedIn.setBounds(5, 50, 440, 23);
         contentPane.add(lblLoggedIn);
 

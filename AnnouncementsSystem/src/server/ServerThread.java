@@ -33,27 +33,27 @@ public class ServerThread extends Thread {
 	}
 	
 	public void run() {
-		System.out.println("INFO: Conexão estabelecida com novo cliente.");
+		System.out.println("[INFO] Conexão estabelecida com novo cliente.");
 	    try {
 			out = new PrintWriter(clientSocket.getOutputStream(), true);
 	    	in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 	    	
 	    	String inputLine;
 	    	while ((inputLine = in.readLine()) != null) {
-				System.out.printf("Recebido: %s%n", inputLine);
+				System.out.printf("[INFO] Recebido: %s%n", inputLine);
 				String responseJson = processJson(inputLine);
-                System.out.printf("Resposta: %s%n", responseJson);
+                System.out.printf("[INFO] Enviando: %s%n", responseJson);
 				out.println(responseJson);
 
 				if(shouldCloseConnection(responseJson))
 					break;
 	    	}
-
-			System.out.println("INFO: Conexão com um cliente fechada.");
+			
 	    	closeConnection();
 	    }
 	    catch (IOException e) {
-            System.err.printf("ERRO: Problema na comunicação com um cliente: %s%n", e.getLocalizedMessage());
+            System.err.printf("[AVISO] Problema na comunicação com um cliente: %s%n", e.getLocalizedMessage());
+	    	closeConnection();
 	    }
 	}
 
@@ -104,8 +104,10 @@ public class ServerThread extends Thread {
 			if(out != null) out.close();
 			if(in != null) in.close();
 			if(clientSocket != null) clientSocket.close();
+			System.out.println("[INFO] Conexão com um cliente fechada.");
 		} catch (Exception e) {
-            System.err.printf("Erro ao fechar conexão com o cliente: %s%n", e.getLocalizedMessage());
+            System.err.printf("[AVISO] Não foi possível fechar conexão corretamente com um cliente: %s%n", e.getLocalizedMessage());
+			System.err.println("[AVISO] Forçando encerramento da conexão.");
 		}
 	}
 }

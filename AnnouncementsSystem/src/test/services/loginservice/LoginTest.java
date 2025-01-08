@@ -5,7 +5,7 @@ import server.services.LoginService;
 
 public class LoginTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] ignoredArgs) {
         testSuccessfulCommonUserLogin();
         testSuccessfulAdminLogin();
         testUserAlreadyLoggedIn();

@@ -59,8 +59,6 @@ public class ClientLoginGUI {
     private void loginActionHandler() {
         String userId = txtUserId.getText();
         String passwd = txtPasswd.getText();
-        txtUserId.setText("");
-        txtPasswd.setText("");
 
         LoginOperation loginOp = new LoginOperation("5", userId, passwd);
         String json = loginOp.toJson();
@@ -82,9 +80,11 @@ public class ClientLoginGUI {
 
             clientGUI.showSuccessMessage(message);
             JPanel logoutContentPane = new ClientLogoutGUI(serverConnection, clientGUI, userId, token).setup();
-            clientGUI.setContentPane(logoutContentPane);
+            clientGUI.changeContentPane(logoutContentPane);
         }
-        else
+        else {
             clientGUI.showErrorMessage("Erro ao realizar login", message);
+            clientGUI.showMainContentPane();
+        }
     }
 }

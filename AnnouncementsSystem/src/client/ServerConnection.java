@@ -28,11 +28,11 @@ public class ServerConnection {
 
 	public String sendToServer(String input) throws IOException {
 		out.println(input);
-        System.out.printf("Enviando: %s%n", input);
+        System.out.printf("[INFO] Enviando: %s%n", input);
 
 		String serverResponse;
 		serverResponse = in.readLine();
-		System.out.printf("Recebido: %s%n", serverResponse);
+		System.out.printf("[INFO] Recebido: %s%n", serverResponse);
 
 		return serverResponse;
 	}
@@ -45,7 +45,8 @@ public class ServerConnection {
 			if(socket != null) socket.close();
 			System.exit(0);
 		} catch (IOException e) {
-			System.err.printf("Something went wrong while exiting, exiting anyways. %s%n", e.getLocalizedMessage());
+			System.err.printf("[ERRO] Não foi possível fechar corretamente: %s%n", e.getLocalizedMessage());
+			System.err.println("[AVISO] Saída forçada");
 			System.exit(1);
 		}
 	}

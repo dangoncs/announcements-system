@@ -5,7 +5,7 @@ import server.services.LoginService;
 
 public class LogoutTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] ignoredArgs) {
         testSuccessfulLogout();
         testAlreadyLoggedOut();
         testMissingTokenField();
@@ -54,15 +54,6 @@ public class LogoutTest {
     }
 
     public static void testNullToken() {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("token", (String) null);
-
-        LoginService loginService = LoginTest.testSuccessfulCommonUserLogin();
-        String responseJson = loginService.logout(jsonObject);
-        System.out.printf("Ao tentar fazer logout com token nulo, recebi: %s%n", responseJson);
-    }
-
-    public static void testEmptyField() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("token", (String) null);
 
