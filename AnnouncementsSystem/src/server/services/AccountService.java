@@ -38,7 +38,10 @@ public class AccountService {
         JsonElement passwordElement = jsonObject.get("password");
         JsonElement nameElement = jsonObject.get("name");
 
-        if(userElement == null || passwordElement == null || nameElement == null) {
+        if(userElement == null || passwordElement == null || nameElement == null 
+            || userElement.isJsonNull() || passwordElement.isJsonNull()
+            || nameElement.isJsonNull()
+        ) {
             return new Response(
                     "101",
                     "Fields missing"
@@ -94,10 +97,10 @@ public class AccountService {
         JsonElement userElement = jsonObject.get("user");
         JsonElement tokenElement = jsonObject.get("token");
 
-        String userId = (userElement != null) ? userElement.getAsString() : loggedInUserId;
+        String userId = (userElement != null && !userElement.isJsonNull()) ? userElement.getAsString() : loggedInUserId;
 
         if(loggedInUserRole != 1) {
-            if(tokenElement == null) {
+            if(tokenElement == null || tokenElement.isJsonNull()) {
                 return new Response(
                         "112",
                         "Invalid or empty token"
@@ -163,10 +166,10 @@ public class AccountService {
         JsonElement nameElement = jsonObject.get("name");
         JsonElement tokenElement = jsonObject.get("token");
 
-        String userId = (userElement != null) ? userElement.getAsString() : loggedInUserId;
-        String password = (passwordElement != null) ? passwordElement.getAsString() : null;
-        String name = (nameElement != null) ? nameElement.getAsString() : null;
-        String token = (tokenElement != null) ? tokenElement.getAsString() : null;
+        String userId = (userElement != null && !userElement.isJsonNull()) ? userElement.getAsString() : loggedInUserId;
+        String password = (passwordElement != null && !passwordElement.isJsonNull()) ? passwordElement.getAsString() : null;
+        String name = (nameElement != null && !nameElement.isJsonNull()) ? nameElement.getAsString() : null;
+        String token = (tokenElement != null && !tokenElement.isJsonNull()) ? tokenElement.getAsString() : null;
 
         if(!loggedInUserToken.equals(token)) {
             return new Response(
@@ -193,7 +196,7 @@ public class AccountService {
             if(new AccountDAO(conn).searchByUser(userId) == null) {
                 return new Response(
                         "123",
-                        "User not found ( Admin Only )"
+                        "No user or token found ( Admin Only )}"
                 ).toJson();
             }
 
@@ -230,14 +233,14 @@ public class AccountService {
         JsonElement userElement = jsonObject.get("user");
         JsonElement tokenElement = jsonObject.get("token");
 
-        if(tokenElement == null) {
+        if(tokenElement == null || tokenElement.isJsonNull()) {
             return new Response(
                     "131",
                     "Fields missing"
             ).toJson();
         }
 
-        String userId = (userElement != null) ? userElement.getAsString() : loggedInUserId;
+        String userId = (userElement != null && !tokenElement.isJsonNull()) ? userElement.getAsString() : loggedInUserId;
         String token = tokenElement.getAsString();
 
         if(!loggedInUserToken.equals(token)) {

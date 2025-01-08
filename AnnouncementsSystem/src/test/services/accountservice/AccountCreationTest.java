@@ -18,7 +18,7 @@ public class AccountCreationTest {
         input.addProperty("name", "Danilo");
 
         String responseJson = AccountService.create(input);
-        System.out.println("Ao tentar criar nova conta, recebi: " + responseJson);
+        System.out.printf("Ao tentar criar nova conta, recebi: %s%n", responseJson);
     }
 
     private static void testMissingFields() {
@@ -26,7 +26,7 @@ public class AccountCreationTest {
         input.addProperty("user", "1234567");
 
         String responseJson = AccountService.create(input);
-        System.out.println("Ao tentar criar conta com campos faltando, recebi: " + responseJson);
+        System.out.printf("Ao tentar criar conta com campos faltando, recebi: %s%n", responseJson);
     }
 
     private static void testInvalidUserIdOrPassword() {
@@ -36,7 +36,7 @@ public class AccountCreationTest {
         input.addProperty("name", "John Doe");
 
         String responseJson = AccountService.create(input);
-        System.out.println("Ao tentar criar conta com dados inválidos, recebi: " + responseJson);
+        System.out.printf("Ao tentar criar conta com dados inválidos, recebi: %s%n", responseJson);
     }
 
     private static void testAccountAlreadyExists() {
@@ -46,6 +46,6 @@ public class AccountCreationTest {
         input.addProperty("name", "Joãozinho");
 
         String responseJson = AccountService.create(input);
-        System.out.println("Ao tentar criar conta com usuário já existente, recebi: " + responseJson);
+        System.out.printf("Ao tentar criar conta com usuário já existente, recebi: %s%n", responseJson);
     }
 }

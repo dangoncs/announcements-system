@@ -20,7 +20,7 @@ public class LoginTest {
 
         LoginService loginService = new LoginService();
         String responseJson = loginService.login(jsonObject);
-        System.out.println("Ao tentar logar como usuário comum, recebi: " + responseJson);
+        System.out.printf("Ao tentar logar como usuário comum, recebi: %s%n", responseJson);
         return loginService;
     }
 
@@ -30,7 +30,7 @@ public class LoginTest {
         jsonObject.addProperty("password", "pass");
 
         String responseJson = new LoginService().login(jsonObject);
-        System.out.println("Ao tentar logar como admin, recebi: " + responseJson);
+        System.out.printf("Ao tentar logar como admin, recebi: %s%n", responseJson);
     }
 
     public static void testUserAlreadyLoggedIn() {
@@ -41,7 +41,7 @@ public class LoginTest {
         LoginService loginService = new LoginService();
         loginService.login(jsonObject);
         String responseJson = loginService.login(jsonObject);
-        System.out.println("Ao tentar logar com alguém já logado, recebi: " + responseJson);
+        System.out.printf("Ao tentar logar com alguém já logado, recebi: %s%n", responseJson);
     }
 
     public static void testMissingFields() {
@@ -50,7 +50,7 @@ public class LoginTest {
 
         LoginService loginService = new LoginService();
         String responseJson = loginService.login(jsonObject);
-        System.out.println("Ao tentar logar com campos faltando, recebi: " + responseJson);
+        System.out.printf("Ao tentar logar com campos faltando, recebi: %s%n", responseJson);
     }
 
     public static void testInvalidCredentials() {
@@ -59,6 +59,6 @@ public class LoginTest {
         jsonObject.addProperty("password", "password123");
 
         String responseJson = new LoginService().login(jsonObject);
-        System.out.println("Ao tentar logar com credenciais inválidas, recebi: " + responseJson);
+        System.out.printf("Ao tentar logar com credenciais inválidas, recebi: %s%n", responseJson);
     }
 }

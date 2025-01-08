@@ -11,7 +11,7 @@ public class LoginResponse extends Response {
     public String getToken() {
         if(jsonObject != null) {
             JsonElement tokenElement = jsonObject.get("token");
-            if(tokenElement != null)
+            if(tokenElement != null && !tokenElement.isJsonNull())
                 return tokenElement.getAsString();
         }
 

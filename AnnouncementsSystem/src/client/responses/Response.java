@@ -14,18 +14,17 @@ public class Response {
     }
 
     public JsonObject parseJson() {
-        System.out.printf("Recebido: %s%n", responseJson);
-
-        if(responseJson != null)
+        try {
             return JsonParser.parseString(responseJson).getAsJsonObject();
-
-        return null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public String getResponseCode() {
         if(jsonObject != null) {
             JsonElement responseElement = jsonObject.get("response");
-            if (responseElement != null)
+            if (responseElement != null && !responseElement.isJsonNull())
                 return responseElement.getAsString();
         }
 
@@ -35,7 +34,7 @@ public class Response {
     public String getMessage() {
         if(jsonObject != null) {
             JsonElement messageElement = jsonObject.get("message");
-            if(messageElement != null)
+            if(messageElement != null && !messageElement.isJsonNull())
                 return messageElement.getAsString();
         }
 

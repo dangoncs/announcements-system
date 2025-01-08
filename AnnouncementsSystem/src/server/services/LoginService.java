@@ -37,7 +37,8 @@ public class LoginService {
         JsonElement userElement = jsonObject.get("user");
         JsonElement passwordElement = jsonObject.get("password");
 
-        if(userElement == null || passwordElement == null) {
+        if(userElement == null || passwordElement == null || userElement.isJsonNull()
+                || passwordElement.isJsonNull()) {
             return new Response(
                     "002",
                     "Fields missing"
@@ -69,8 +70,8 @@ public class LoginService {
             ).toJson();
         } catch (SQLException e) {
             return new Response(
-                    "003",
-                    "Login failed"
+                    "005",
+                    "Unknown error."
             ).toJson();
         } finally {
             Database.disconnect();
@@ -81,7 +82,7 @@ public class LoginService {
         if (loggedInUserId == null || loggedInUserToken == null) {
             return new Response(
                     "012",
-                    "Already logged out"
+                    "User not logged in."
             ).toJson();
         }
 
@@ -99,7 +100,7 @@ public class LoginService {
         if(!token.equals(loggedInUserToken)) {
             return new Response(
                     "013",
-                    "Incorrect token"
+                    "Logout failed"
             ).toJson();
         }
 

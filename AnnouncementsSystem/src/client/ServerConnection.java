@@ -32,6 +32,8 @@ public class ServerConnection {
 
 		String serverResponse;
 		serverResponse = in.readLine();
+		System.out.printf("Recebido: %s%n", serverResponse);
+
 		return serverResponse;
 	}
 

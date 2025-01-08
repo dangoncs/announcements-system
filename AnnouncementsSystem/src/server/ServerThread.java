@@ -40,8 +40,9 @@ public class ServerThread extends Thread {
 	    	
 	    	String inputLine;
 	    	while ((inputLine = in.readLine()) != null) {
+				System.out.printf("Recebido: %s%n", inputLine);
 				String responseJson = processJson(inputLine);
-				System.out.println("Resposta: " + responseJson);
+                System.out.printf("Resposta: %s%n", responseJson);
 				out.println(responseJson);
 
 				if(shouldCloseConnection(responseJson))
@@ -52,12 +53,11 @@ public class ServerThread extends Thread {
 	    	closeConnection();
 	    }
 	    catch (IOException e) {
-	    	System.err.println("ERRO: Problema na comunicação com um cliente: " + e.getMessage());
+            System.err.printf("ERRO: Problema na comunicação com um cliente: %s%n", e.getLocalizedMessage());
 	    }
 	}
 
 	public String processJson(String inputLine) {
-		System.out.println("Recebido: " + inputLine);
 		JsonObject receivedJson;
 
 		try {
@@ -94,17 +94,9 @@ public class ServerThread extends Thread {
 	}
 
 	private boolean shouldCloseConnection(String responseJson) {
-		JsonObject jsonObject;
-
-		try {
-			jsonObject = JsonParser.parseString(responseJson).getAsJsonObject();
-		} catch (Exception e) {
-			return false;
-		}
-
+		JsonObject jsonObject = JsonParser.parseString(responseJson).getAsJsonObject();
 		JsonElement responseElement = jsonObject.get("response");
-
-        return (responseElement != null) && (responseElement.getAsString().equals("010"));
+		return (responseElement != null) && (responseElement.getAsString().equals("010"));
     }
 
 	public void closeConnection() {
@@ -113,7 +105,7 @@ public class ServerThread extends Thread {
 			if(in != null) in.close();
 			if(clientSocket != null) clientSocket.close();
 		} catch (Exception e) {
-			System.err.println("Erro ao fechar conexão com o cliente: " + e.getLocalizedMessage());
+            System.err.printf("Erro ao fechar conexão com o cliente: %s%n", e.getLocalizedMessage());
 		}
 	}
 }
