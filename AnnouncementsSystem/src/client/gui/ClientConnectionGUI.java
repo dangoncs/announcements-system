@@ -10,20 +10,18 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import client.ServerConnection;
+import client.Client;
 
-public class ClientStartupGUI {
-	private final ServerConnection serverConnection;
-	private final ClientGUI clientGUI;
+public class ClientConnectionGUI {
+	private final Client client;
 	private JTextField txtAddr;
 	private JTextField txtPort;
 
-	public ClientStartupGUI(ServerConnection serverConnection, ClientGUI clientGUI) {
-		this.serverConnection = serverConnection;
-		this.clientGUI = clientGUI;
+	public ClientConnectionGUI(Client client) {
+		this.client = client;
 	}
 
-	public JPanel setup() {
+	public void setup() {
         JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(null);
@@ -53,24 +51,24 @@ public class ClientStartupGUI {
 
 		JButton btnStartup = new JButton("Conectar");
 		btnStartup.setBounds(5, 233, 424, 23);
-		btnStartup.addActionListener(_ -> connectActionHandler());
+		btnStartup.addActionListener(_ -> connectionActionHandler());
 		contentPane.add(btnStartup);
 
-		return contentPane;
+		client.showContentPane(contentPane);
 	}
 
-	private void connectActionHandler() {
+	private void connectionActionHandler() {
 		String addr = txtAddr.getText();
 		int port = Integer.parseInt(txtPort.getText());
 
 		try {
-			serverConnection.start(addr, port);
-			clientGUI.showSuccessMessage("Conexão estabelecida com o servidor.");
-			clientGUI.showStartContentPane();
+			client.getServerConnection().start(addr, port);
+			client.showSuccessMessage("Conexão estabelecida com o servidor.");
+			new ClientStartGUI(client).setup();
 		} catch (UnknownHostException e) {
-			clientGUI.showErrorMessage("Host não encontrado", e.getLocalizedMessage());
+			client.showErrorMessage("Host não encontrado", e.getLocalizedMessage());
 		} catch (IOException e) {
-			clientGUI.showErrorMessage("Erro de conexão com o servidor", e.getLocalizedMessage());
+			client.showErrorMessage("Erro de conexão com o servidor", e.getLocalizedMessage());
 		}
 	}
 }

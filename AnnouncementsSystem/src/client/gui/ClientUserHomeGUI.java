@@ -1,6 +1,7 @@
 package client.gui;
 
-import client.ServerConnection;
+import client.Client;
+import client.gui.account.ClientReadAccountGUI;
 import client.operations.LogoutOperation;
 import client.responses.Response;
 
@@ -9,20 +10,14 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.IOException;
 
-public class ClientLogoutGUI {
-    private final ServerConnection serverConnection;
-    private final ClientGUI clientGUI;
-    private final String clientUser;
-    private final String clientToken;
+public class ClientUserHomeGUI {
+    private final Client client;
 
-    public ClientLogoutGUI(ServerConnection serverConnection, ClientGUI clientGUI, String clientUser, String clientToken) {
-        this.serverConnection = serverConnection;
-        this.clientGUI = clientGUI;
-        this.clientUser = clientUser;
-        this.clientToken = clientToken;
+    public ClientUserHomeGUI(Client client) {
+        this.client = client;
     }
 
-    public JPanel setup() {
+    public void setup() {
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
@@ -32,15 +27,15 @@ public class ClientLogoutGUI {
         lblWindowTitle.setBounds(5, 5, 440, 23);
         contentPane.add(lblWindowTitle);
 
-        JLabel lblLoggedIn = new JLabel("Você está logado como: " + clientUser);
+        JLabel lblLoggedIn = new JLabel("Você está logado como: " + client.getLoggedInUserId());
         lblLoggedIn.setBounds(5, 50, 440, 23);
         contentPane.add(lblLoggedIn);
 
         JButton btnReadAccount = new JButton("Ver dados da conta");
         btnReadAccount.setBounds(5, 120, 424, 23);
-        btnReadAccount.addActionListener(_ -> {
-            new ClientReadAccountGUI(serverConnection, clientGUI, clientUser, clientToken);
-        });
+        btnReadAccount.addActionListener(_ ->
+                new ClientReadAccountGUI(client).readAccount(client.getLoggedInUserId(), client.getLoggedInUserToken())
+        );
         contentPane.add(btnReadAccount);
 
 
@@ -49,20 +44,18 @@ public class ClientLogoutGUI {
         btnLogout.addActionListener(_ -> logoutActionHandler());
         contentPane.add(btnLogout);
 
-        clientGUI.setHomeContentPane(contentPane);
-
-        return contentPane;
+        client.showContentPane(contentPane);
     }
 
     private void logoutActionHandler() {
-        LogoutOperation logoutOp = new LogoutOperation("6", clientToken);
+        LogoutOperation logoutOp = new LogoutOperation("6", client.getLoggedInUserToken());
         String json = logoutOp.toJson();
         String responseJson;
 
         try {
-            responseJson = serverConnection.sendToServer(json);
+            responseJson = client.getServerConnection().sendToServer(json);
         } catch (IOException e) {
-            clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+            client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;
         }
 
@@ -71,11 +64,11 @@ public class ClientLogoutGUI {
         String message = logoutResponse.getMessage();
 
         if(responseCode.equals("010")) {
-            clientGUI.showSuccessMessage(message);
-            serverConnection.disconnectAndExit();
+            client.showSuccessMessage(message);
+            client.getServerConnection().disconnectAndExit();
         }
         else {
-            clientGUI.showErrorMessage("Erro ao realizar logout", message);
+            client.showErrorMessage("Erro ao realizar logout", message);
         }
     }
 }

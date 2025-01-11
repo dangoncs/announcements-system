@@ -1,6 +1,8 @@
-package client.gui;
+package client.gui.authentication;
 
-import client.ServerConnection;
+import client.gui.ClientStartGUI;
+import client.gui.ClientUserHomeGUI;
+import client.Client;
 import client.operations.LoginOperation;
 import client.responses.LoginResponse;
 
@@ -10,17 +12,15 @@ import java.awt.*;
 import java.io.IOException;
 
 public class ClientLoginGUI {
-    private final ServerConnection serverConnection;
-    private final ClientGUI clientGUI;
+    private final Client client;
     private JTextField txtUserId;
     private JTextField txtPasswd;
 
-    public ClientLoginGUI(ServerConnection serverConnection, ClientGUI clientGUI) {
-        this.serverConnection = serverConnection;
-        this.clientGUI = clientGUI;
+    public ClientLoginGUI(Client client) {
+        this.client = client;
     }
 
-    public JPanel setup() {
+    public void setup() {
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
@@ -53,7 +53,7 @@ public class ClientLoginGUI {
         btnLogin.addActionListener(_ -> loginActionHandler());
         contentPane.add(btnLogin);
 
-        return contentPane;
+        client.showContentPane(contentPane);
     }
 
     private void loginActionHandler() {
@@ -65,9 +65,9 @@ public class ClientLoginGUI {
         String responseJson;
 
         try {
-            responseJson = serverConnection.sendToServer(json);
+            responseJson = client.getServerConnection().sendToServer(json);
         } catch (IOException e) {
-            clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+            client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;
         }
 
@@ -76,15 +76,15 @@ public class ClientLoginGUI {
         String message = loginResponse.getMessage();
 
         if(responseCode.equals("000") || responseCode.equals("001")) {
-            String token = loginResponse.getToken();
+            client.setLoggedInUserToken(loginResponse.getToken());
+            client.setLoggedInUserId(userId);
 
-            clientGUI.showSuccessMessage(message);
-            JPanel logoutContentPane = new ClientLogoutGUI(serverConnection, clientGUI, userId, token).setup();
-            clientGUI.changeContentPane(logoutContentPane);
+            client.showSuccessMessage(message);
+            new ClientUserHomeGUI(client).setup();
         }
         else {
-            clientGUI.showErrorMessage("Erro ao realizar login", message);
-            clientGUI.showStartContentPane();
+            client.showErrorMessage("Erro ao realizar login", message);
+            new ClientStartGUI(client).setup();
         }
     }
 }

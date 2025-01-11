@@ -1,4 +1,4 @@
-package client.gui;
+package client.gui.account;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -7,24 +7,22 @@ import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import client.ServerConnection;
-import client.operations.SignupOperation;
+import client.gui.ClientStartGUI;
+import client.Client;
+import client.operations.CreateAccountOperation;
 import client.responses.Response;
 
-public class ClientSignupGUI {
-
-	private final ServerConnection serverConnection;
-	private final ClientGUI clientGUI;
+public class ClientCreateAccountGUI {
+	private final Client client;
 	private JTextField txtUserId;
 	private JTextField txtName;
 	private JTextField txtPasswd;
 
-	public ClientSignupGUI(ServerConnection serverConnection, ClientGUI clientGUI) {
-		this.serverConnection = serverConnection;
-		this.clientGUI = clientGUI;
+	public ClientCreateAccountGUI(Client client) {
+		this.client = client;
 	}
 
-    public JPanel setup() {
+    public void setup() {
         JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
@@ -63,40 +61,37 @@ public class ClientSignupGUI {
 
 		JButton btnSignup = new JButton("Cadastrar");
 		btnSignup.setBounds(5, 233, 424, 23);
-		btnSignup.addActionListener(_ -> signupActionHandler());
+		btnSignup.addActionListener(_ -> createAccountActionHandler());
 		contentPane.add(btnSignup, BorderLayout.SOUTH);
 
-        return contentPane;
+		client.showContentPane(contentPane);
 	}
 
-	private void signupActionHandler() {
+	private void createAccountActionHandler() {
 		String userId = txtUserId.getText();
 		String name = txtName.getText();
 		String passwd = txtPasswd.getText();
-		txtUserId.setText("");
-		txtName.setText("");
-		txtPasswd.setText("");
 
-		SignupOperation signupOperation = new SignupOperation("1", userId, passwd, name);
-		String json = signupOperation.toJson();
+		CreateAccountOperation createAccountOp = new CreateAccountOperation("1", userId, passwd, name);
+		String json = createAccountOp.toJson();
 		String responseJson;
 
 		try {
-			responseJson = serverConnection.sendToServer(json);
+			responseJson = client.getServerConnection().sendToServer(json);
 		} catch (IOException e) {
-			clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+			client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
 			return;
 		}
 
-		Response signupResponse = new Response(responseJson);
-		String responseCode = signupResponse.getResponseCode();
-		String message = signupResponse.getMessage();
+		Response createAccountResponse = new Response(responseJson);
+		String responseCode = createAccountResponse.getResponseCode();
+		String message = createAccountResponse.getMessage();
 
 		if(responseCode.equals("100"))
-			clientGUI.showSuccessMessage(message);
+			client.showSuccessMessage(message);
 		else
-			clientGUI.showErrorMessage("Erro ao realizar cadastro", message);
+			client.showErrorMessage("Erro ao realizar cadastro", message);
 
-		clientGUI.showStartContentPane();
+		new ClientStartGUI(client).setup();
 	}
 }

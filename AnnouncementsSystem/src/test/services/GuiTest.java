@@ -1,11 +1,9 @@
 package test.services;
 
-import client.ServerConnection;
-import client.gui.ClientGUI;
-import client.gui.ClientLoginGUI;
+import client.Client;
+import client.gui.authentication.ClientLoginGUI;
 import server.Server;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -28,15 +26,9 @@ public class GuiTest {
 
         EventQueue.invokeLater(() -> {
             try {
-                ServerConnection serverConnection = new ServerConnection();
-
-                ClientGUI frame = new ClientGUI(serverConnection);
-                frame.setVisible(true);
-
-                serverConnection.start(hostname, port);
-
-                JPanel contentPane = new ClientLoginGUI(serverConnection, frame).setup();
-                frame.changeContentPane(contentPane);
+                Client client = new Client();
+                client.getServerConnection().start(hostname, port);
+                new ClientLoginGUI(client).setup();
             } catch (Exception e) {
                 System.err.println(e.getLocalizedMessage());
             }

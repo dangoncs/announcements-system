@@ -1,6 +1,7 @@
-package client.gui;
+package client.gui.account;
 
-import client.ServerConnection;
+import client.gui.ClientUserHomeGUI;
+import client.Client;
 import client.operations.ReadAccountOperation;
 import client.responses.ReadAccountResponse;
 
@@ -10,23 +11,22 @@ import java.awt.*;
 import java.io.IOException;
 
 public class ClientReadAccountGUI {
-    private final ClientGUI clientGUI;
+    private final Client client;
 
-    public ClientReadAccountGUI(ServerConnection serverConnection, ClientGUI clientGUI, String accountId, String clientToken) {
-        this.clientGUI = clientGUI;
-        getAccountData(accountId, clientToken, serverConnection);
+    public ClientReadAccountGUI(Client client) {
+        this.client = client;
     }
 
-    private void getAccountData(String accountId, String clientToken, ServerConnection serverConnection) {
+    public void readAccount(String accountId, String clientToken) {
         ReadAccountOperation readAccountOp = new ReadAccountOperation(accountId, clientToken);
         String json = readAccountOp.toJson();
         String responseJson;
 
         try {
-            responseJson = serverConnection.sendToServer(json);
+            responseJson = client.getServerConnection().sendToServer(json);
         } catch (IOException e) {
-            clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
-            clientGUI.showStartContentPane();
+            client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+            new ClientUserHomeGUI(client);
             return;
         }
 
@@ -43,8 +43,8 @@ public class ClientReadAccountGUI {
         }
         else {
             String message = readAccountResponse.getMessage();
-            clientGUI.showErrorMessage("Erro ao ler dados da conta", message);
-            clientGUI.showStartContentPane();
+            client.showErrorMessage("Erro ao ler dados da conta", message);
+            new ClientUserHomeGUI(client);
         }
     }
 
@@ -76,9 +76,9 @@ public class ClientReadAccountGUI {
 
         JButton btnBack = new JButton("Voltar");
         btnBack.setBounds(5, 233, 424, 23);
-        btnBack.addActionListener(_ -> clientGUI.showHomeContentPane());
+        btnBack.addActionListener(_ -> new ClientUserHomeGUI(client));
         contentPane.add(btnBack, BorderLayout.SOUTH);
 
-        clientGUI.changeContentPane(contentPane);
+        client.showContentPane(contentPane);
     }
 }
