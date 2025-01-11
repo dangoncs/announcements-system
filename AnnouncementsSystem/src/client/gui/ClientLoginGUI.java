@@ -84,7 +84,7 @@ public class ClientLoginGUI {
         }
         else {
             clientGUI.showErrorMessage("Erro ao realizar login", message);
-            clientGUI.showMainContentPane();
+            clientGUI.showStartContentPane();
         }
     }
 }

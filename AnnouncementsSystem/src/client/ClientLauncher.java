@@ -3,6 +3,9 @@ package client;
 import java.awt.EventQueue;
 
 import client.gui.ClientGUI;
+import client.gui.ClientStartupGUI;
+
+import javax.swing.*;
 
 public class ClientLauncher {
 	
@@ -11,8 +14,11 @@ public class ClientLauncher {
 
 		EventQueue.invokeLater(() -> {
 			try {
-				ClientGUI frame = new ClientGUI(serverConnection);
-				frame.setVisible(true);
+				ClientGUI clientGUI = new ClientGUI(serverConnection);
+				clientGUI.setVisible(true);
+
+				JPanel connectionContentPane = new ClientStartupGUI(serverConnection, clientGUI).setup();
+				clientGUI.setContentPane(connectionContentPane);
 			} catch (Exception e) {
 				System.err.println(e.getLocalizedMessage());
 			}

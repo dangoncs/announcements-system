@@ -66,7 +66,7 @@ public class ClientStartupGUI {
 		try {
 			serverConnection.start(addr, port);
 			clientGUI.showSuccessMessage("Conexão estabelecida com o servidor.");
-			clientGUI.setupMainGUI();
+			clientGUI.showStartContentPane();
 		} catch (UnknownHostException e) {
 			clientGUI.showErrorMessage("Host não encontrado", e.getLocalizedMessage());
 		} catch (IOException e) {

@@ -7,10 +7,12 @@ import server.Server;
 
 import java.awt.*;
 import java.io.Serial;
+import java.net.ServerSocket;
 
 public class ServerGUI extends JFrame {
 	@Serial
 	private static final long serialVersionUID = 1L;
+	private JTextField txtPort;
 
 	public ServerGUI() {
 		setTitle("SERVIDOR");
@@ -35,28 +37,34 @@ public class ServerGUI extends JFrame {
 		lblPort.setBounds(5, 116, 186, 23);
 		contentPane.add(lblPort);
 
-		JTextField txtPort = new JTextField();
+		txtPort = new JTextField();
 		txtPort.setBounds(201, 116, 100, 23);
 		contentPane.add(txtPort);
 		txtPort.setColumns(10);
 
 		JButton btnStartup = new JButton("Iniciar");
 		btnStartup.setBounds(5, 233, 424, 23);
-		btnStartup.addActionListener(_ -> {
-            int port = Integer.parseInt(txtPort.getText());
-
-			new Thread(() -> new Server(port, this)).start();
-
-			setupMainGUI(port);
-        });
+		btnStartup.addActionListener(_ -> startServer());
 		contentPane.add(btnStartup);
+	}
+
+	private void startServer() {
+		Server server = new Server();
+		int port = Integer.parseInt(txtPort.getText());
+
+		new Thread(() -> {
+			try (ServerSocket _ = server.createSocket(port)) {
+				setupMainGUI(port);
+				server.startConnectionLoop();
+			} catch (Exception e) {
+				showErrorMessage("Falha ao escutar na porta", e.getLocalizedMessage());
+			}
+		}).start();
 	}
 
 	private void setupMainGUI(int port) {
 		JPanel mainContentPane = new JPanel();
 		mainContentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-		setContentPane(mainContentPane);
 		mainContentPane.setLayout(null);
 
 		JLabel lblWindowTitle = new JLabel("Servidor iniciado");
@@ -64,10 +72,11 @@ public class ServerGUI extends JFrame {
 		lblWindowTitle.setBounds(5, 5, 424, 23);
 		mainContentPane.add(lblWindowTitle);
 
-		JLabel lblPort = new JLabel("Escutando na porta " + port + ".");
+		JLabel lblPort = new JLabel("Escutando na porta " + port + "...");
 		lblPort.setBounds(5, 50, 440, 23);
 		mainContentPane.add(lblPort);
 
+		setContentPane(mainContentPane);
 		revalidate();
 		repaint();
 	}

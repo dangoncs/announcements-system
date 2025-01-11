@@ -26,7 +26,7 @@ public class ClientReadAccountGUI {
             responseJson = serverConnection.sendToServer(json);
         } catch (IOException e) {
             clientGUI.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
-            clientGUI.showMainContentPane();
+            clientGUI.showStartContentPane();
             return;
         }
 
@@ -44,7 +44,7 @@ public class ClientReadAccountGUI {
         else {
             String message = readAccountResponse.getMessage();
             clientGUI.showErrorMessage("Erro ao ler dados da conta", message);
-            clientGUI.showMainContentPane();
+            clientGUI.showStartContentPane();
         }
     }
 
@@ -59,24 +59,24 @@ public class ClientReadAccountGUI {
         contentPane.add(lblWindowTitle);
 
         JLabel lblUserId = new JLabel("Usuário: " + userId);
-        lblUserId.setBounds(5, 73, 135, 23);
+        lblUserId.setBounds(5, 70, 135, 23);
         contentPane.add(lblUserId);
 
         JLabel lblName = new JLabel("Nome: " + name);
-        lblName.setBounds(5, 116, 135, 23);
+        lblName.setBounds(5, 100, 135, 23);
         contentPane.add(lblName);
 
         JLabel lblPassword = new JLabel("Senha: " + password);
-        lblName.setBounds(5, 159, 135, 23);
+        lblPassword.setBounds(5, 130, 135, 23);
         contentPane.add(lblPassword);
 
         JLabel lblToken = new JLabel("Token: " + token);
-        lblName.setBounds(5, 159, 135, 23);
+        lblToken.setBounds(5, 160, 135, 23);
         contentPane.add(lblToken);
 
         JButton btnBack = new JButton("Voltar");
         btnBack.setBounds(5, 233, 424, 23);
-        btnBack.addActionListener(_ -> clientGUI.showMainContentPane());
+        btnBack.addActionListener(_ -> clientGUI.showHomeContentPane());
         contentPane.add(btnBack, BorderLayout.SOUTH);
 
         clientGUI.changeContentPane(contentPane);

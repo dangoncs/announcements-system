@@ -97,6 +97,6 @@ public class ClientSignupGUI {
 		else
 			clientGUI.showErrorMessage("Erro ao realizar cadastro", message);
 
-		clientGUI.showMainContentPane();
+		clientGUI.showStartContentPane();
 	}
 }

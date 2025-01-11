@@ -36,10 +36,20 @@ public class ClientLogoutGUI {
         lblLoggedIn.setBounds(5, 50, 440, 23);
         contentPane.add(lblLoggedIn);
 
+        JButton btnReadAccount = new JButton("Ver dados da conta");
+        btnReadAccount.setBounds(5, 120, 424, 23);
+        btnReadAccount.addActionListener(_ -> {
+            new ClientReadAccountGUI(serverConnection, clientGUI, clientUser, clientToken);
+        });
+        contentPane.add(btnReadAccount);
+
+
         JButton btnLogout = new JButton("Fazer logout e sair");
-        btnLogout.setBounds(5, 233, 424, 23);
+        btnLogout.setBounds(5, 150, 424, 23);
         btnLogout.addActionListener(_ -> logoutActionHandler());
         contentPane.add(btnLogout);
+
+        clientGUI.setHomeContentPane(contentPane);
 
         return contentPane;
     }

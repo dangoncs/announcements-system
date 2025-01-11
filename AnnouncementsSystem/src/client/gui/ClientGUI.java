@@ -13,7 +13,8 @@ public class ClientGUI extends JFrame {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final ServerConnection serverConnection;
-	JPanel mainContentPane;
+	JPanel startContentPane;
+	JPanel homeContentPane;
 
     public ClientGUI(ServerConnection serverConnection) {
 		super("CLIENTE");
@@ -21,19 +22,17 @@ public class ClientGUI extends JFrame {
 		setBounds(100, 100, 450, 300);
 
 		this.serverConnection = serverConnection;
-		JPanel startupContentPane = new ClientStartupGUI(serverConnection, this).setup();
-		setContentPane(startupContentPane);
 	}
 
-	public void setupMainGUI() {
-		mainContentPane = new JPanel();
-		mainContentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		mainContentPane.setLayout(null);
+	private void setupStartGUI() {
+		startContentPane = new JPanel();
+		startContentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		startContentPane.setLayout(null);
 
 		JLabel lblWindowTitle = new JLabel("Bem-vindo(a)");
 		lblWindowTitle.setFont(new Font("Tahoma", Font.BOLD, 20));
 		lblWindowTitle.setBounds(5, 5, 440, 23);
-		mainContentPane.add(lblWindowTitle);
+		startContentPane.add(lblWindowTitle);
 
         JButton btnSignup = new JButton("Cadastro");
 		btnSignup.setBounds(5, 120, 424, 23);
@@ -41,7 +40,7 @@ public class ClientGUI extends JFrame {
 			JPanel signupContentPane = new ClientSignupGUI(serverConnection, this).setup();
 			changeContentPane(signupContentPane);
         });
-		mainContentPane.add(btnSignup);
+		startContentPane.add(btnSignup);
 
 		JButton btnLogin = new JButton("Login");
 		btnLogin.setBounds(5, 150, 424, 23);
@@ -49,9 +48,7 @@ public class ClientGUI extends JFrame {
 			JPanel loginContentPane = new ClientLoginGUI(serverConnection, this).setup();
 			changeContentPane(loginContentPane);
 		});
-		mainContentPane.add(btnLogin);
-
-		showMainContentPane();
+		startContentPane.add(btnLogin);
 	}
 
 	public void changeContentPane(JPanel contentPane) {
@@ -60,8 +57,19 @@ public class ClientGUI extends JFrame {
 		repaint();
 	}
 
-	public void showMainContentPane() {
-		changeContentPane(mainContentPane);
+	public void showStartContentPane() {
+		if(startContentPane == null)
+			setupStartGUI();
+
+		changeContentPane(startContentPane);
+	}
+
+	public void showHomeContentPane() {
+		if(homeContentPane == null) {
+			return;
+		}
+
+		changeContentPane(homeContentPane);
 	}
 
 	public void showErrorMessage(String title, String message) {
@@ -70,5 +78,13 @@ public class ClientGUI extends JFrame {
 
 	public void showSuccessMessage(String message) {
 		JOptionPane.showMessageDialog(null, message, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	public void setHomeContentPane(JPanel homeContentPane) {
+		this.homeContentPane = homeContentPane;
+	}
+
+	public void setStartContentPane(JPanel startContentPane) {
+		this.startContentPane = startContentPane;
 	}
 }
