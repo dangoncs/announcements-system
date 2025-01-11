@@ -26,7 +26,7 @@ public class ClientReadAccountGUI {
             responseJson = client.getServerConnection().sendToServer(json);
         } catch (IOException e) {
             client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
-            new ClientUserHomeGUI(client);
+            new ClientUserHomeGUI(client).setup();
             return;
         }
 
@@ -44,7 +44,7 @@ public class ClientReadAccountGUI {
         else {
             String message = readAccountResponse.getMessage();
             client.showErrorMessage("Erro ao ler dados da conta", message);
-            new ClientUserHomeGUI(client);
+            new ClientUserHomeGUI(client).setup();
         }
     }
 
@@ -76,7 +76,7 @@ public class ClientReadAccountGUI {
 
         JButton btnBack = new JButton("Voltar");
         btnBack.setBounds(5, 233, 424, 23);
-        btnBack.addActionListener(_ -> new ClientUserHomeGUI(client));
+        btnBack.addActionListener(_ -> new ClientUserHomeGUI(client).setup());
         contentPane.add(btnBack, BorderLayout.SOUTH);
 
         client.showContentPane(contentPane);
