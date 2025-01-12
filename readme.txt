@@ -5,22 +5,18 @@ Requirements
 
 Folder Structure
 ----------------
-The workspace contains two main folders:
-- src: the folder that contains the source code, divided in the "client" and "server" packages.
-- lib: the folder that contains dependencies (GSON v2.11.0, MySQL Connector J v9.1.0).
+The workspace is divided in two folders: the Client project and the Server project. Both contain:
+- src: the folder that contains the source code.
+- lib: the folder that contains dependencies.
 
 Running the Server
 ------------------
-- Create the announcements_system MySQL database. User has to be root with password "" (empty string).
+- Open the AnnouncementsSystemServer project in the IDE.
 
-  mysql -u root -p -e "create database announcements_system";
-
-- Import the dump into the database.
-
-  mysql -u root -p announcements_system < database.sql
-
-- Build and run the "ServerLauncher" class to start the server.
+- Build and run the "Server" class, located inside the "main" package.
 
 Running the Client
 ------------------
-Build and run the "ClientLauncher" class to start the client.
+- Open the AnnouncementsSystemClient project in the IDE.
+
+- Build and run the "Client" class, located inside the "main" package.
