@@ -5,7 +5,7 @@
 
 ## Folder Structure
 
-The workspace is divided in two main folders, one for the Client project and one for the Server project. Each project contains:
+The workspace is divided in two folders: the Client project and the Server project. Both contain:
 
 - `src`: the folder that contains the source code.
 - `lib`: the folder that contains dependencies (JAR files).
