@@ -5,9 +5,13 @@ import main.Client;
 import operations.account.CreateAccountOperation;
 import responses.Response;
 
-import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import java.awt.Font;
 import java.io.IOException;
 
 public class UpdateAccountGUI {
@@ -20,7 +24,7 @@ public class UpdateAccountGUI {
         this.client = client;
     }
 
-    public JPanel setup() {
+    public void setup() {
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
@@ -35,7 +39,7 @@ public class UpdateAccountGUI {
         lblSubtitle.setBounds(5, 30, 424, 23);
         contentPane.add(lblSubtitle);
 
-        JLabel lblUserId = new JLabel("Usuário:");
+        JLabel lblUserId = new JLabel("Atualizar usuário:");
         lblUserId.setBounds(5, 73, 135, 23);
         contentPane.add(lblUserId);
 
@@ -44,7 +48,7 @@ public class UpdateAccountGUI {
         contentPane.add(txtUserId);
         txtUserId.setColumns(10);
 
-        JLabel lblName = new JLabel("Nome:");
+        JLabel lblName = new JLabel("Novo nome:");
         lblName.setBounds(5, 116, 135, 23);
         contentPane.add(lblName);
 
@@ -53,7 +57,7 @@ public class UpdateAccountGUI {
         contentPane.add(txtName);
         txtName.setColumns(10);
 
-        JLabel lblPasswd = new JLabel("Senha:");
+        JLabel lblPasswd = new JLabel("Nova senha:");
         lblPasswd.setBounds(5, 159, 135, 23);
         contentPane.add(lblPasswd);
 
@@ -62,12 +66,12 @@ public class UpdateAccountGUI {
         contentPane.add(txtPasswd);
         txtPasswd.setColumns(10);
 
-        JButton btnSignup = new JButton("Cadastrar");
-        btnSignup.setBounds(5, 233, 424, 23);
-        btnSignup.addActionListener(_ -> updateAccountActionHandler());
-        contentPane.add(btnSignup, BorderLayout.SOUTH);
+        JButton btnUpdate = new JButton("Atualizar");
+        btnUpdate.setBounds(5, 235, 424, 23);
+        btnUpdate.addActionListener(_ -> updateAccountActionHandler());
+        contentPane.add(btnUpdate);
 
-        return contentPane;
+        client.showContentPane(contentPane);
     }
 
     private void updateAccountActionHandler() {

@@ -1,16 +1,17 @@
 package gui;
 
+import gui.authentication.LoginGUI;
 import main.Client;
 
 import java.awt.Font;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 
 public class ConnectionGUI {
 	private final Client client;
@@ -64,7 +65,7 @@ public class ConnectionGUI {
 		try {
 			client.getServerConnection().start(addr, port);
 			client.showSuccessMessage("Conexão estabelecida com o servidor.");
-			new StartGUI(client).setup();
+			new LoginGUI(client).setup();
 		} catch (UnknownHostException e) {
 			client.showErrorMessage("Host não encontrado", e.getLocalizedMessage());
 		} catch (IOException e) {

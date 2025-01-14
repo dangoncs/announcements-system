@@ -26,6 +26,7 @@ public class Client extends JFrame {
 		super("CLIENTE");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(450, 300);
+		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 

@@ -4,10 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.io.IOException;
 
-import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-import gui.StartGUI;
+import gui.authentication.LoginGUI;
 import main.Client;
 import operations.account.CreateAccountOperation;
 import responses.Response;
@@ -92,6 +95,6 @@ public class CreateAccountGUI {
 		else
 			client.showErrorMessage("Erro ao realizar cadastro", message);
 
-		new StartGUI(client).setup();
+		new LoginGUI(client).setup();
 	}
 }

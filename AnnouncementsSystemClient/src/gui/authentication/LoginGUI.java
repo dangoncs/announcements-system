@@ -1,14 +1,19 @@
 package gui.authentication;
 
-import gui.StartGUI;
 import gui.UserHomeGUI;
+import gui.account.CreateAccountGUI;
 import main.Client;
 import operations.authentication.LoginOperation;
 import responses.authentication.LoginResponse;
 
-import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+
+import java.awt.Font;
 import java.io.IOException;
 
 public class LoginGUI {
@@ -25,33 +30,42 @@ public class LoginGUI {
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
 
-        JLabel lblWindowTitle = new JLabel("Fazer login");
+        JLabel lblWindowTitle = new JLabel("Bem-vindo");
         lblWindowTitle.setFont(new Font("Tahoma", Font.BOLD, 20));
         lblWindowTitle.setBounds(5, 5, 440, 23);
         contentPane.add(lblWindowTitle);
 
         JLabel lblUserId = new JLabel("Usuário:");
-        lblUserId.setBounds(5, 116, 135, 23);
+        lblUserId.setBounds(140, 63, 70, 23);
         contentPane.add(lblUserId);
 
         txtUserId = new JTextField();
-        txtUserId.setBounds(150, 116, 100, 23);
+        txtUserId.setBounds(210, 63, 100, 23);
         contentPane.add(txtUserId);
-        txtUserId.setColumns(10);
 
         JLabel lblPasswd = new JLabel("Senha:");
-        lblPasswd.setBounds(5, 159, 135, 23);
+        lblPasswd.setBounds(140, 106, 70, 23);
         contentPane.add(lblPasswd);
 
         txtPasswd = new JTextField();
-        txtPasswd.setBounds(150, 159, 100, 23);
+        txtPasswd.setBounds(210, 106, 100, 23);
         contentPane.add(txtPasswd);
-        txtPasswd.setColumns(10);
 
         JButton btnLogin = new JButton("Login");
-        btnLogin.setBounds(5, 233, 424, 23);
+        btnLogin.setBounds(140, 149, 170, 23);
         btnLogin.addActionListener(_ -> loginActionHandler());
         contentPane.add(btnLogin);
+
+        JSeparator separator = new JSeparator();
+        separator.setBounds(140, 183, 170, 2);
+        contentPane.add(separator);
+
+        JButton btnSignup = new JButton("Cadastro");
+        btnSignup.setBounds(140, 194, 170, 23);
+        btnSignup.addActionListener(_ ->
+                new CreateAccountGUI(client).setup()
+        );
+        contentPane.add(btnSignup);
 
         client.showContentPane(contentPane);
     }
@@ -84,7 +98,6 @@ public class LoginGUI {
         }
         else {
             client.showErrorMessage("Erro ao realizar login", message);
-            new StartGUI(client).setup();
         }
     }
 }
