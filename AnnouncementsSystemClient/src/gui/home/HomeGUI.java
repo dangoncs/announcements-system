@@ -7,6 +7,7 @@ import gui.announcementcategory.CreateCategoryGUI;
 import gui.announcementcategory.DeleteCategoryGUI;
 import gui.announcementcategory.ReadCategoryGUI;
 import gui.announcementcategory.UpdateCategoryGUI;
+import gui.connection.ConnectionGUI;
 import main.Client;
 import operations.authentication.LogoutOperation;
 import responses.Response;
@@ -15,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
@@ -48,9 +50,8 @@ public class HomeGUI {
 
         JButton btnReadAccount = new JButton("Ver dados");
         btnReadAccount.addActionListener(_ ->
-                new ReadAccountGUI(client).readAccount(client.getLoggedInUserId(), client.getLoggedInUserToken())
-        );
-        accountPanel.add(btnReadAccount);
+                readAccountActionHandler()
+        );        accountPanel.add(btnReadAccount);
 
         JButton btnUpdateAccount = new JButton("Atualizar dados");
         btnUpdateAccount.addActionListener(_ ->
@@ -92,11 +93,27 @@ public class HomeGUI {
         );
         categoryPanel.add(btnDeleteCategory);
 
-        JButton btnLogout = new JButton("Fazer logout e sair");
+        JButton btnLogout = new JButton("Fazer logout e desconectar");
         btnLogout.addActionListener(_ -> logoutActionHandler());
         contentPane.add(btnLogout, BorderLayout.SOUTH);
 
         client.showContentPane(contentPane);
+    }
+
+    private void readAccountActionHandler() {
+        if(!client.isAdmin()) {
+            new ReadAccountGUI(client).read(client.getLoggedInUserId());
+            return;
+        }
+
+        String userId = JOptionPane.showInputDialog("Digite o usuário da conta que deseja ler.\nDeixe em branco para ler a própria conta.");
+        if (userId == null)
+            return;
+
+        if (userId.isBlank())
+            userId = client.getLoggedInUserId();
+
+        new ReadAccountGUI(client).read(userId);
     }
 
     private void logoutActionHandler() {
@@ -117,7 +134,8 @@ public class HomeGUI {
 
         if(responseCode.equals("010")) {
             client.showSuccessMessage(message);
-            client.getServerConnection().disconnectAndExit();
+            client.getServerConnection().disconnect();
+            new ConnectionGUI(client).setup();
         }
         else {
             client.showErrorMessage("Erro ao realizar logout", message);

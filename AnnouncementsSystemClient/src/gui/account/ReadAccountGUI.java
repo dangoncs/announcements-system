@@ -20,7 +20,9 @@ public class ReadAccountGUI {
         this.client = client;
     }
 
-    public void readAccount(String accountId, String clientToken) {
+    public void read(String accountId) {
+        String clientToken = client.getLoggedInUserToken();
+
         ReadAccountOperation readAccountOp = new ReadAccountOperation(accountId, clientToken);
         String json = readAccountOp.toJson();
         String responseJson;

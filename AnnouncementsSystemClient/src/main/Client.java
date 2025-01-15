@@ -1,6 +1,6 @@
 package main;
 
-import gui.ConnectionGUI;
+import gui.connection.ConnectionGUI;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;

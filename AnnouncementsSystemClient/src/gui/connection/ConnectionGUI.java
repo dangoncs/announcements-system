@@ -1,4 +1,4 @@
-package gui;
+package gui.connection;
 
 import gui.authentication.LoginGUI;
 import main.Client;
@@ -66,8 +66,8 @@ public class ConnectionGUI {
 			client.getServerConnection().start(addr, port);
 			client.showSuccessMessage("Conexão estabelecida com o servidor.");
 			new LoginGUI(client).setup();
-		} catch (UnknownHostException e) {
-			client.showErrorMessage("Host não encontrado", e.getLocalizedMessage());
+		} catch (UnknownHostException | IllegalArgumentException e) {
+			client.showErrorMessage("Dados de conexão inválidos","Verifique se o endereço IP e a porta estão corretos");
 		} catch (IOException e) {
 			client.showErrorMessage("Erro de conexão com o servidor", e.getLocalizedMessage());
 		}
