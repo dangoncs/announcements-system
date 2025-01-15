@@ -2,23 +2,21 @@ package main;
 
 import gui.ConnectionGUI;
 
-import javax.swing.*;
-
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class Client extends JFrame {
 	private ServerConnection serverConnection;
 	private String loggedInUserToken;
 	private String loggedInUserId;
+	private boolean isAdmin;
 
 	public static void main(String[] ignoredArgs) {
-		EventQueue.invokeLater(() -> {
-			try {
-				Client client = new Client();
-				new ConnectionGUI(client).setup();
-			} catch (Exception e) {
-				System.err.println(e.getLocalizedMessage());
-			}
+		SwingUtilities.invokeLater(() -> {
+			Client client = new Client();
+			new ConnectionGUI(client).setup();
 		});
 	}
 
@@ -59,11 +57,19 @@ public class Client extends JFrame {
 		return loggedInUserId;
 	}
 
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+
 	public void setLoggedInUserToken(String loggedInUserToken) {
 		this.loggedInUserToken = loggedInUserToken;
 	}
 
 	public void setLoggedInUserId(String loggedInUserId) {
 		this.loggedInUserId = loggedInUserId;
+	}
+
+	public void setAdmin(boolean admin) {
+		this.isAdmin = admin;
 	}
 }

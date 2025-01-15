@@ -1,6 +1,6 @@
 package gui.account;
 
-import gui.UserHomeGUI;
+import gui.home.HomeGUI;
 import main.Client;
 import operations.account.CreateAccountOperation;
 import responses.Response;
@@ -67,7 +67,7 @@ public class UpdateAccountGUI {
         txtPasswd.setColumns(10);
 
         JButton btnUpdate = new JButton("Atualizar");
-        btnUpdate.setBounds(5, 235, 424, 23);
+        btnUpdate.setBounds(5, 233, 424, 23);
         btnUpdate.addActionListener(_ -> updateAccountActionHandler());
         contentPane.add(btnUpdate);
 
@@ -99,6 +99,6 @@ public class UpdateAccountGUI {
         else
             client.showErrorMessage("Erro ao atualizar dados da conta", message);
 
-        new UserHomeGUI(client).setup();
+        new HomeGUI(client).setup();
     }
 }

@@ -1,7 +1,7 @@
 package gui.authentication;
 
-import gui.UserHomeGUI;
 import gui.account.CreateAccountGUI;
+import gui.home.HomeGUI;
 import main.Client;
 import operations.authentication.LoginOperation;
 import responses.authentication.LoginResponse;
@@ -90,11 +90,14 @@ public class LoginGUI {
         String message = loginResponse.getMessage();
 
         if(responseCode.equals("000") || responseCode.equals("001")) {
+            boolean isAdmin = responseCode.equals("001");
+            client.setAdmin(isAdmin);
+
             client.setLoggedInUserToken(loginResponse.getToken());
             client.setLoggedInUserId(userId);
 
             client.showSuccessMessage(message);
-            new UserHomeGUI(client).setup();
+            new HomeGUI(client).setup();
         }
         else {
             client.showErrorMessage("Erro ao realizar login", message);

@@ -1,13 +1,16 @@
 package gui.account;
 
-import gui.UserHomeGUI;
+import gui.home.HomeGUI;
 import main.Client;
 import operations.account.ReadAccountOperation;
 import responses.account.ReadAccountResponse;
 
-import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import java.awt.Font;
 import java.io.IOException;
 
 public class ReadAccountGUI {
@@ -26,7 +29,7 @@ public class ReadAccountGUI {
             responseJson = client.getServerConnection().sendToServer(json);
         } catch (IOException e) {
             client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
-            new UserHomeGUI(client).setup();
+            new HomeGUI(client).setup();
             return;
         }
 
@@ -44,7 +47,7 @@ public class ReadAccountGUI {
         else {
             String message = readAccountResponse.getMessage();
             client.showErrorMessage("Erro ao ler dados da conta", message);
-            new UserHomeGUI(client).setup();
+            new HomeGUI(client).setup();
         }
     }
 
@@ -76,8 +79,8 @@ public class ReadAccountGUI {
 
         JButton btnBack = new JButton("Voltar");
         btnBack.setBounds(5, 233, 424, 23);
-        btnBack.addActionListener(_ -> new UserHomeGUI(client).setup());
-        contentPane.add(btnBack, BorderLayout.SOUTH);
+        btnBack.addActionListener(_ -> new HomeGUI(client).setup());
+        contentPane.add(btnBack);
 
         client.showContentPane(contentPane);
     }

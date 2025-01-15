@@ -21,10 +21,10 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.io.IOException;
 
-public class AdminHomeGUI {
+public class HomeGUI {
     private final Client client;
 
-    public AdminHomeGUI(Client client) {
+    public HomeGUI(Client client) {
         this.client = client;
     }
 
@@ -33,13 +33,13 @@ public class AdminHomeGUI {
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(new BorderLayout(5, 5));
 
-        JLabel lblWindowTitle = new JLabel("Painel do Admin");
+        String windowTitle = (client.isAdmin()) ? "Painel do Admin" : "Painel do Usuário";
+        JLabel lblWindowTitle = new JLabel(windowTitle);
         lblWindowTitle.setFont(new Font("Tahoma", Font.BOLD, 20));
         contentPane.add(lblWindowTitle, BorderLayout.NORTH);
 
         JPanel center = new JPanel();
         center.setBorder(new EmptyBorder(5, 5, 5, 5));
-        //center.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
         contentPane.add(center, BorderLayout.CENTER);
 
         JPanel accountPanel = new JPanel();
@@ -54,7 +54,7 @@ public class AdminHomeGUI {
 
         JButton btnUpdateAccount = new JButton("Atualizar dados");
         btnUpdateAccount.addActionListener(_ ->
-                new UpdateAccountGUI(client).setup()
+                new UpdateAccountGUI(client)
         );
         accountPanel.add(btnUpdateAccount);
 
