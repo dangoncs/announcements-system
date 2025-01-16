@@ -75,7 +75,7 @@ public class CreateAccountGUI {
 		String name = txtName.getText();
 		String passwd = txtPasswd.getText();
 
-		CreateAccountOperation createAccountOp = new CreateAccountOperation("1", userId, passwd, name);
+		CreateAccountOperation createAccountOp = new CreateAccountOperation(userId, passwd, name);
 		String json = createAccountOp.toJson();
 		String responseJson;
 

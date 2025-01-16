@@ -8,6 +8,7 @@ import responses.account.ReadAccountResponse;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import java.awt.Font;
@@ -18,9 +19,27 @@ public class ReadAccountGUI {
 
     public ReadAccountGUI(Client client) {
         this.client = client;
+        determineUserId();
     }
 
-    public void read(String accountId) {
+    public void determineUserId() {
+        String userId = "";
+
+        if (client.isAdmin()) {
+            String message = "Digite o usuário da conta que deseja manipular.\nDeixe em branco para manipular a própria conta.";
+            userId = JOptionPane.showInputDialog(message);
+
+            if (userId == null)
+                return;
+
+            if (userId.isBlank())
+                userId = "";
+        }
+
+        readAccount(userId);
+    }
+
+    private void readAccount(String accountId) {
         String clientToken = client.getLoggedInUserToken();
 
         ReadAccountOperation readAccountOp = new ReadAccountOperation(accountId, clientToken);

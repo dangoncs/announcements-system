@@ -7,8 +7,8 @@ public class CreateAccountOperation extends Operation {
     private final String password;
     private final String name;
 
-    public CreateAccountOperation(String op, String user, String password, String name) {
-        super(op);
+    public CreateAccountOperation(String user, String password, String name) {
+        super("1");
         this.user = user;
         this.password = password;
         this.name = name;

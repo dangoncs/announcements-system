@@ -3,7 +3,6 @@ package operations.account;
 import operations.Operation;
 
 public class ReadAccountOperation extends Operation {
-
     private final String user;
     private final String token;
 

@@ -74,7 +74,7 @@ public class LoginGUI {
         String userId = txtUserId.getText();
         String passwd = txtPasswd.getText();
 
-        LoginOperation loginOp = new LoginOperation("5", userId, passwd);
+        LoginOperation loginOp = new LoginOperation(userId, passwd);
         String json = loginOp.toJson();
         String responseJson;
 

@@ -16,7 +16,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
@@ -49,20 +48,15 @@ public class HomeGUI {
         center.add(accountPanel);
 
         JButton btnReadAccount = new JButton("Ver dados");
-        btnReadAccount.addActionListener(_ ->
-                readAccountActionHandler()
-        );        accountPanel.add(btnReadAccount);
+        btnReadAccount.addActionListener(_ -> new ReadAccountGUI(client));
+        accountPanel.add(btnReadAccount);
 
         JButton btnUpdateAccount = new JButton("Atualizar dados");
-        btnUpdateAccount.addActionListener(_ ->
-                new UpdateAccountGUI(client)
-        );
+        btnUpdateAccount.addActionListener(_ -> new UpdateAccountGUI(client));
         accountPanel.add(btnUpdateAccount);
 
         JButton btnDeleteAccount = new JButton("Excluir");
-        btnDeleteAccount.addActionListener(_ ->
-                new DeleteAccountGUI()
-        );
+        btnDeleteAccount.addActionListener(_ -> new DeleteAccountGUI());
         accountPanel.add(btnDeleteAccount);
 
         JPanel categoryPanel = new JPanel();
@@ -101,23 +95,11 @@ public class HomeGUI {
     }
 
     private void readAccountActionHandler() {
-        if(!client.isAdmin()) {
-            new ReadAccountGUI(client).read(client.getLoggedInUserId());
-            return;
-        }
 
-        String userId = JOptionPane.showInputDialog("Digite o usuário da conta que deseja ler.\nDeixe em branco para ler a própria conta.");
-        if (userId == null)
-            return;
-
-        if (userId.isBlank())
-            userId = client.getLoggedInUserId();
-
-        new ReadAccountGUI(client).read(userId);
     }
 
     private void logoutActionHandler() {
-        LogoutOperation logoutOp = new LogoutOperation("6", client.getLoggedInUserToken());
+        LogoutOperation logoutOp = new LogoutOperation(client.getLoggedInUserToken());
         String json = logoutOp.toJson();
         String responseJson;
 

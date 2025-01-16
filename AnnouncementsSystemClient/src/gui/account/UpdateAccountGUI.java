@@ -2,85 +2,102 @@ package gui.account;
 
 import gui.home.HomeGUI;
 import main.Client;
-import operations.account.CreateAccountOperation;
+import operations.account.UpdateAccountOperation;
 import responses.Response;
 
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import java.awt.Font;
+import java.awt.BorderLayout;
 import java.io.IOException;
 
 public class UpdateAccountGUI {
     private final Client client;
-    private JTextField txtUserId;
     private JTextField txtName;
     private JTextField txtPasswd;
 
     public UpdateAccountGUI(Client client) {
         this.client = client;
+        determineUserId();
     }
 
-    public void setup() {
+    private void determineUserId() {
+        String userId = "";
+
+        if (client.isAdmin()) {
+            String message = "Digite o usuário da conta que deseja manipular.\nDeixe em branco para manipular a própria conta.";
+            userId = JOptionPane.showInputDialog(message);
+
+            if (userId == null)
+                return;
+
+            if (userId.isBlank())
+                userId = "";
+        }
+
+        setupGUI(userId);
+    }
+
+    private void setupGUI(String userId) {
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        contentPane.setLayout(null);
+        contentPane.setLayout(new BorderLayout(5, 5));
 
-        JLabel lblWindowTitle = new JLabel("Insira os dados da conta:");
+        JLabel lblWindowTitle = new JLabel("Atualizando dados da conta: " + userId);
         lblWindowTitle.setFont(new Font("Tahoma", Font.BOLD, 20));
-        lblWindowTitle.setBounds(5, 5, 424, 23);
-        contentPane.add(lblWindowTitle);
+        contentPane.add(lblWindowTitle, BorderLayout.NORTH);
+
+        JPanel center = new JPanel();
+        center.setLayout(null);
+        contentPane.add(center, BorderLayout.CENTER);
 
         JLabel lblSubtitle = new JLabel("Campos em branco não serão atualizados.");
         lblSubtitle.setFont(new Font("Tahoma", Font.PLAIN, 12));
         lblSubtitle.setBounds(5, 30, 424, 23);
-        contentPane.add(lblSubtitle);
-
-        JLabel lblUserId = new JLabel("Atualizar usuário:");
-        lblUserId.setBounds(5, 73, 135, 23);
-        contentPane.add(lblUserId);
-
-        txtUserId = new JTextField();
-        txtUserId.setBounds(150, 73, 100, 23);
-        contentPane.add(txtUserId);
-        txtUserId.setColumns(10);
+        center.add(lblSubtitle);
 
         JLabel lblName = new JLabel("Novo nome:");
-        lblName.setBounds(5, 116, 135, 23);
-        contentPane.add(lblName);
+        lblName.setBounds(5, 73, 100, 23);
+        center.add(lblName);
 
         txtName = new JTextField();
-        txtName.setBounds(150, 116, 100, 23);
-        contentPane.add(txtName);
-        txtName.setColumns(10);
+        txtName.setBounds(110, 73, 100, 23);
+        center.add(txtName);
 
         JLabel lblPasswd = new JLabel("Nova senha:");
-        lblPasswd.setBounds(5, 159, 135, 23);
-        contentPane.add(lblPasswd);
+        lblPasswd.setBounds(5, 116, 100, 23);
+        center.add(lblPasswd);
 
         txtPasswd = new JTextField();
-        txtPasswd.setBounds(150, 159, 100, 23);
-        contentPane.add(txtPasswd);
-        txtPasswd.setColumns(10);
+        txtPasswd.setBounds(110, 116, 100, 23);
+        center.add(txtPasswd);
+
+        JPanel buttons = new JPanel();
+        contentPane.add(buttons, BorderLayout.SOUTH);
+
+        JButton btnBack = new JButton("Voltar");
+        btnBack.addActionListener(_ -> new HomeGUI(client));
+        buttons.add(btnBack);
 
         JButton btnUpdate = new JButton("Atualizar");
-        btnUpdate.setBounds(5, 233, 424, 23);
-        btnUpdate.addActionListener(_ -> updateAccountActionHandler());
-        contentPane.add(btnUpdate);
+        btnUpdate.addActionListener(_ -> updateAccountActionHandler(userId));
+        buttons.add(btnUpdate);
 
         client.showContentPane(contentPane);
     }
 
-    private void updateAccountActionHandler() {
-        String userId = txtUserId.getText();
+    private void updateAccountActionHandler(String userId) {
         String name = txtName.getText();
         String passwd = txtPasswd.getText();
+        String token = client.getLoggedInUserToken();
 
-        CreateAccountOperation createAccountOp = new CreateAccountOperation("1", userId, passwd, name);
-        String json = createAccountOp.toJson();
+        UpdateAccountOperation updateAccountOp = new UpdateAccountOperation(userId, passwd, name, token);
+        String json = updateAccountOp.toJson();
         String responseJson;
 
         try {
