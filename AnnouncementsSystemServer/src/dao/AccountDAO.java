@@ -29,7 +29,7 @@ public class AccountDAO {
     public Account searchByUser(String userId) throws SQLException {
         String sql = "SELECT * FROM user WHERE user_id = ?";
 
-        try(PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, userId);
 
             ResultSet rs = ps.executeQuery();
@@ -54,8 +54,6 @@ public class AccountDAO {
             ps.setString(2, userId);
 
             ps.executeUpdate();
-        } finally {
-            Database.disconnect();
         }
     }
 

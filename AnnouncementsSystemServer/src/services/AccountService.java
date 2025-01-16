@@ -75,6 +75,7 @@ public class AccountService {
                     "Successful account creation"
             );
         } catch(SQLException e) {
+            System.err.printf("[AVISO] Account creation error: %s%n", e.getLocalizedMessage());
             return new Response(
                     "104",
                     "Unknown error"
@@ -100,16 +101,12 @@ public class AccountService {
         JsonElement tokenElement = jsonObject.get("token");
 
         String userId = (userElement != null && !userElement.isJsonNull()) ? userElement.getAsString() : loggedInUserId;
+        String token = (tokenElement != null && !tokenElement.isJsonNull()) ? tokenElement.getAsString() : null;
+
+        if (userId.isBlank())
+            userId = loggedInUserId;
 
         if(loggedInUserRole != 1) {
-            if(tokenElement == null || tokenElement.isJsonNull()) {
-                return new Response(
-                        "112",
-                        "Invalid or empty token"
-                );
-            }
-
-            String token = tokenElement.getAsString();
             if(!loggedInUserToken.equals(token)) {
                 return new Response(
                         "112",
@@ -144,6 +141,7 @@ public class AccountService {
                     account.password()
             );
         } catch(SQLException e) {
+            System.err.printf("[AVISO] Account read error: %s%n", e.getLocalizedMessage());
             return new Response(
                     "115",
                     "Unknown error"
@@ -171,9 +169,12 @@ public class AccountService {
         JsonElement tokenElement = jsonObject.get("token");
 
         String userId = (userElement != null && !userElement.isJsonNull()) ? userElement.getAsString() : loggedInUserId;
-        String password = (passwordElement != null && !passwordElement.isJsonNull()) ? passwordElement.getAsString() : null;
-        String name = (nameElement != null && !nameElement.isJsonNull()) ? nameElement.getAsString() : null;
+        String password = (passwordElement != null && !passwordElement.isJsonNull()) ? passwordElement.getAsString() : "";
+        String name = (nameElement != null && !nameElement.isJsonNull()) ? nameElement.getAsString() : "";
         String token = (tokenElement != null && !tokenElement.isJsonNull()) ? tokenElement.getAsString() : null;
+
+        if (userId.isBlank())
+            userId = loggedInUserId;
 
         if(!loggedInUserToken.equals(token)) {
             return new Response(
@@ -190,13 +191,6 @@ public class AccountService {
         }
 
         try(Connection conn = Database.connect()) {
-            if((name != null && isNotValidName(name)) || (password != null && isNotValidPassword(password))) {
-                return new Response(
-                        "126",
-                        "Invalid information inserted"
-                );
-            }
-
             if(new AccountDAO(conn).searchByUser(userId) == null) {
                 return new Response(
                         "123",
@@ -204,17 +198,32 @@ public class AccountService {
                 );
             }
 
-            if(name != null)
+            if (!name.isBlank()) {
+                if (isNotValidName(name)) {
+                    return new Response(
+                            "126",
+                            "Invalid information inserted"
+                    );
+                }
                 new AccountDAO(conn).updateName(userId, truncateString(name));
+            }
 
-            if(password != null)
+            if(!password.isBlank()) {
+                if (isNotValidPassword(password)) {
+                    return new Response(
+                            "126",
+                            "Invalid information inserted"
+                    );
+                }
                 new AccountDAO(conn).updatePassword(userId, password);
+            }
 
             return new Response(
                     "120",
                     "Account successfully updated"
             );
         } catch(SQLException e) {
+            System.err.printf("[AVISO] Account update error: %s%n", e.getLocalizedMessage());
             return new Response(
                     "124",
                     "Unknown error"
@@ -249,6 +258,9 @@ public class AccountService {
         String userId = (userElement != null && !tokenElement.isJsonNull()) ? userElement.getAsString() : loggedInUserId;
         String token = tokenElement.getAsString();
 
+        if (userId.isBlank())
+            userId = loggedInUserId;
+
         if(!loggedInUserToken.equals(token)) {
             return new Response(
                     "132",
@@ -281,6 +293,7 @@ public class AccountService {
                     "Account successfully deleted"
             );
         } catch(SQLException e) {
+            System.err.printf("[AVISO] Account deletion error: %s%n", e.getLocalizedMessage());
             return new Response(
                     "135",
                     "Unknown error"
