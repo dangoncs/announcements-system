@@ -3,12 +3,10 @@ package services;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
 import dao.AccountDAO;
-import dao.Database;
 import entities.Account;
 import responses.AccountResponse;
 import responses.Response;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 public class AccountService {
@@ -39,14 +37,9 @@ public class AccountService {
         JsonElement nameElement = jsonObject.get("name");
 
         if(userElement == null || passwordElement == null || nameElement == null 
-            || userElement.isJsonNull() || passwordElement.isJsonNull()
-            || nameElement.isJsonNull()
-        ) {
-            return new Response(
-                    "101",
-                    "Fields missing"
-            );
-        }
+                || userElement.isJsonNull() || passwordElement.isJsonNull()
+                || nameElement.isJsonNull())
+            return new Response("101", "Fields missing");
 
         String userId = userElement.getAsString();
         String password = passwordElement.getAsString();
@@ -59,30 +52,21 @@ public class AccountService {
             );
         }
 
-        try(Connection conn = Database.connect()) {
-            if(new AccountDAO(conn).searchByUser(userId) != null) {
+        try {
+            if(new AccountDAO().searchByUser(userId) != null) {
                 return new Response(
                         "103",
                         "Already exists an account with the username"
                 );
             }
 
-            name = truncateString(name);
-            new AccountDAO(conn).create(userId, name, password);
-
-            return new Response(
-                    "100",
-                    "Successful account creation"
-            );
-        } catch(SQLException e) {
+            new AccountDAO().create(userId, truncateString(name), password);
+        } catch (SQLException e) {
             System.err.printf("[AVISO] Account creation error: %s%n", e.getLocalizedMessage());
-            return new Response(
-                    "104",
-                    "Unknown error"
-            );
-        } finally {
-            Database.disconnect();
+            return new Response("104", "Unknown error");
         }
+
+        return new Response("100", "Successful account creation");
     }
 
     public static Response read(JsonObject jsonObject, LoginService loginService) {
@@ -107,12 +91,8 @@ public class AccountService {
             userId = loggedInUserId;
 
         if(loggedInUserRole != 1) {
-            if(!loggedInUserToken.equals(token)) {
-                return new Response(
-                        "112",
-                        "Invalid or empty token"
-                );
-            }
+            if(!loggedInUserToken.equals(token))
+                return new Response("112", "Invalid or empty token");
 
             if(!loggedInUserId.equals(userId)) {
                 return new Response(
@@ -122,33 +102,24 @@ public class AccountService {
             }
         }
 
-        try(Connection conn = Database.connect()) {
-            Account account = new AccountDAO(conn).searchByUser(userId);
-
-            if(account == null) {
-                return new Response(
-                        "114",
-                        "User not found ( Admin Only )"
-                );
-            }
-
-            return new AccountResponse(
-                    "11" + getAccountRole(account.userId()),
-                    "Returns all information of the account",
-                    loginService.generateToken(account.userId()),
-                    account.userId(),
-                    account.name(),
-                    account.password()
-            );
-        } catch(SQLException e) {
+        Account account;
+        try {
+            account = new AccountDAO().searchByUser(userId);
+            if(account == null)
+                return new Response("114", "User not found ( Admin Only )");
+        } catch (SQLException e) {
             System.err.printf("[AVISO] Account read error: %s%n", e.getLocalizedMessage());
-            return new Response(
-                    "115",
-                    "Unknown error"
-            );
-        } finally {
-            Database.disconnect();
+            return new Response("115", "Unknown error");
         }
+
+        return new AccountResponse(
+                "11" + getAccountRole(account.userId()),
+                "Returns all information of the account",
+                loginService.generateToken(account.userId()),
+                account.userId(),
+                account.name(),
+                account.password()
+        );
     }
 
     public static Response update(JsonObject jsonObject, LoginService loginService) {
@@ -176,12 +147,8 @@ public class AccountService {
         if (userId.isBlank())
             userId = loggedInUserId;
 
-        if(!loggedInUserToken.equals(token)) {
-            return new Response(
-                    "121",
-                    "Invalid or empty token"
-            );
-        }
+        if(!loggedInUserToken.equals(token))
+            return new Response("121", "Invalid or empty token");
 
         if(loggedInUserRole != 1 && !loggedInUserId.equals(userId)) {
             return new Response(
@@ -190,47 +157,29 @@ public class AccountService {
             );
         }
 
-        try(Connection conn = Database.connect()) {
-            if(new AccountDAO(conn).searchByUser(userId) == null) {
-                return new Response(
-                        "123",
-                        "No user or token found ( Admin Only )}"
-                );
-            }
+        try {
+            if(new AccountDAO().searchByUser(userId) == null)
+                return new Response("123", "No user or token found ( Admin Only )}");
 
             if (!name.isBlank()) {
-                if (isNotValidName(name)) {
-                    return new Response(
-                            "126",
-                            "Invalid information inserted"
-                    );
-                }
-                new AccountDAO(conn).updateName(userId, truncateString(name));
+                if (isNotValidName(name))
+                    return new Response("126", "Invalid information inserted");
+
+                new AccountDAO().updateName(userId, truncateString(name));
             }
 
             if(!password.isBlank()) {
-                if (isNotValidPassword(password)) {
-                    return new Response(
-                            "126",
-                            "Invalid information inserted"
-                    );
-                }
-                new AccountDAO(conn).updatePassword(userId, password);
-            }
+                if (isNotValidPassword(password))
+                    return new Response("126", "Invalid information inserted");
 
-            return new Response(
-                    "120",
-                    "Account successfully updated"
-            );
-        } catch(SQLException e) {
+                new AccountDAO().updatePassword(userId, password);
+            }
+        } catch (SQLException e) {
             System.err.printf("[AVISO] Account update error: %s%n", e.getLocalizedMessage());
-            return new Response(
-                    "124",
-                    "Unknown error"
-            );
-        } finally {
-            Database.disconnect();
+            return new Response("124", "Unknown error");
         }
+
+        return new Response("120", "Account successfully updated");
     }
 
     public static Response delete(JsonObject jsonObject, LoginService loginService) {
@@ -248,12 +197,8 @@ public class AccountService {
         JsonElement userElement = jsonObject.get("user");
         JsonElement tokenElement = jsonObject.get("token");
 
-        if(tokenElement == null || tokenElement.isJsonNull()) {
-            return new Response(
-                    "131",
-                    "Fields missing"
-            );
-        }
+        if(tokenElement == null || tokenElement.isJsonNull())
+            return new Response("131", "Fields missing");
 
         String userId = (userElement != null && !tokenElement.isJsonNull()) ? userElement.getAsString() : loggedInUserId;
         String token = tokenElement.getAsString();
@@ -261,12 +206,8 @@ public class AccountService {
         if (userId.isBlank())
             userId = loggedInUserId;
 
-        if(!loggedInUserToken.equals(token)) {
-            return new Response(
-                    "132",
-                    "Invalid Token"
-            );
-        }
+        if(!loggedInUserToken.equals(token))
+            return new Response("132", "Invalid Token");
 
         if(loggedInUserRole != 1 && !loggedInUserId.equals(userId)) {
             return new Response(
@@ -275,31 +216,22 @@ public class AccountService {
             );
         }
 
-        try(Connection conn = Database.connect()) {
-            int manipulatedLines = new AccountDAO(conn).delete(userId);
+        try {
+            if(new AccountDAO().searchByUser(userId) == null)
+                return new Response("134", "User not found ( Admin Only )");
 
-            if(manipulatedLines < 1) {
-                return new Response(
-                        "134",
-                        "User not found ( Admin Only )"
-                );
-            }
+            new AccountDAO().delete(userId);
+        } catch (SQLException e) {
+            System.err.printf("[AVISO] Account deletion error: %s%n", e.getLocalizedMessage());
+            return new Response("135", "Unknown error");
+        }
 
-            if(loggedInUserId.equals(userId))
-                loginService.destroyToken();
+        if(loggedInUserId.equals(userId))
+            loginService.destroyToken();
 
-            return new Response(
+        return new Response(
                     "130",
                     "Account successfully deleted"
-            );
-        } catch(SQLException e) {
-            System.err.printf("[AVISO] Account deletion error: %s%n", e.getLocalizedMessage());
-            return new Response(
-                    "135",
-                    "Unknown error"
-            );
-        } finally {
-            Database.disconnect();
-        }
+        );
     }
 }
