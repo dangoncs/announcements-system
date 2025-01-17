@@ -27,7 +27,7 @@ public class UpdateAccountGUI {
     }
 
     private void determineUserId() {
-        String userId = "";
+        String userId = client.getLoggedInUserId();
 
         if (client.isAdmin()) {
             String message = "Digite o usuário da conta que deseja manipular.\nDeixe em branco para manipular a própria conta.";
@@ -37,7 +37,7 @@ public class UpdateAccountGUI {
                 return;
 
             if (userId.isBlank())
-                userId = "";
+                userId = client.getLoggedInUserId();
         }
 
         setupGUI(userId);
@@ -91,12 +91,12 @@ public class UpdateAccountGUI {
         client.showContentPane(contentPane);
     }
 
-    private void updateAccountActionHandler(String userId) {
+    private void updateAccountActionHandler(String accountId) {
         String name = txtName.getText();
         String passwd = txtPasswd.getText();
         String token = client.getLoggedInUserToken();
 
-        UpdateAccountOperation updateAccountOp = new UpdateAccountOperation(userId, passwd, name, token);
+        UpdateAccountOperation updateAccountOp = new UpdateAccountOperation(accountId, passwd, name, token);
         String json = updateAccountOp.toJson();
         String responseJson;
 
@@ -116,6 +116,6 @@ public class UpdateAccountGUI {
         else
             client.showErrorMessage("Erro ao atualizar dados da conta", message);
 
-        new HomeGUI(client).setup();
+        new HomeGUI(client);
     }
 }

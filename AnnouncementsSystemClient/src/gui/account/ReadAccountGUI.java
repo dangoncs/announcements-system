@@ -22,8 +22,8 @@ public class ReadAccountGUI {
         determineUserId();
     }
 
-    public void determineUserId() {
-        String userId = "";
+    private void determineUserId() {
+        String userId = client.getLoggedInUserId();
 
         if (client.isAdmin()) {
             String message = "Digite o usuário da conta que deseja manipular.\nDeixe em branco para manipular a própria conta.";
@@ -33,13 +33,13 @@ public class ReadAccountGUI {
                 return;
 
             if (userId.isBlank())
-                userId = "";
+                userId = client.getLoggedInUserId();
         }
 
-        readAccount(userId);
+        readAccountActionHandler(userId);
     }
 
-    private void readAccount(String accountId) {
+    private void readAccountActionHandler(String accountId) {
         String clientToken = client.getLoggedInUserToken();
 
         ReadAccountOperation readAccountOp = new ReadAccountOperation(accountId, clientToken);
@@ -50,7 +50,7 @@ public class ReadAccountGUI {
             responseJson = client.getServerConnection().sendToServer(json);
         } catch (IOException e) {
             client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
-            new HomeGUI(client).setup();
+            new HomeGUI(client);
             return;
         }
 
@@ -68,7 +68,7 @@ public class ReadAccountGUI {
         else {
             String message = readAccountResponse.getMessage();
             client.showErrorMessage("Erro ao ler dados da conta", message);
-            new HomeGUI(client).setup();
+            new HomeGUI(client);
         }
     }
 
@@ -100,7 +100,7 @@ public class ReadAccountGUI {
 
         JButton btnBack = new JButton("Voltar");
         btnBack.setBounds(5, 233, 424, 23);
-        btnBack.addActionListener(_ -> new HomeGUI(client).setup());
+        btnBack.addActionListener(_ -> new HomeGUI(client));
         contentPane.add(btnBack);
 
         client.showContentPane(contentPane);

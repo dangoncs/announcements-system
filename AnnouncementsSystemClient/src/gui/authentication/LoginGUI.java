@@ -97,7 +97,7 @@ public class LoginGUI {
             client.setLoggedInUserId(userId);
 
             client.showSuccessMessage(message);
-            new HomeGUI(client).setup();
+            new HomeGUI(client);
         }
         else {
             client.showErrorMessage("Erro ao realizar login", message);

@@ -42,6 +42,10 @@ public class Client extends JFrame {
 		JOptionPane.showMessageDialog(null, message, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 	}
 
+	public int showConfirmationPrompt(String title, String message) {
+		return JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+	}
+
 	public ServerConnection getServerConnection() {
 		if (serverConnection == null)
 			serverConnection = new ServerConnection();
@@ -54,7 +58,7 @@ public class Client extends JFrame {
 	}
 
 	public String getLoggedInUserId() {
-		return loggedInUserId;
+		return "";
 	}
 
 	public boolean isAdmin() {

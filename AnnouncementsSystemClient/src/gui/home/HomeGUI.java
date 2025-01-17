@@ -27,9 +27,10 @@ public class HomeGUI {
 
     public HomeGUI(Client client) {
         this.client = client;
+        setupGUI();
     }
 
-    public void setup() {
+    private void setupGUI() {
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(new BorderLayout(5, 5));
@@ -56,46 +57,37 @@ public class HomeGUI {
         accountPanel.add(btnUpdateAccount);
 
         JButton btnDeleteAccount = new JButton("Excluir");
-        btnDeleteAccount.addActionListener(_ -> new DeleteAccountGUI());
+        btnDeleteAccount.addActionListener(_ -> new DeleteAccountGUI(client));
         accountPanel.add(btnDeleteAccount);
 
-        JPanel categoryPanel = new JPanel();
-        categoryPanel.setBorder(new TitledBorder(null, "Categoria de Avisos", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        center.add(categoryPanel);
+        if(client.isAdmin()) {
+            JPanel categoryPanel = new JPanel();
+            categoryPanel.setBorder(new TitledBorder(null, "Categoria de Avisos", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            center.add(categoryPanel);
 
-        JButton btnCreateCategory = new JButton("Criar");
-        btnCreateCategory.addActionListener(_ ->
-                new CreateCategoryGUI()
-        );
-        categoryPanel.add(btnCreateCategory);
+            JButton btnCreateCategory = new JButton("Criar");
+            btnCreateCategory.addActionListener(_ -> new CreateCategoryGUI(client));
+            categoryPanel.add(btnCreateCategory);
 
-        JButton btnReadCategory = new JButton("Ver");
-        btnReadCategory.addActionListener(_ ->
-                new ReadCategoryGUI()
-        );
-        categoryPanel.add(btnReadCategory);
+            //TODO: verify if this is correct
+            JButton btnReadCategory = new JButton("Ver");
+            btnReadCategory.addActionListener(_ -> new ReadCategoryGUI(client));
+            categoryPanel.add(btnReadCategory);
 
-        JButton btnUpdateCategory = new JButton("Atualizar");
-        btnUpdateCategory.addActionListener(_ ->
-                new UpdateCategoryGUI()
-        );
-        categoryPanel.add(btnUpdateCategory);
+            JButton btnUpdateCategory = new JButton("Atualizar");
+            btnUpdateCategory.addActionListener(_ -> new UpdateCategoryGUI(client));
+            categoryPanel.add(btnUpdateCategory);
 
-        JButton btnDeleteCategory = new JButton("Excluir");
-        btnDeleteCategory.addActionListener(_ ->
-                new DeleteCategoryGUI()
-        );
-        categoryPanel.add(btnDeleteCategory);
+            JButton btnDeleteCategory = new JButton("Excluir");
+            btnDeleteCategory.addActionListener(_ -> new DeleteCategoryGUI(client));
+            categoryPanel.add(btnDeleteCategory);
+        }
 
         JButton btnLogout = new JButton("Fazer logout e desconectar");
         btnLogout.addActionListener(_ -> logoutActionHandler());
         contentPane.add(btnLogout, BorderLayout.SOUTH);
 
         client.showContentPane(contentPane);
-    }
-
-    private void readAccountActionHandler() {
-
     }
 
     private void logoutActionHandler() {
