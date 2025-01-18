@@ -10,25 +10,23 @@ import java.sql.SQLException;
 public class AccountDAO {
 
     public void create(String userId, String name, String password) throws SQLException {
-        try (Connection conn = Database.connect()) {
-            String sql = "INSERT INTO user (user_id, name, password) VALUES (?, ?, ?)";
-            conn.setAutoCommit(false);
+        String sql = "INSERT INTO user (user_id, name, password) VALUES (?, ?, ?)";
 
+        try (Connection conn = Database.connect()) {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, userId);
                 ps.setString(2, name);
                 ps.setString(3, password);
 
                 ps.executeUpdate();
-                conn.commit();
             }
         }
     }
 
     public Account searchByUser(String userId) throws SQLException {
-        try (Connection conn = Database.connect()) {
-            String sql = "SELECT * FROM user WHERE user_id = ?";
+        String sql = "SELECT * FROM user WHERE user_id = ?";
 
+        try (Connection conn = Database.connect()) {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, userId);
 
@@ -48,44 +46,38 @@ public class AccountDAO {
     }
 
     public void updateName(String userId, String name) throws SQLException {
-        try (Connection conn = Database.connect()) {
-            String sql = "UPDATE user SET name = ? WHERE user_id = ?";
-            conn.setAutoCommit(false);
+        String sql = "UPDATE user SET name = ? WHERE user_id = ?";
 
+        try (Connection conn = Database.connect()) {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, name);
                 ps.setString(2, userId);
 
                 ps.executeUpdate();
-                conn.commit();
             }
         }
     }
 
     public void updatePassword(String userId, String password) throws SQLException {
-        try (Connection conn = Database.connect()) {
-            String sql = "UPDATE user SET password = ? WHERE user_id = ?";
-            conn.setAutoCommit(false);
+        String sql = "UPDATE user SET password = ? WHERE user_id = ?";
 
+        try (Connection conn = Database.connect()) {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, password);
                 ps.setString(2, userId);
 
                 ps.executeUpdate();
-                conn.commit();
             }
         }
     }
 
     public void delete(String userId) throws SQLException {
-        try (Connection conn = Database.connect()) {
-            String sql = "DELETE FROM user WHERE user_id = ?";
-            conn.setAutoCommit(false);
+        String sql = "DELETE FROM user WHERE user_id = ?";
 
+        try (Connection conn = Database.connect()) {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, userId);
                 ps.executeUpdate();
-                conn.commit();
             }
         }
     }
