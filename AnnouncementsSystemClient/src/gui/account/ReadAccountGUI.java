@@ -1,6 +1,7 @@
 package gui.account;
 
 import gui.home.HomeGUI;
+import gui.ClientWindow;
 import main.Client;
 import operations.account.ReadAccountOperation;
 import responses.account.ReadAccountResponse;
@@ -16,9 +17,12 @@ import java.io.IOException;
 
 public class ReadAccountGUI {
     private final Client client;
+    private final ClientWindow clientWindow;
 
-    public ReadAccountGUI(Client client) {
+    public ReadAccountGUI(Client client, ClientWindow clientWindow) {
         this.client = client;
+        this.clientWindow = clientWindow;
+
         determineUserId();
     }
 
@@ -47,10 +51,10 @@ public class ReadAccountGUI {
         String responseJson;
 
         try {
-            responseJson = client.getServerConnection().sendToServer(json);
+            responseJson = client.sendToServer(json);
         } catch (IOException e) {
-            client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
-            new HomeGUI(client);
+            clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+            new HomeGUI(client, clientWindow);
             return;
         }
 
@@ -63,16 +67,16 @@ public class ReadAccountGUI {
             String name = readAccountResponse.getName();
             String token = readAccountResponse.getToken();
 
-            setup(userId, password, name, token);
+            setupGUI(userId, password, name, token);
         }
         else {
             String message = readAccountResponse.getMessage();
-            client.showErrorMessage("Erro ao ler dados da conta", message);
-            new HomeGUI(client);
+            clientWindow.showErrorMessage("Erro ao ler dados da conta", message);
+            new HomeGUI(client, clientWindow);
         }
     }
 
-    private void setup(String userId, String password, String name, String token) {
+    private void setupGUI(String userId, String password, String name, String token) {
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
@@ -100,9 +104,9 @@ public class ReadAccountGUI {
 
         JButton btnBack = new JButton("Voltar");
         btnBack.setBounds(5, 233, 424, 23);
-        btnBack.addActionListener(_ -> new HomeGUI(client));
+        btnBack.addActionListener(_ -> new HomeGUI(client, clientWindow));
         contentPane.add(btnBack);
 
-        client.showContentPane(contentPane);
+        clientWindow.showContentPane(contentPane);
     }
 }

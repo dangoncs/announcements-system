@@ -1,6 +1,7 @@
 package gui.connection;
 
 import gui.authentication.LoginGUI;
+import gui.ClientWindow;
 import main.Client;
 
 import java.awt.Font;
@@ -14,15 +15,17 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class ConnectionGUI {
-	private final Client client;
+	private final ClientWindow clientWindow;
 	private JTextField txtAddr;
 	private JTextField txtPort;
 
-	public ConnectionGUI(Client client) {
-		this.client = client;
+	public ConnectionGUI(ClientWindow clientWindow) {
+		this.clientWindow = clientWindow;
+
+		setupGUI();
 	}
 
-	public void setup() {
+	private void setupGUI() {
         JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(null);
@@ -55,21 +58,26 @@ public class ConnectionGUI {
 		btnStartup.addActionListener(_ -> connectionActionHandler());
 		contentPane.add(btnStartup);
 
-		client.showContentPane(contentPane);
+		clientWindow.showContentPane(contentPane);
 	}
 
 	private void connectionActionHandler() {
 		String addr = txtAddr.getText();
 		int port = Integer.parseInt(txtPort.getText());
+		Client client = new Client();
 
 		try {
-			client.getServerConnection().start(addr, port);
-			client.showSuccessMessage("Conexão estabelecida com o servidor.");
-			new LoginGUI(client).setup();
+			client.startConnection(addr, port);
 		} catch (UnknownHostException | IllegalArgumentException e) {
-			client.showErrorMessage("Dados de conexão inválidos","Verifique se o endereço IP e a porta estão corretos");
+			clientWindow.showErrorMessage("Erro de conexão com o servidor",
+					"Dados de conexão inválidos. Verifique se o endereço IP e a porta estão corretos");
+			return;
 		} catch (IOException e) {
-			client.showErrorMessage("Erro de conexão com o servidor", e.getLocalizedMessage());
+			clientWindow.showErrorMessage("Erro de conexão com o servidor", e.getLocalizedMessage());
+			return;
 		}
+
+		new LoginGUI(client, clientWindow);
+		clientWindow.showSuccessMessage("Conexão estabelecida com o servidor.");
 	}
 }

@@ -1,6 +1,7 @@
 package gui.announcementcategory;
 
 import gui.home.HomeGUI;
+import gui.ClientWindow;
 import main.Client;
 
 import javax.swing.*;
@@ -9,9 +10,12 @@ import java.awt.*;
 
 public class ReadCategoryGUI {
     private final Client client;
+    private final ClientWindow clientWindow;
 
-    public ReadCategoryGUI(Client client) {
+    public ReadCategoryGUI(Client client, ClientWindow clientWindow) {
         this.client = client;
+        this.clientWindow = clientWindow;
+
         readCategoriesActionHandler();
     }
 
@@ -32,11 +36,9 @@ public class ReadCategoryGUI {
         contentPane.add(buttons, BorderLayout.SOUTH);
 
         JButton btnBack = new JButton("Voltar");
-        btnBack.addActionListener(_ -> new HomeGUI(client));
+        btnBack.addActionListener(_ -> new HomeGUI(client, clientWindow));
         buttons.add(btnBack);
 
-        client.showContentPane(contentPane);
+        clientWindow.showContentPane(contentPane);
     }
-
-
 }

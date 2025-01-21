@@ -1,56 +1,45 @@
 package main;
 
-import gui.connection.ConnectionGUI;
+import gui.ClientWindow;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
-public class Client extends JFrame {
-	private ServerConnection serverConnection;
+public class Client {
+	private Socket socket;
+	private PrintWriter out;
+	private BufferedReader in;
 	private String loggedInUserToken;
 	private String loggedInUserId;
 	private boolean isAdmin;
 
 	public static void main(String[] ignoredArgs) {
-		SwingUtilities.invokeLater(() -> {
-			Client client = new Client();
-			new ConnectionGUI(client).setup();
-		});
+		SwingUtilities.invokeLater(ClientWindow::new);
 	}
 
-    public Client() {
-		super("CLIENTE");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(450, 300);
-		setLocationRelativeTo(null);
-		setVisible(true);
+	public void startConnection(String serverHostname, int serverPort) throws IOException {
+		socket = new Socket(serverHostname, serverPort);
+		out = new PrintWriter(socket.getOutputStream(), true);
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
+
+	public String sendToServer(String input) throws IOException {
+		out.println(input);
+        System.out.printf("[INFO] Enviando: %s%n", input);
+
+		String serverResponse = in.readLine();
+		System.out.printf("[INFO] Recebido: %s%n", serverResponse);
+		return serverResponse;
 	}
 
-	public void showContentPane(JPanel contentPane) {
-		setContentPane(contentPane);
-		revalidate();
-		repaint();
-	}
-
-	public void showErrorMessage(String title, String message) {
-		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
-	}
-
-	public void showSuccessMessage(String message) {
-		JOptionPane.showMessageDialog(null, message, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	public int showConfirmationPrompt(String title, String message) {
-		return JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-	}
-
-	public ServerConnection getServerConnection() {
-		if (serverConnection == null)
-			serverConnection = new ServerConnection();
-
-		return serverConnection;
+	public void disconnect() throws IOException {
+		if(in != null) in.close();
+		if(out != null) out.close();
+		if(socket != null) socket.close();
 	}
 
 	public String getLoggedInUserToken() {

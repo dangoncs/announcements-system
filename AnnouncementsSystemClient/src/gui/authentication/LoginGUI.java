@@ -2,6 +2,7 @@ package gui.authentication;
 
 import gui.account.CreateAccountGUI;
 import gui.home.HomeGUI;
+import gui.ClientWindow;
 import main.Client;
 import operations.authentication.LoginOperation;
 import responses.authentication.LoginResponse;
@@ -18,14 +19,18 @@ import java.io.IOException;
 
 public class LoginGUI {
     private final Client client;
+    private final ClientWindow clientWindow;
     private JTextField txtUserId;
     private JTextField txtPasswd;
 
-    public LoginGUI(Client client) {
+    public LoginGUI(Client client, ClientWindow clientWindow) {
         this.client = client;
+        this.clientWindow = clientWindow;
+
+        setupGUI();
     }
 
-    public void setup() {
+    private void setupGUI() {
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
@@ -62,12 +67,10 @@ public class LoginGUI {
 
         JButton btnSignup = new JButton("Cadastro");
         btnSignup.setBounds(140, 194, 170, 23);
-        btnSignup.addActionListener(_ ->
-                new CreateAccountGUI(client).setup()
-        );
+        btnSignup.addActionListener(_ -> new CreateAccountGUI(client, clientWindow));
         contentPane.add(btnSignup);
 
-        client.showContentPane(contentPane);
+        clientWindow.showContentPane(contentPane);
     }
 
     private void loginActionHandler() {
@@ -79,9 +82,9 @@ public class LoginGUI {
         String responseJson;
 
         try {
-            responseJson = client.getServerConnection().sendToServer(json);
+            responseJson = client.sendToServer(json);
         } catch (IOException e) {
-            client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+            clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;
         }
 
@@ -89,18 +92,18 @@ public class LoginGUI {
         String responseCode = loginResponse.getResponseCode();
         String message = loginResponse.getMessage();
 
-        if(responseCode.equals("000") || responseCode.equals("001")) {
-            boolean isAdmin = responseCode.equals("001");
-            client.setAdmin(isAdmin);
-
-            client.setLoggedInUserToken(loginResponse.getToken());
-            client.setLoggedInUserId(userId);
-
-            client.showSuccessMessage(message);
-            new HomeGUI(client);
+        if(!responseCode.equals("000") && !responseCode.equals("001")) {
+            clientWindow.showErrorMessage("Erro ao realizar login", message);
+            return;
         }
-        else {
-            client.showErrorMessage("Erro ao realizar login", message);
-        }
+
+        boolean isAdmin = responseCode.equals("001");
+        client.setAdmin(isAdmin);
+
+        client.setLoggedInUserToken(loginResponse.getToken());
+        client.setLoggedInUserId(userId);
+
+        new HomeGUI(client, clientWindow);
+        clientWindow.showSuccessMessage(message);
     }
 }

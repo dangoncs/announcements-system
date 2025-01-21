@@ -1,6 +1,7 @@
 package gui.announcementcategory;
 
 import gui.home.HomeGUI;
+import gui.ClientWindow;
 import main.Client;
 
 import javax.swing.*;
@@ -9,9 +10,12 @@ import java.awt.*;
 
 public class UpdateCategoryGUI {
     private final Client client;
+    private final ClientWindow clientWindow;
 
-    public UpdateCategoryGUI(Client client) {
+    public UpdateCategoryGUI(Client client, ClientWindow clientWindow) {
         this.client = client;
+        this.clientWindow = clientWindow;
+
         setupGUI();
     }
 
@@ -28,14 +32,14 @@ public class UpdateCategoryGUI {
         contentPane.add(buttons, BorderLayout.SOUTH);
 
         JButton btnBack = new JButton("Voltar");
-        btnBack.addActionListener(_ -> new HomeGUI(client));
+        btnBack.addActionListener(_ -> new HomeGUI(client, clientWindow));
         buttons.add(btnBack);
 
         JButton btnUpdate = new JButton("Atualizar");
         btnUpdate.addActionListener(_ -> updateCategoryActionHandler());
         buttons.add(btnUpdate);
 
-        client.showContentPane(contentPane);
+        clientWindow.showContentPane(contentPane);
     }
 
     private void updateCategoryActionHandler() {

@@ -8,6 +8,7 @@ import gui.announcementcategory.DeleteCategoryGUI;
 import gui.announcementcategory.ReadCategoryGUI;
 import gui.announcementcategory.UpdateCategoryGUI;
 import gui.connection.ConnectionGUI;
+import gui.ClientWindow;
 import main.Client;
 import operations.authentication.LogoutOperation;
 import responses.Response;
@@ -24,9 +25,12 @@ import java.io.IOException;
 
 public class HomeGUI {
     private final Client client;
+    private final ClientWindow clientWindow;
 
-    public HomeGUI(Client client) {
+    public HomeGUI(Client client, ClientWindow clientWindow) {
         this.client = client;
+        this.clientWindow = clientWindow;
+
         setupGUI();
     }
 
@@ -49,15 +53,15 @@ public class HomeGUI {
         center.add(accountPanel);
 
         JButton btnReadAccount = new JButton("Ver dados");
-        btnReadAccount.addActionListener(_ -> new ReadAccountGUI(client));
+        btnReadAccount.addActionListener(_ -> new ReadAccountGUI(client, clientWindow));
         accountPanel.add(btnReadAccount);
 
         JButton btnUpdateAccount = new JButton("Atualizar dados");
-        btnUpdateAccount.addActionListener(_ -> new UpdateAccountGUI(client));
+        btnUpdateAccount.addActionListener(_ -> new UpdateAccountGUI(client, clientWindow));
         accountPanel.add(btnUpdateAccount);
 
         JButton btnDeleteAccount = new JButton("Excluir");
-        btnDeleteAccount.addActionListener(_ -> new DeleteAccountGUI(client));
+        btnDeleteAccount.addActionListener(_ -> new DeleteAccountGUI(client, clientWindow));
         accountPanel.add(btnDeleteAccount);
 
         if(client.isAdmin()) {
@@ -66,20 +70,20 @@ public class HomeGUI {
             center.add(categoryPanel);
 
             JButton btnCreateCategory = new JButton("Criar");
-            btnCreateCategory.addActionListener(_ -> new CreateCategoryGUI(client));
+            btnCreateCategory.addActionListener(_ -> new CreateCategoryGUI(client, clientWindow));
             categoryPanel.add(btnCreateCategory);
 
             //TODO: verify if this is correct
             JButton btnReadCategory = new JButton("Ver");
-            btnReadCategory.addActionListener(_ -> new ReadCategoryGUI(client));
+            btnReadCategory.addActionListener(_ -> new ReadCategoryGUI(client, clientWindow));
             categoryPanel.add(btnReadCategory);
 
             JButton btnUpdateCategory = new JButton("Atualizar");
-            btnUpdateCategory.addActionListener(_ -> new UpdateCategoryGUI(client));
+            btnUpdateCategory.addActionListener(_ -> new UpdateCategoryGUI(client, clientWindow));
             categoryPanel.add(btnUpdateCategory);
 
             JButton btnDeleteCategory = new JButton("Excluir");
-            btnDeleteCategory.addActionListener(_ -> new DeleteCategoryGUI(client));
+            btnDeleteCategory.addActionListener(_ -> new DeleteCategoryGUI(client, clientWindow));
             categoryPanel.add(btnDeleteCategory);
         }
 
@@ -87,7 +91,7 @@ public class HomeGUI {
         btnLogout.addActionListener(_ -> logoutActionHandler());
         contentPane.add(btnLogout, BorderLayout.SOUTH);
 
-        client.showContentPane(contentPane);
+        clientWindow.showContentPane(contentPane);
     }
 
     private void logoutActionHandler() {
@@ -96,9 +100,9 @@ public class HomeGUI {
         String responseJson;
 
         try {
-            responseJson = client.getServerConnection().sendToServer(json);
+            responseJson = client.sendToServer(json);
         } catch (IOException e) {
-            client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+            clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;
         }
 
@@ -106,13 +110,20 @@ public class HomeGUI {
         String responseCode = logoutResponse.getResponseCode();
         String message = logoutResponse.getMessage();
 
-        if(responseCode.equals("010")) {
-            client.showSuccessMessage(message);
-            client.getServerConnection().disconnect();
-            new ConnectionGUI(client).setup();
+        if(!responseCode.equals("010")) {
+            clientWindow.showErrorMessage("Erro ao realizar logout", message);
+            return;
         }
-        else {
-            client.showErrorMessage("Erro ao realizar logout", message);
+
+        try {
+            client.disconnect();
+        } catch (IOException e) {
+            clientWindow.showErrorMessage("Erro ao desconectar", e.getLocalizedMessage());
+            clientWindow.dispose();
+            return;
         }
+
+        new ConnectionGUI(clientWindow);
+        clientWindow.showSuccessMessage(message);
     }
 }

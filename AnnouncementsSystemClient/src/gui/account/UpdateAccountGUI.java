@@ -1,6 +1,7 @@
 package gui.account;
 
 import gui.home.HomeGUI;
+import gui.ClientWindow;
 import main.Client;
 import operations.account.UpdateAccountOperation;
 import responses.Response;
@@ -18,11 +19,14 @@ import java.io.IOException;
 
 public class UpdateAccountGUI {
     private final Client client;
+    private final ClientWindow clientWindow;
     private JTextField txtName;
     private JTextField txtPasswd;
 
-    public UpdateAccountGUI(Client client) {
+    public UpdateAccountGUI(Client client, ClientWindow clientWindow) {
         this.client = client;
+        this.clientWindow = clientWindow;
+
         determineUserId();
     }
 
@@ -81,14 +85,14 @@ public class UpdateAccountGUI {
         contentPane.add(buttons, BorderLayout.SOUTH);
 
         JButton btnBack = new JButton("Voltar");
-        btnBack.addActionListener(_ -> new HomeGUI(client));
+        btnBack.addActionListener(_ -> new HomeGUI(client, clientWindow));
         buttons.add(btnBack);
 
         JButton btnUpdate = new JButton("Atualizar");
         btnUpdate.addActionListener(_ -> updateAccountActionHandler(userId));
         buttons.add(btnUpdate);
 
-        client.showContentPane(contentPane);
+        clientWindow.showContentPane(contentPane);
     }
 
     private void updateAccountActionHandler(String accountId) {
@@ -101,9 +105,9 @@ public class UpdateAccountGUI {
         String responseJson;
 
         try {
-            responseJson = client.getServerConnection().sendToServer(json);
+            responseJson = client.sendToServer(json);
         } catch (IOException e) {
-            client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+            clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;
         }
 
@@ -112,10 +116,10 @@ public class UpdateAccountGUI {
         String message = updateAccountResponse.getMessage();
 
         if(responseCode.equals("120"))
-            client.showSuccessMessage(message);
+            clientWindow.showSuccessMessage(message);
         else
-            client.showErrorMessage("Erro ao atualizar dados da conta", message);
+            clientWindow.showErrorMessage("Erro ao atualizar dados da conta", message);
 
-        new HomeGUI(client);
+        new HomeGUI(client, clientWindow);
     }
 }

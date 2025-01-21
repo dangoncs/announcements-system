@@ -1,6 +1,7 @@
 package gui.announcementcategory;
 
 import gui.home.HomeGUI;
+import gui.ClientWindow;
 import main.Client;
 
 import javax.swing.*;
@@ -8,9 +9,12 @@ import java.io.IOException;
 
 public class DeleteCategoryGUI {
     private final Client client;
+    private final ClientWindow clientWindow;
 
-    public DeleteCategoryGUI(Client client) {
+    public DeleteCategoryGUI(Client client, ClientWindow clientWindow) {
         this.client = client;
+        this.clientWindow = clientWindow;
+
         determineCategoryId();
     }
 
@@ -25,18 +29,18 @@ public class DeleteCategoryGUI {
     }
 
     private void deleteCategoryActionHandler(String categoryId) {
-        int input = client.showConfirmationPrompt("Excluir a categoria " + categoryId + "?", "Essa ação é IRREVERSÍVEL.");
+        int input = clientWindow.showConfirmationPrompt("Excluir a categoria " + categoryId + "?", "Essa ação é IRREVERSÍVEL.");
 
         if(input != 0) {
-            new HomeGUI(client);
+            new HomeGUI(client, clientWindow);
             return;
         }
 
         //TODO: implement implementation of deletion lol
         try {
-            client.getServerConnection().sendToServer("");
+            client.sendToServer("");
         } catch (IOException e) {
-            client.showErrorMessage("", e.getLocalizedMessage());
+            clientWindow.showErrorMessage("", e.getLocalizedMessage());
         }
     }
 }

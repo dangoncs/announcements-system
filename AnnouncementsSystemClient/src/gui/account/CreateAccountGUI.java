@@ -11,21 +11,26 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import gui.authentication.LoginGUI;
+import gui.ClientWindow;
 import main.Client;
 import operations.account.CreateAccountOperation;
 import responses.Response;
 
 public class CreateAccountGUI {
 	private final Client client;
+	private final ClientWindow clientWindow;
 	private JTextField txtUserId;
 	private JTextField txtName;
 	private JTextField txtPasswd;
 
-	public CreateAccountGUI(Client client) {
+	public CreateAccountGUI(Client client, ClientWindow clientWindow) {
 		this.client = client;
+		this.clientWindow = clientWindow;
+
+		setupGUI();
 	}
 
-    public void setup() {
+    private void setupGUI() {
         JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
@@ -67,7 +72,7 @@ public class CreateAccountGUI {
 		btnSignup.addActionListener(_ -> createAccountActionHandler());
 		contentPane.add(btnSignup, BorderLayout.SOUTH);
 
-		client.showContentPane(contentPane);
+		clientWindow.showContentPane(contentPane);
 	}
 
 	private void createAccountActionHandler() {
@@ -80,9 +85,9 @@ public class CreateAccountGUI {
 		String responseJson;
 
 		try {
-			responseJson = client.getServerConnection().sendToServer(json);
+			responseJson = client.sendToServer(json);
 		} catch (IOException e) {
-			client.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+			clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
 			return;
 		}
 
@@ -90,11 +95,11 @@ public class CreateAccountGUI {
 		String responseCode = createAccountResponse.getResponseCode();
 		String message = createAccountResponse.getMessage();
 
-		if(responseCode.equals("100"))
-			client.showSuccessMessage(message);
-		else
-			client.showErrorMessage("Erro ao realizar cadastro", message);
+		new LoginGUI(client, clientWindow);
 
-		new LoginGUI(client).setup();
+		if(!responseCode.equals("100"))
+			clientWindow.showErrorMessage("Erro ao realizar cadastro", message);
+		else
+			clientWindow.showSuccessMessage(message);
 	}
 }

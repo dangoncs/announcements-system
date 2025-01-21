@@ -8,9 +8,6 @@ import javax.swing.SwingUtilities;
 public class GuiTest {
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Client client = new Client();
-            new UpdateAccountGUI(client);
-        });
+        SwingUtilities.invokeLater(() -> new UpdateAccountGUI(new Client(), new ClientWindow()));
     }
 }

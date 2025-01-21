@@ -1,6 +1,8 @@
 package gui.account;
 
+import gui.connection.ConnectionGUI;
 import gui.home.HomeGUI;
+import gui.ClientWindow;
 import main.Client;
 
 import javax.swing.JOptionPane;
@@ -8,9 +10,12 @@ import java.io.IOException;
 
 public class DeleteAccountGUI {
     private final Client client;
+    private final ClientWindow clientWindow;
 
-    public DeleteAccountGUI(Client client) {
+    public DeleteAccountGUI(Client client, ClientWindow clientWindow) {
         this.client = client;
+        this.clientWindow = clientWindow;
+
         determineUserId();
     }
 
@@ -32,21 +37,27 @@ public class DeleteAccountGUI {
     }
 
     private void deleteAccountActionHandler(String accountId) {
-        int input = client.showConfirmationPrompt("Excluir a conta " + accountId + "?", "Essa ação é IRREVERSÍVEL.");
+        int input = clientWindow.showConfirmationPrompt("Excluir a conta " + accountId + "?", "Essa ação é IRREVERSÍVEL.");
 
         if(input != 0) {
-            new HomeGUI(client);
+            new HomeGUI(client, clientWindow);
             return;
         }
 
         //TODO: implement implementation of deletion lol
         try {
-            client.getServerConnection().sendToServer("");
+            client.sendToServer("");
         } catch (IOException e) {
-            client.showErrorMessage("", e.getLocalizedMessage());
+            clientWindow.showErrorMessage("", e.getLocalizedMessage());
         }
 
-        //if response successful
-        client.getServerConnection().disconnect();
+        //if response successful (130)
+        try {
+            client.disconnect();
+            new ConnectionGUI(clientWindow);
+        } catch (IOException e) {
+            clientWindow.showErrorMessage("Erro ao desconectar", e.getLocalizedMessage());
+            System.exit(1);
+        }
     }
 }
