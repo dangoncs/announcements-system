@@ -1,0 +1,4 @@
+{"op":"5","user":"admin01","password":"1133"}
+{"op":"7","categories":[{"name":"Example01","description":"Test"},{"name":"Example02"}],"token":"admin01"}
+{"op":"8","token":"admin01"}
+{"op":"6","token":"admin01"}
