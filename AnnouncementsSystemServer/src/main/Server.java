@@ -1,8 +1,8 @@
 package main;
 
-import gui.ServerGUI;
+import gui.ServerWindow;
 
-import java.awt.EventQueue;
+import javax.swing.SwingUtilities;
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -10,28 +10,25 @@ public class Server {
 	private ServerSocket serverSocket;
 
 	public static void main(String[] ignoredArgs) {
-		EventQueue.invokeLater(() -> {
-			try {
-				ServerGUI frame = new ServerGUI();
-				frame.setVisible(true);
-			} catch (Exception e) {
-				System.err.println(e.getLocalizedMessage());
-			}
-		});
+		SwingUtilities.invokeLater(ServerWindow::new);
 	}
 
-	public ServerSocket createSocket(int port) throws IOException {
-		this.serverSocket = new ServerSocket(port);
-		return serverSocket;
-	}
+	public void startConnectionLoop(ServerSocket serverSocket) {
+		this.serverSocket = serverSocket;
 
-	public void startConnectionLoop() {
-		while (serverSocket != null) {
+		while (serverSocket != null && !serverSocket.isClosed()) {
 			try {
 				new ServerThread(serverSocket.accept()).start();
 			} catch (IOException e) {
-				System.err.printf("[AVISO] Não foi possível conectar com um cliente: %s%n", e.getLocalizedMessage());
+				System.err.printf("[AVISO] Socket não aceitou conexão (%s)%n", e.getLocalizedMessage());
 			}
 		}
+	}
+
+	public void closeSocket() throws IOException {
+		if(serverSocket == null || serverSocket.isClosed())
+			return;
+
+		serverSocket.close();
 	}
 }

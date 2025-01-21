@@ -1,25 +1,24 @@
 package gui;
 
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import main.Server;
 
 import java.awt.Font;
+import java.io.IOException;
 import java.net.ServerSocket;
 
-public class ServerGUI extends JFrame {
+public class ServerWindow extends JFrame {
 	private JTextField txtPort;
 
-	public ServerGUI() {
+	public ServerWindow() {
 		setTitle("SERVIDOR");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setSize(450, 300);
+		setLocationRelativeTo(null);
+		setVisible(true);
+
 		setupStartGUI();
 	}
 
@@ -51,20 +50,21 @@ public class ServerGUI extends JFrame {
 	}
 
 	private void startServer() {
-		Server server = new Server();
 		int port = Integer.parseInt(txtPort.getText());
 
 		new Thread(() -> {
-			try (ServerSocket _ = server.createSocket(port)) {
-				setupMainGUI(port);
-				server.startConnectionLoop();
+			Server server = new Server();
+
+			try (ServerSocket serverSocket = new ServerSocket(port)) {
+				SwingUtilities.invokeLater(() -> setupMainGUI(server, port));
+				server.startConnectionLoop(serverSocket);
 			} catch (Exception e) {
-				showErrorMessage("Falha ao escutar na porta", e.getLocalizedMessage());
+				showErrorMessage("Erro ao escutar na porta " + port, e.getLocalizedMessage());
 			}
 		}).start();
 	}
 
-	private void setupMainGUI(int port) {
+	private void setupMainGUI(Server server, int serverPort) {
 		JPanel mainContentPane = new JPanel();
 		mainContentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		mainContentPane.setLayout(null);
@@ -74,13 +74,28 @@ public class ServerGUI extends JFrame {
 		lblWindowTitle.setBounds(5, 5, 424, 23);
 		mainContentPane.add(lblWindowTitle);
 
-		JLabel lblPort = new JLabel("Escutando na porta " + port + "...");
+		JLabel lblPort = new JLabel("Escutando na porta " + serverPort + "...");
 		lblPort.setBounds(5, 50, 440, 23);
 		mainContentPane.add(lblPort);
+
+		JButton btnStartup = new JButton("Encerrar");
+		btnStartup.setBounds(5, 233, 424, 23);
+		btnStartup.addActionListener(_ -> exitActionHandler(server));
+		mainContentPane.add(btnStartup);
 
 		setContentPane(mainContentPane);
 		revalidate();
 		repaint();
+	}
+
+	private void exitActionHandler(Server server) {
+		try {
+			server.closeSocket();
+		} catch (IOException e) {
+			showErrorMessage("Erro ao fechar o socket", e.getLocalizedMessage());
+		} finally {
+			dispose();
+		}
 	}
 
 	public void showErrorMessage(String title, String message) {

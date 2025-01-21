@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import responses.Response;
 import services.AccountService;
+import services.CategoryService;
 import services.LoginService;
 
 import java.io.BufferedReader;
@@ -41,7 +42,8 @@ public class ServerThread extends Thread {
 	    	String inputLine;
 	    	while ((inputLine = in.readLine()) != null) {
 				System.out.printf("[INFO] Recebido: %s%n", inputLine);
-				String responseJson = processJson(inputLine);
+				Response response = processJson(inputLine);
+				String responseJson = new Gson().toJson(response);
                 System.out.printf("[INFO] Enviando: %s%n", responseJson);
 				out.println(responseJson);
 
@@ -52,49 +54,47 @@ public class ServerThread extends Thread {
 	    	closeConnection();
 	    }
 	    catch (IOException e) {
-            System.err.printf("[AVISO] Problema na comunicação com um cliente: %s%n", e.getLocalizedMessage());
+            System.err.printf("[AVISO] Problema na comunicação com um cliente (%s)%n", e.getLocalizedMessage());
 	    	closeConnection();
 	    }
 	}
 
-	public String processJson(String inputLine) {
+	public Response processJson(String inputLine) {
 		JsonObject receivedJson;
 
 		try {
 			receivedJson = JsonParser.parseString(inputLine).getAsJsonObject();
 		} catch (Exception e) {
-			Response response = new Response(
-					"001",
-					"Received JSON could not be processed"
-			);
-			return new Gson().toJson(response);
+			return new Response("400", "Invalid JSON");
 		}
 
 		JsonElement opElement = receivedJson.get("op");
 
 		if(opElement == null || opElement.isJsonNull()) {
-			Response response = new Response("002","Operation not included in request");
-			return new Gson().toJson(response);
+			return new Response("401","Op missing");
 		}
 
 		String operationCode = opElement.getAsString();
-		Response response = switch (operationCode) {
-            case "1" -> AccountService.create(receivedJson);
-            case "2" -> AccountService.read(receivedJson, loginService);
-            case "3" -> AccountService.update(receivedJson, loginService);
-            case "4" -> AccountService.delete(receivedJson, loginService);
-            case "5" -> loginService.login(receivedJson);
-            case "6" -> loginService.logout(receivedJson);
-            default -> new Response("003", "Operation code is not recognized");
-        };
 
-        return new Gson().toJson(response);
+        return switch (operationCode) {
+			case "1" -> AccountService.create(receivedJson);
+			case "2" -> AccountService.read(receivedJson, loginService);
+			case "3" -> AccountService.update(receivedJson, loginService);
+			case "4" -> AccountService.delete(receivedJson, loginService);
+			case "5" -> loginService.login(receivedJson);
+			case "6" -> loginService.logout(receivedJson);
+            case "7" -> CategoryService.create(receivedJson, loginService);
+            case "8" -> CategoryService.read(receivedJson, loginService);
+            case "9" -> CategoryService.update(receivedJson, loginService);
+            case "10" -> CategoryService.delete(receivedJson, loginService);
+			default -> new Response("402", "Invalid op");
+		};
 	}
 
 	private boolean shouldCloseConnection(String responseJson) {
 		JsonObject jsonObject = JsonParser.parseString(responseJson).getAsJsonObject();
-		JsonElement responseElement = jsonObject.get("response");
-		return (responseElement != null) && (responseElement.getAsString().equals("010"));
+		String responseCode = jsonObject.get("response").getAsString();
+		return (responseCode.equals("010") || responseCode.equals("130"));
     }
 
 	public void closeConnection() {
@@ -104,7 +104,7 @@ public class ServerThread extends Thread {
 			if(clientSocket != null) clientSocket.close();
 			System.out.println("[INFO] Conexão com um cliente fechada.");
 		} catch (Exception e) {
-            System.err.printf("[AVISO] Não foi possível fechar conexão corretamente com um cliente: %s%n", e.getLocalizedMessage());
+            System.err.printf("[AVISO] Não foi possível fechar conexão corretamente com um cliente (%s)%n", e.getLocalizedMessage());
 			System.err.println("[AVISO] Forçando encerramento da conexão.");
 		}
 	}
