@@ -47,11 +47,10 @@ public class ReadAccountGUI {
         String clientToken = client.getLoggedInUserToken();
 
         ReadAccountOperation readAccountOp = new ReadAccountOperation(accountId, clientToken);
-        String json = readAccountOp.toJson();
         String responseJson;
 
         try {
-            responseJson = client.sendToServer(json);
+            responseJson = client.sendToServer(readAccountOp);
         } catch (IOException e) {
             clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             new HomeGUI(client, clientWindow);

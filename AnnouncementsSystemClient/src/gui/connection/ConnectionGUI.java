@@ -69,8 +69,8 @@ public class ConnectionGUI {
 		try {
 			client.startConnection(addr, port);
 		} catch (UnknownHostException | IllegalArgumentException e) {
-			clientWindow.showErrorMessage("Erro de conexão com o servidor",
-					"Dados de conexão inválidos. Verifique se o endereço IP e a porta estão corretos");
+			clientWindow.showErrorMessage("Servidor não encontrado",
+					"Verifique se o endereço IP e a porta estão corretos");
 			return;
 		} catch (IOException e) {
 			clientWindow.showErrorMessage("Erro de conexão com o servidor", e.getLocalizedMessage());

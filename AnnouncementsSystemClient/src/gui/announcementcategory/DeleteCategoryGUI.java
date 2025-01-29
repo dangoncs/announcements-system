@@ -3,6 +3,7 @@ package gui.announcementcategory;
 import gui.home.HomeGUI;
 import gui.ClientWindow;
 import main.Client;
+import operations.Operation;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -36,9 +37,11 @@ public class DeleteCategoryGUI {
             return;
         }
 
+        Operation deleteCategoryOp = new Operation("CHANGE ME to DeleteCategoryOperation");
+
         //TODO: implement implementation of deletion lol
         try {
-            client.sendToServer("");
+            client.sendToServer(deleteCategoryOp);
         } catch (IOException e) {
             clientWindow.showErrorMessage("", e.getLocalizedMessage());
         }

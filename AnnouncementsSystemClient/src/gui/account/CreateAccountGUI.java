@@ -72,6 +72,10 @@ public class CreateAccountGUI {
 		btnSignup.addActionListener(_ -> createAccountActionHandler());
 		contentPane.add(btnSignup, BorderLayout.SOUTH);
 
+		JButton btnCancel = new JButton("Cancelar");
+		btnCancel.addActionListener(_ -> new LoginGUI(client, clientWindow));
+		//TODO: btnCancel
+
 		clientWindow.showContentPane(contentPane);
 	}
 
@@ -81,13 +85,12 @@ public class CreateAccountGUI {
 		String passwd = txtPasswd.getText();
 
 		CreateAccountOperation createAccountOp = new CreateAccountOperation(userId, passwd, name);
-		String json = createAccountOp.toJson();
 		String responseJson;
 
 		try {
-			responseJson = client.sendToServer(json);
+			responseJson = client.sendToServer(createAccountOp);
 		} catch (IOException e) {
-			clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
+			clientWindow.showConnectionErrorHandler(client, e.getLocalizedMessage());
 			return;
 		}
 

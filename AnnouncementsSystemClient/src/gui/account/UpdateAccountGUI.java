@@ -101,11 +101,10 @@ public class UpdateAccountGUI {
         String token = client.getLoggedInUserToken();
 
         UpdateAccountOperation updateAccountOp = new UpdateAccountOperation(accountId, passwd, name, token);
-        String json = updateAccountOp.toJson();
         String responseJson;
 
         try {
-            responseJson = client.sendToServer(json);
+            responseJson = client.sendToServer(updateAccountOp);
         } catch (IOException e) {
             clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;

@@ -4,6 +4,7 @@ import gui.connection.ConnectionGUI;
 import gui.home.HomeGUI;
 import gui.ClientWindow;
 import main.Client;
+import operations.Operation;
 
 import javax.swing.JOptionPane;
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class DeleteAccountGUI {
 
         //TODO: implement implementation of deletion lol
         try {
-            client.sendToServer("");
+            client.sendToServer(new Operation(""));
         } catch (IOException e) {
             clientWindow.showErrorMessage("", e.getLocalizedMessage());
         }

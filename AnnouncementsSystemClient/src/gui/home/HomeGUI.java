@@ -96,11 +96,10 @@ public class HomeGUI {
 
     private void logoutActionHandler() {
         LogoutOperation logoutOp = new LogoutOperation(client.getLoggedInUserToken());
-        String json = logoutOp.toJson();
         String responseJson;
 
         try {
-            responseJson = client.sendToServer(json);
+            responseJson = client.sendToServer(logoutOp);
         } catch (IOException e) {
             clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;

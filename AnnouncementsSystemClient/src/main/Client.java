@@ -1,6 +1,8 @@
 package main;
 
+import com.google.gson.Gson;
 import gui.ClientWindow;
+import operations.Operation;
 
 import javax.swing.*;
 import java.io.BufferedReader;
@@ -27,9 +29,10 @@ public class Client {
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
-	public String sendToServer(String input) throws IOException {
-		out.println(input);
-        System.out.printf("[INFO] Enviando: %s%n", input);
+	public String sendToServer(Operation operation) throws IOException {
+		String json = new Gson().toJson(operation);
+		System.out.printf("[INFO] Enviando: %s%n", json);
+		out.println(json);
 
 		String serverResponse = in.readLine();
 		System.out.printf("[INFO] Recebido: %s%n", serverResponse);

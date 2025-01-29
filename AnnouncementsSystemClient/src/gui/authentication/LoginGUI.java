@@ -78,11 +78,10 @@ public class LoginGUI {
         String passwd = txtPasswd.getText();
 
         LoginOperation loginOp = new LoginOperation(userId, passwd);
-        String json = loginOp.toJson();
         String responseJson;
 
         try {
-            responseJson = client.sendToServer(json);
+            responseJson = client.sendToServer(loginOp);
         } catch (IOException e) {
             clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
             return;
