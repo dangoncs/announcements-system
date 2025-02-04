@@ -9,6 +9,10 @@ public class Response {
         this.message = message;
     }
 
+    public String getResponseCode() {
+        return response;
+    }
+
     @Override
     public String toString() {
         return "Response{" +

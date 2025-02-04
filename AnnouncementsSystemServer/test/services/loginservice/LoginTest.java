@@ -21,17 +21,25 @@ public class LoginTest {
 
         LoginService loginService = new LoginService();
         Response response = loginService.login(jsonObject);
-        System.out.printf("Ao tentar logar como usuário comum, recebi: %s%n", response);
+
+        if (!response.getResponseCode().equals("000"))
+            System.err.printf("Failed testSuccessfulCommonUserLogin: %s%n", response);
+
         return loginService;
     }
 
-    public static void testSuccessfulAdminLogin() {
+    public static LoginService testSuccessfulAdminLogin() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("user", "admin01");
         jsonObject.addProperty("password", "pass");
 
-        Response response = new LoginService().login(jsonObject);
-        System.out.printf("Ao tentar logar como admin, recebi: %s%n", response);
+        LoginService loginService = new LoginService();
+        Response response = loginService.login(jsonObject);
+
+        if (!response.getResponseCode().equals("001"))
+            System.err.printf("Failed testSuccessfulAdminLogin: %s%n", response);
+
+        return loginService;
     }
 
     public static void testUserAlreadyLoggedIn() {
@@ -42,7 +50,9 @@ public class LoginTest {
         LoginService loginService = new LoginService();
         loginService.login(jsonObject);
         Response response = loginService.login(jsonObject);
-        System.out.printf("Ao tentar logar com alguém já logado, recebi: %s%n", response);
+
+        if (!response.getResponseCode().equals("004"))
+            System.err.printf("Failed testUserAlreadyLoggedIn: %s%n", response);
     }
 
     public static void testMissingFields() {
@@ -51,7 +61,9 @@ public class LoginTest {
 
         LoginService loginService = new LoginService();
         Response response = loginService.login(jsonObject);
-        System.out.printf("Ao tentar logar com campos faltando, recebi: %s%n", response);
+
+        if (!response.getResponseCode().equals("002"))
+            System.err.printf("Failed testMissingFields: %s%n", response);
     }
 
     public static void testInvalidCredentials() {
@@ -60,6 +72,8 @@ public class LoginTest {
         jsonObject.addProperty("password", "password123");
 
         Response response = new LoginService().login(jsonObject);
-        System.out.printf("Ao tentar logar com credenciais inválidas, recebi: %s%n", response);
+
+        if (!response.getResponseCode().equals("003"))
+            System.err.printf("Failed testInvalidCredentials: %s%n", response);
     }
 }

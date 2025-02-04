@@ -14,14 +14,17 @@ public class LogoutTest {
         testNullToken();
     }
 
-    public static void testSuccessfulLogout() {
+    public static LoginService testSuccessfulLogout() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("token", "2459582");
 
         LoginService loginService = LoginTest.testSuccessfulCommonUserLogin();
         Response response = loginService.logout(jsonObject);
 
-        System.out.printf("Ao tentar fazer logout, recebi: %s%n", response);
+        if (!response.getResponseCode().equals("010"))
+            System.err.printf("Failed testSuccessfulLogout: %s%n", response);
+
+        return loginService;
     }
 
     public static void testAlreadyLoggedOut() {
@@ -31,7 +34,9 @@ public class LogoutTest {
         LoginService loginService = LoginTest.testSuccessfulCommonUserLogin();
         loginService.logout(jsonObject);
         Response response = loginService.logout(jsonObject);
-        System.out.printf("Ao tentar fazer logout já deslogado, recebi: %s%n", response);
+
+        if (!response.getResponseCode().equals("012"))
+            System.err.printf("Failed testAlreadyLoggedOut: %s%n", response);
     }
 
     public static void testMissingTokenField() {
@@ -39,7 +44,9 @@ public class LogoutTest {
 
         LoginService loginService = LoginTest.testSuccessfulCommonUserLogin();
         Response response = loginService.logout(jsonObject);
-        System.out.printf("Ao tentar fazer logout sem token, recebi: %s%n", response);
+
+        if (!response.getResponseCode().equals("011"))
+            System.err.printf("Failed testMissingTokenField: %s%n", response);
     }
 
     public static void testIncorrectToken() {
@@ -48,7 +55,9 @@ public class LogoutTest {
 
         LoginService loginService = LoginTest.testSuccessfulCommonUserLogin();
         Response response = loginService.logout(jsonObject);
-        System.out.printf("Ao tentar fazer logout com token incorreto, recebi: %s%n", response);
+
+        if (!response.getResponseCode().equals("013"))
+            System.err.printf("Failed testIncorrectToken: %s%n", response);
     }
 
     public static void testNullToken() {
@@ -57,6 +66,8 @@ public class LogoutTest {
 
         LoginService loginService = LoginTest.testSuccessfulCommonUserLogin();
         Response response = loginService.logout(jsonObject);
-        System.out.printf("Ao tentar fazer logout com token nulo, recebi: %s%n", response);
+
+        if (!response.getResponseCode().equals("011"))
+            System.err.printf("Failed testNullToken: %s%n", response);
     }
 }
