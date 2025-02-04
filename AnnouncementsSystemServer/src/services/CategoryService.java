@@ -66,9 +66,10 @@ public class CategoryService {
         JsonElement categoriesElement = jsonObject.get("categories");
         JsonElement tokenElement = jsonObject.get("token");
 
-        if (categoriesElement == null || categoriesElement.isJsonNull() || tokenElement == null || tokenElement.isJsonNull())
+        if (categoriesElement == null || categoriesElement.isJsonNull() || !categoriesElement.isJsonArray() || tokenElement == null || tokenElement.isJsonNull())
             return new Response("221", "Missing fields");
 
+        List<JsonElement> categoriesList = categoriesElement.getAsJsonArray().asList();
         String token = tokenElement.getAsString();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
@@ -76,11 +77,40 @@ public class CategoryService {
         if(!loggedInUserToken.equals(token) || loggedInUserRole != 1)
             return new Response("222", "Invalid token");
 
-        List<Category> categoryList = new ArrayList<>();
-        //TODO: implement other responses
+        List<Category> categoriesToUpdate = new ArrayList<>();
+
+        for (JsonElement categoryElement : categoriesList) {
+            JsonObject categoryObject;
+
+            try {
+                categoryObject = categoryElement.getAsJsonObject();
+            } catch (Exception e) {
+                return new Response("221", "Missing fields");
+            }
+
+            JsonElement categoryIdElement = categoryObject.get("id");
+            JsonElement nameElement = categoryObject.get("name");
+            JsonElement descriptionElement = categoryObject.get("description");
+
+            if (categoryIdElement == null || categoryIdElement.isJsonNull())
+                return new Response("221", "Missing fields");
+
+            String categoryId = categoryIdElement.getAsString();
+            String name = (nameElement != null && !nameElement.isJsonNull()) ? nameElement.getAsString() : "";
+            String description = (descriptionElement != null && !descriptionElement.isJsonNull()) ? descriptionElement.getAsString() : "";
+
+            try {
+                if(CategoryDAO.read(categoryId) == null)
+                    return new Response("223", "Invalid information inserted");
+            } catch (SQLException e) {
+                return new Response("224", "Unknown error");
+            }
+
+            categoriesToUpdate.add(new Category(categoryId, name, description));
+        }
 
         try {
-            CategoryDAO.update(categoryList);
+            CategoryDAO.update(categoriesToUpdate);
         } catch (SQLException e) {
             return new Response("224", "Unknown error");
         }
@@ -95,20 +125,34 @@ public class CategoryService {
         if (categoryIdsElement == null || categoryIdsElement.isJsonNull() || tokenElement == null || tokenElement.isJsonNull())
             return new Response("231", "Missing fields");
 
-        List<Category> categoryList = new ArrayList<>();
-
+        List<JsonElement> categoryIdsList = categoryIdsElement.getAsJsonArray().asList();
         String token = tokenElement.getAsString();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
 
         if(!loggedInUserToken.equals(token) || loggedInUserRole != 1)
             return new Response("232", "Invalid token");
-        //TODO: implement other responses
+
+        List<String> categoriesToDelete = new ArrayList<>();
+
+        for (JsonElement categoryIdElement : categoryIdsList) {
+            if (categoryIdElement == null || categoryIdElement.isJsonNull())
+                return new Response("231", "Missing fields");
+
+            categoriesToDelete.add(categoryIdElement.getAsString());
+
+            try {
+                if (CategoryDAO.read(categoryIdElement.getAsString()) == null)
+                    return new Response("233", "Invalid information inserted");
+            } catch (SQLException e) {
+                return new Response("235", "Unknown error");
+            }
+        }
 
         try {
-            CategoryDAO.delete(categoryList);
+            CategoryDAO.delete(categoriesToDelete);
         } catch (SQLException e) {
-            return new Response("235", "Unknown error");
+            return new Response("234", "Category in use");
         }
 
         return new Response("230", "Successful category deletion");
