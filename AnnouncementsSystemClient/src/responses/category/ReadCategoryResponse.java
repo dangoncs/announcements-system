@@ -13,7 +13,7 @@ public class ReadCategoryResponse extends Response {
 
     public List<JsonElement> getCategories() {
         if(jsonObject != null) {
-            JsonElement categoriesElement = jsonObject.get("token");
+            JsonElement categoriesElement = jsonObject.get("categories");
             if(categoriesElement != null && !categoriesElement.isJsonNull() && categoriesElement.isJsonArray())
                 return categoriesElement.getAsJsonArray().asList();
         }
