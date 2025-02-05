@@ -1,6 +1,5 @@
 package gui.account;
 
-import java.awt.BorderLayout;
 import java.awt.Font;
 import java.io.IOException;
 
@@ -68,7 +67,8 @@ public class CreateAccountGUI {
 		txtPasswd.setColumns(10);
 
 		JPanel buttons = new JPanel();
-        contentPane.add(buttons, BorderLayout.SOUTH);
+		buttons.setBounds(150, 200, 300, 100);
+        contentPane.add(buttons);
 
         JButton btnBack = new JButton("Voltar");
         btnBack.addActionListener(_ -> new LoginGUI(client, clientWindow));
