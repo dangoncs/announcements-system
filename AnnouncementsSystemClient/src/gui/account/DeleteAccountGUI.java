@@ -4,7 +4,8 @@ import gui.connection.ConnectionGUI;
 import gui.home.HomeGUI;
 import gui.ClientWindow;
 import main.Client;
-import operations.Operation;
+import operations.account.DeleteAccountOperation;
+import responses.Response;
 
 import javax.swing.JOptionPane;
 import java.io.IOException;
@@ -45,20 +46,36 @@ public class DeleteAccountGUI {
             return;
         }
 
-        //TODO: implement implementation of deletion lol
+        DeleteAccountOperation deleteAccountOp = new DeleteAccountOperation(accountId, client.getLoggedInUserToken());
+        String responseJson;
+
         try {
-            client.sendToServer(new Operation(""));
+            responseJson = client.sendToServer(deleteAccountOp);
         } catch (IOException e) {
-            clientWindow.showErrorMessage("", e.getLocalizedMessage());
+            clientWindow.showConnectionErrorHandler(client, e.getLocalizedMessage());
+            return;
         }
 
-        //if response successful (130)
-        try {
-            client.disconnect();
+        Response deleteAccountResponse = new Response(responseJson);
+        String responseCode = deleteAccountResponse.getResponseCode();
+        String message = deleteAccountResponse.getMessage();
+
+        if (!responseCode.equals("130")) {
+            clientWindow.showErrorMessage("Não foi possível excluir conta", message);
+            return;
+        }
+
+        clientWindow.showSuccessMessage(message);
+
+        if (accountId.equals(client.getLoggedInUserId())) {
+            try {
+                client.disconnect();
+            } catch (IOException e) {
+                clientWindow.showErrorMessage("Erro ao desconectar", e.getLocalizedMessage());
+                System.exit(1);
+            }
+            
             new ConnectionGUI(clientWindow);
-        } catch (IOException e) {
-            clientWindow.showErrorMessage("Erro ao desconectar", e.getLocalizedMessage());
-            System.exit(1);
         }
     }
 }

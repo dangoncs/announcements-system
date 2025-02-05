@@ -106,7 +106,9 @@ public class DeleteCategoryGUI {
         String message = deleteCategoryResponse.getMessage();
 
         if(!responseCode.equals("230")) {
-            clientWindow.showErrorMessage("Erro ao realizar cadastro", message);
+            clientWindow.showErrorMessage("Não foi possível excluir categorias", message);
+            categoryIdsList.clear();
+            lblCategories.setText("Categorias a excluir: ");
             return;
         }
 
