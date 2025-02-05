@@ -50,7 +50,7 @@ public class Client {
 	}
 
 	public String getLoggedInUserId() {
-		return "";
+		return loggedInUserId;
 	}
 
 	public boolean isAdmin() {

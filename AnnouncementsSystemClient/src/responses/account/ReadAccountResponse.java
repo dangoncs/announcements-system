@@ -38,14 +38,4 @@ public class ReadAccountResponse extends Response {
 
         return null;
     }
-
-    public String getToken() {
-        if(jsonObject != null) {
-            JsonElement tokenElement = jsonObject.get("token");
-            if(tokenElement != null && !tokenElement.isJsonNull())
-                return tokenElement.getAsString();
-        }
-
-        return null;
-    }
 }

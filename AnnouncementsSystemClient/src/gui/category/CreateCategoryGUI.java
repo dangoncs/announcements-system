@@ -63,7 +63,7 @@ public class CreateCategoryGUI {
         btnAdd.setAlignmentX(Component.LEFT_ALIGNMENT);
         center.add(btnAdd);
 
-        lblCategories = new JLabel("Categorias a adicionar: ");
+        lblCategories = new JLabel("Categorias a criar: ");
         lblCategories.setAlignmentX(Component.LEFT_ALIGNMENT);
         center.add(Box.createVerticalStrut(25));
         center.add(lblCategories);
@@ -111,7 +111,9 @@ public class CreateCategoryGUI {
         String message = createCategoryResponse.getMessage();
 
         if(!responseCode.equals("200")) {
-            clientWindow.showErrorMessage("Erro ao realizar cadastro", message);
+            clientWindow.showErrorMessage("Não foi possível cadastrar categorias", message);
+            categoriesList.clear();
+            lblCategories.setText("Categorias a criar: ");
             return;
         }
 

@@ -73,7 +73,6 @@ public class HomeGUI {
             btnCreateCategory.addActionListener(_ -> new CreateCategoryGUI(client, clientWindow));
             categoryPanel.add(btnCreateCategory);
 
-            //TODO: verify if this is correct
             JButton btnReadCategory = new JButton("Ver");
             btnReadCategory.addActionListener(_ -> new ReadCategoryGUI(client, clientWindow));
             categoryPanel.add(btnReadCategory);

@@ -64,9 +64,8 @@ public class ReadAccountGUI {
             String userId = readAccountResponse.getUserId();
             String password = readAccountResponse.getPassword();
             String name = readAccountResponse.getName();
-            String token = readAccountResponse.getToken();
 
-            setupGUI(userId, password, name, token);
+            setupGUI(userId, password, name);
         }
         else {
             String message = readAccountResponse.getMessage();
@@ -75,7 +74,7 @@ public class ReadAccountGUI {
         }
     }
 
-    private void setupGUI(String userId, String password, String name, String token) {
+    private void setupGUI(String userId, String password, String name) {
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
@@ -96,10 +95,6 @@ public class ReadAccountGUI {
         JLabel lblPassword = new JLabel("Senha: " + password);
         lblPassword.setBounds(5, 130, 135, 23);
         contentPane.add(lblPassword);
-
-        JLabel lblToken = new JLabel("Token: " + token);
-        lblToken.setBounds(5, 160, 135, 23);
-        contentPane.add(lblToken);
 
         JButton btnBack = new JButton("Voltar");
         btnBack.setBounds(5, 233, 424, 23);
