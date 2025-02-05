@@ -96,7 +96,7 @@ public class CategoryDAO {
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, category.name());
-            ps.setString(2, category.categoryId());
+            ps.setString(2, category.id());
 
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -110,7 +110,7 @@ public class CategoryDAO {
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, category.description());
-            ps.setString(2, category.categoryId());
+            ps.setString(2, category.id());
 
             ps.executeUpdate();
         } catch (SQLException e) {
