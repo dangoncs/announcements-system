@@ -67,14 +67,16 @@ public class CreateAccountGUI {
 		contentPane.add(txtPasswd);
 		txtPasswd.setColumns(10);
 
-		JButton btnSignup = new JButton("Cadastrar");
-		btnSignup.setBounds(5, 233, 424, 23);
-		btnSignup.addActionListener(_ -> createAccountActionHandler());
-		contentPane.add(btnSignup, BorderLayout.SOUTH);
+		JPanel buttons = new JPanel();
+        contentPane.add(buttons, BorderLayout.SOUTH);
 
-		JButton btnCancel = new JButton("Cancelar");
-		btnCancel.addActionListener(_ -> new LoginGUI(client, clientWindow));
-		//TODO: btnCancel
+        JButton btnBack = new JButton("Voltar");
+        btnBack.addActionListener(_ -> new LoginGUI(client, clientWindow));
+        buttons.add(btnBack);
+
+        JButton btnSignup = new JButton("Cadastrar");
+		btnSignup.addActionListener(_ -> createAccountActionHandler());
+        buttons.add(btnSignup);
 
 		clientWindow.showContentPane(contentPane);
 	}

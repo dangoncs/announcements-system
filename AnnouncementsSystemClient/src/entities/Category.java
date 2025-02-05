@@ -1,7 +1,7 @@
 package entities;
 
 public class Category {
-    private String categoryId;
+    private String id;
     private final String name;
     private final String description;
 
@@ -10,14 +10,14 @@ public class Category {
         this.description = description;
     }
 
-    public Category(String categoryId, String name, String description) {
-        this.categoryId = categoryId;
+    public Category(String id, String name, String description) {
+        this.id = id;
         this.name = name;
         this.description = description;
     }
 
     @Override
     public String toString() {
-        return "Id: " + categoryId + ", Nome: " + name + ", Descrição: " + description + '\n';
+        return "Id: " + id + ", Nome: " + name + ", Descrição: " + description + '\n';
     }
 }
