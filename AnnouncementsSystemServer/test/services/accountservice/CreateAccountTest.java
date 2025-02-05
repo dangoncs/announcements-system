@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import responses.Response;
 import services.AccountService;
 
-public class AccountCreationTest {
+public class CreateAccountTest {
 
     public static void main(String[] ignoredArgs) {
         testSuccessfulAccountCreation();

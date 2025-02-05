@@ -47,7 +47,7 @@ public class ServerThread extends Thread {
                 System.out.printf("[INFO] Enviando: %s%n", responseJson);
 				out.println(responseJson);
 
-				if(shouldCloseConnection(responseJson))
+				if(loginService.isNoLongerLoggedIn())
 					break;
 	    	}
 			
@@ -90,12 +90,6 @@ public class ServerThread extends Thread {
 			default -> new Response("402", "Invalid op");
 		};
 	}
-
-	private boolean shouldCloseConnection(String responseJson) {
-		JsonObject jsonObject = JsonParser.parseString(responseJson).getAsJsonObject();
-		String responseCode = jsonObject.get("response").getAsString();
-		return (responseCode.equals("010") || responseCode.equals("130"));
-    }
 
 	public void closeConnection() {
 		try {

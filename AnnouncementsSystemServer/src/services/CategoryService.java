@@ -20,6 +20,7 @@ public class CategoryService {
         if (categoriesElement == null || categoriesElement.isJsonNull() || tokenElement == null || tokenElement.isJsonNull())
             return new Response("201", "Missing fields");
 
+        List<JsonElement> categoriesList = categoriesElement.getAsJsonArray().asList();
         String token = tokenElement.getAsString();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
@@ -27,11 +28,31 @@ public class CategoryService {
         if(!loggedInUserToken.equals(token) || loggedInUserRole != 1)
             return new Response("202", "Invalid token");
 
-        List<Category> categoryList = new ArrayList<>();
-        //TODO: implement missing fields response
+        List<Category> categoriesToCreate = new ArrayList<>();
+
+        for (JsonElement categoryElement : categoriesList) {
+            JsonObject categoryObject;
+
+            try {
+                categoryObject = categoryElement.getAsJsonObject();
+            } catch (Exception e) {
+                return new Response("201", "Missing fields");
+            }
+
+            JsonElement nameElement = categoryObject.get("name");
+            JsonElement descriptionElement = categoryObject.get("description");
+
+            if (nameElement == null || nameElement.isJsonNull())
+                return new Response("201", "Missing fields");
+
+            String name = nameElement.getAsString();
+            String description = (descriptionElement != null && !descriptionElement.isJsonNull()) ? descriptionElement.getAsString() : "";
+
+            categoriesToCreate.add(new Category("", name, description));
+        }
 
         try {
-            CategoryDAO.create(categoryList);
+            CategoryDAO.create(categoriesToCreate);
         } catch (SQLException e) {
             return new Response("203", "Unknown error");
         }

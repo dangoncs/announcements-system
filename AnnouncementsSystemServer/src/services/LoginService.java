@@ -1,27 +1,23 @@
 package services;
 
+import java.sql.SQLException;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import dao.AccountDAO;
 import entities.Account;
 import responses.LoginResponse;
 import responses.Response;
 
-import java.sql.SQLException;
-
 public class LoginService {
     private String loggedInUserId;
     private String loggedInUserToken;
     private int loggedInUserRole;
+    private boolean noLongerLoggedIn;
 
     String generateToken(String userId) {
        return userId;
-    }
-
-    void destroyToken() {
-        loggedInUserId = null;
-        loggedInUserToken = null;
-        loggedInUserRole = 0;
     }
 
     public Response login(JsonObject jsonObject) {
@@ -72,7 +68,7 @@ public class LoginService {
         if(!token.equals(loggedInUserToken))
             return new Response("013", "Logout failed");
 
-        destroyToken();
+        noLongerLoggedIn = true;
         return new Response("010", "Successful logout");
     }
 
@@ -86,5 +82,13 @@ public class LoginService {
 
     public int getLoggedInUserRole() {
         return this.loggedInUserRole;
+    }
+
+    public boolean isNoLongerLoggedIn() {
+        return noLongerLoggedIn;
+    }
+
+    public void setNoLongerLoggedIn(boolean noLongerLoggedIn) {
+        this.noLongerLoggedIn = noLongerLoggedIn;
     }
 }
