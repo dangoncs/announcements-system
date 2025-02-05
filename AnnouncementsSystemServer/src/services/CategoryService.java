@@ -48,6 +48,9 @@ public class CategoryService {
             String name = nameElement.getAsString();
             String description = (descriptionElement != null && !descriptionElement.isJsonNull()) ? descriptionElement.getAsString() : "";
 
+            if(name.isBlank())
+                return new Response("201", "Missing fields");
+
             categoriesToCreate.add(new Category("", name, description));
         }
 
@@ -120,6 +123,10 @@ public class CategoryService {
             String name = (nameElement != null && !nameElement.isJsonNull()) ? nameElement.getAsString() : "";
             String description = (descriptionElement != null && !descriptionElement.isJsonNull()) ? descriptionElement.getAsString() : "";
 
+            if(categoryId.isBlank()) {
+                return new Response("221", "Missing fields");
+            }
+
             try {
                 if(CategoryDAO.read(categoryId) == null)
                     return new Response("223", "Invalid information inserted");
@@ -160,10 +167,15 @@ public class CategoryService {
             if (categoryIdElement == null || categoryIdElement.isJsonNull())
                 return new Response("231", "Missing fields");
 
-            categoriesToDelete.add(categoryIdElement.getAsString());
+            String categoryId = categoryIdElement.getAsString();
+            if(categoryId.isBlank()) {
+                return new Response("231", "Missing fields");
+            }
+
+            categoriesToDelete.add(categoryId);
 
             try {
-                if (CategoryDAO.read(categoryIdElement.getAsString()) == null)
+                if (CategoryDAO.read(categoryId) == null)
                     return new Response("233", "Invalid information inserted");
             } catch (SQLException e) {
                 return new Response("235", "Unknown error");
