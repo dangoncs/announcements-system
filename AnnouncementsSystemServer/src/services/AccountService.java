@@ -115,7 +115,6 @@ public class AccountService {
         return new AccountResponse(
                 "11" + getAccountRole(account.userId()),
                 "Returns all information of the account",
-                loginService.generateToken(account.userId()),
                 account.userId(),
                 account.name(),
                 account.password()
@@ -227,7 +226,7 @@ public class AccountService {
         }
 
         if(loggedInUserId.equals(userId))
-            loginService.destroyToken();
+            loginService.setNoLongerLoggedIn(true);
 
         return new Response(
                     "130",
