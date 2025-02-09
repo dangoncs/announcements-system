@@ -35,7 +35,7 @@ public class DatabaseTest {
     private static void dbSelectTest() {
         try {
             System.out.println("Selecting...");
-            System.out.println(new AccountDAO().searchByUser("testUser"));
+            System.out.println(new AccountDAO().read("testUser"));
         } catch (SQLException e) {
             System.err.printf("Select error: %s%n", e.getLocalizedMessage());
         }

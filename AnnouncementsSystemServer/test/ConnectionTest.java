@@ -40,7 +40,7 @@ public class ConnectionTest {
         ) {
             for(String line : input) {
                 out.println(line);
-                System.out.println(in.readLine());
+                in.readLine();
             }
         }
     }
