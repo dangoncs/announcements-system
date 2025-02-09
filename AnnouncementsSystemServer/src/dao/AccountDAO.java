@@ -23,7 +23,7 @@ public class AccountDAO {
         }
     }
 
-    public Account searchByUser(String userId) throws SQLException {
+    public Account read(String userId) throws SQLException {
         String sql = "SELECT * FROM user WHERE user_id = ?";
 
         try (Connection conn = Database.connect()) {
@@ -45,7 +45,7 @@ public class AccountDAO {
         }
     }
 
-    public void updateName(String userId, String name) throws SQLException {
+    public int updateName(String userId, String name) throws SQLException {
         String sql = "UPDATE user SET name = ? WHERE user_id = ?";
 
         try (Connection conn = Database.connect()) {
@@ -53,12 +53,12 @@ public class AccountDAO {
                 ps.setString(1, name);
                 ps.setString(2, userId);
 
-                ps.executeUpdate();
+                return ps.executeUpdate();
             }
         }
     }
 
-    public void updatePassword(String userId, String password) throws SQLException {
+    public int updatePassword(String userId, String password) throws SQLException {
         String sql = "UPDATE user SET password = ? WHERE user_id = ?";
 
         try (Connection conn = Database.connect()) {
@@ -66,18 +66,18 @@ public class AccountDAO {
                 ps.setString(1, password);
                 ps.setString(2, userId);
 
-                ps.executeUpdate();
+                return ps.executeUpdate();
             }
         }
     }
 
-    public void delete(String userId) throws SQLException {
+    public int delete(String userId) throws SQLException {
         String sql = "DELETE FROM user WHERE user_id = ?";
 
         try (Connection conn = Database.connect()) {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, userId);
-                ps.executeUpdate();
+                return ps.executeUpdate();
             }
         }
     }
