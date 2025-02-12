@@ -111,7 +111,7 @@ public class AccountService {
         if (userId == null || userId.isBlank())
             userId = loggedInUserId;
 
-        if (!token.equals(loggedInUserToken))
+        if (token == null || !token.equals(loggedInUserToken))
             return new Response("121", "Invalid or empty token");
 
         if (loggedInUserRole != 1 && !userId.equals(loggedInUserId)) {
@@ -127,7 +127,7 @@ public class AccountService {
                     return new Response("123", "No user or token found ( Admin Only )");
 
             if (password != null && !password.isBlank()) {
-                if (isNotValidPassword(password))
+                if (getAccountRole(userId) != 1 && isNotValidPassword(password))
                     return new Response("125", "Invalid information inserted");
 
                 if (new AccountDAO().updatePassword(userId, password) == 0)
