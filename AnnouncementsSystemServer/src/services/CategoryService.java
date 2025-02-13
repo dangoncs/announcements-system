@@ -1,190 +1,126 @@
 package services;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.sql.SQLException;
+import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
 import dao.CategoryDAO;
 import entities.Category;
+import operations.category.CreateCategoryOp;
+import operations.category.DeleteCategoryOp;
+import operations.category.ReadCategoryOp;
+import operations.category.UpdateCategoryOp;
 import responses.CategoryResponse;
 import responses.Response;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class CategoryService {
 
-    public static Response create(JsonObject jsonObject, LoginService loginService) {
-        JsonElement categoriesElement = jsonObject.get("categories");
-        JsonElement tokenElement = jsonObject.get("token");
+    public static Response create(String operationJson, LoginService loginService) throws JsonSyntaxException {
+        CreateCategoryOp createCategoryOp = new Gson().fromJson(operationJson, CreateCategoryOp.class);
 
-        if (categoriesElement == null || categoriesElement.isJsonNull() || tokenElement == null || tokenElement.isJsonNull())
-            return new Response("201", "Missing fields");
-
-        List<JsonElement> categoriesList = categoriesElement.getAsJsonArray().asList();
-        String token = tokenElement.getAsString();
+        String token = createCategoryOp.token();
+        List<Category> categoriesList = createCategoryOp.categories();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
 
-        if(!loggedInUserToken.equals(token) || loggedInUserRole != 1)
+        if (token == null || categoriesList == null)
+            return new Response("201", "Missing fields");
+
+        if (!token.equals(loggedInUserToken) || loggedInUserRole != 1)
             return new Response("202", "Invalid token");
 
-        List<Category> categoriesToCreate = new ArrayList<>();
-
-        for (JsonElement categoryElement : categoriesList) {
-            JsonObject categoryObject;
-
-            try {
-                categoryObject = categoryElement.getAsJsonObject();
-            } catch (Exception e) {
+        for (Category category : categoriesList)
+            if (category.name() == null || category.name().isBlank())
                 return new Response("201", "Missing fields");
-            }
-
-            JsonElement nameElement = categoryObject.get("name");
-            JsonElement descriptionElement = categoryObject.get("description");
-
-            if (nameElement == null || nameElement.isJsonNull())
-                return new Response("201", "Missing fields");
-
-            String name = nameElement.getAsString();
-            String description = (descriptionElement != null && !descriptionElement.isJsonNull()) ? descriptionElement.getAsString() : "";
-
-            if(name.isBlank())
-                return new Response("201", "Missing fields");
-
-            categoriesToCreate.add(new Category("", name, description));
-        }
 
         try {
-            CategoryDAO.create(categoriesToCreate);
+            CategoryDAO.create(categoriesList);
         } catch (SQLException e) {
+            System.err.printf("[ERROR] Category creation error: %s%n", e.getMessage());
             return new Response("203", "Unknown error");
         }
 
         return new Response("200", "Successful category creation");
     }
 
-    public static Response read(JsonObject jsonObject, LoginService loginService) {
-        JsonElement tokenElement = jsonObject.get("token");
+    public static Response read(String operationJson, LoginService loginService) throws JsonSyntaxException {
+        ReadCategoryOp readCategoryOp = new Gson().fromJson(operationJson, ReadCategoryOp.class);
 
-        if (tokenElement == null || tokenElement.isJsonNull())
-            return new Response("211", "Missing fields");
-
-        String token = tokenElement.getAsString();
+        String token = readCategoryOp.token();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
 
-        if(!token.equals(loggedInUserToken) || loggedInUserRole != 1)
+        if (token == null)
+            return new Response("211", "Missing fields");
+
+        if (!token.equals(loggedInUserToken) || loggedInUserRole != 1)
             return new Response("212", "Invalid token");
 
         List<Category> categoryList;
         try {
-            categoryList = CategoryDAO.readAll();
+            categoryList = CategoryDAO.read();
         } catch (SQLException e) {
+            System.err.printf("[ERROR] Category read error: %s%n", e.getMessage());
             return new Response("213", "Unknown error");
         }
 
         return new CategoryResponse("210", "Successful category read", categoryList);
     }
 
-    public static Response update(JsonObject jsonObject, LoginService loginService) {
-        JsonElement categoriesElement = jsonObject.get("categories");
-        JsonElement tokenElement = jsonObject.get("token");
+    public static Response update(String operationJson, LoginService loginService) throws JsonSyntaxException {
+        UpdateCategoryOp updateCategoryOp = new Gson().fromJson(operationJson, UpdateCategoryOp.class);
 
-        if (categoriesElement == null || categoriesElement.isJsonNull() || !categoriesElement.isJsonArray() || tokenElement == null || tokenElement.isJsonNull())
-            return new Response("221", "Missing fields");
-
-        List<JsonElement> categoriesList = categoriesElement.getAsJsonArray().asList();
-        String token = tokenElement.getAsString();
+        String token = updateCategoryOp.token();
+        List<Category> categoriesList = updateCategoryOp.categories();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
 
-        if(!loggedInUserToken.equals(token) || loggedInUserRole != 1)
+        if (token == null || categoriesList == null)
+            return new Response("221", "Missing fields");
+
+        if (!token.equals(loggedInUserToken) || loggedInUserRole != 1)
             return new Response("222", "Invalid token");
 
-        List<Category> categoriesToUpdate = new ArrayList<>();
-
-        for (JsonElement categoryElement : categoriesList) {
-            JsonObject categoryObject;
-
-            try {
-                categoryObject = categoryElement.getAsJsonObject();
-            } catch (Exception e) {
+        for (Category category : categoriesList)
+            if (category.id() == null || category.id().isBlank())
                 return new Response("221", "Missing fields");
-            }
-
-            JsonElement categoryIdElement = categoryObject.get("id");
-            JsonElement nameElement = categoryObject.get("name");
-            JsonElement descriptionElement = categoryObject.get("description");
-
-            if (categoryIdElement == null || categoryIdElement.isJsonNull())
-                return new Response("221", "Missing fields");
-
-            String categoryId = categoryIdElement.getAsString();
-            String name = (nameElement != null && !nameElement.isJsonNull()) ? nameElement.getAsString() : "";
-            String description = (descriptionElement != null && !descriptionElement.isJsonNull()) ? descriptionElement.getAsString() : "";
-
-            if(categoryId.isBlank()) {
-                return new Response("221", "Missing fields");
-            }
-
-            try {
-                if(CategoryDAO.read(categoryId) == null)
-                    return new Response("223", "Invalid information inserted");
-            } catch (SQLException e) {
-                return new Response("224", "Unknown error");
-            }
-
-            categoriesToUpdate.add(new Category(categoryId, name, description));
-        }
 
         try {
-            CategoryDAO.update(categoriesToUpdate);
+            if (CategoryDAO.update(categoriesList) == -1)
+                return new Response("223", "Invalid information inserted");
         } catch (SQLException e) {
+            System.err.printf("[ERROR] Category update error: %s%n", e.getMessage());
             return new Response("224", "Unknown error");
         }
 
         return new Response("220", "Successful category update");
     }
 
-    public static Response delete(JsonObject jsonObject, LoginService loginService) {
-        JsonElement categoryIdsElement = jsonObject.get("categoryIds");
-        JsonElement tokenElement = jsonObject.get("token");
+    public static Response delete(String operationJson, LoginService loginService) throws JsonSyntaxException {
+        DeleteCategoryOp deleteCategoryOp = new Gson().fromJson(operationJson, DeleteCategoryOp.class);
 
-        if (categoryIdsElement == null || categoryIdsElement.isJsonNull() || tokenElement == null || tokenElement.isJsonNull())
-            return new Response("231", "Missing fields");
-
-        List<JsonElement> categoryIdsList = categoryIdsElement.getAsJsonArray().asList();
-        String token = tokenElement.getAsString();
+        String token = deleteCategoryOp.token();
+        List<String> categoryIdsList = deleteCategoryOp.categoryIds();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
 
-        if(!loggedInUserToken.equals(token) || loggedInUserRole != 1)
+        if (token == null || categoryIdsList == null)
+            return new Response("231", "Missing fields");
+
+        if (!token.equals(loggedInUserToken) || loggedInUserRole != 1)
             return new Response("232", "Invalid token");
 
-        List<String> categoriesToDelete = new ArrayList<>();
-
-        for (JsonElement categoryIdElement : categoryIdsList) {
-            if (categoryIdElement == null || categoryIdElement.isJsonNull())
-                return new Response("231", "Missing fields");
-
-            String categoryId = categoryIdElement.getAsString();
-            if(categoryId.isBlank()) {
-                return new Response("231", "Missing fields");
-            }
-
-            categoriesToDelete.add(categoryId);
-
-            try {
-                if (CategoryDAO.read(categoryId) == null)
-                    return new Response("233", "Invalid information inserted");
-            } catch (SQLException e) {
-                return new Response("235", "Unknown error");
-            }
-        }
+        for (String categoryId : categoryIdsList)
+            if (categoryId == null || categoryId.isBlank())
+                return new Response("233", "Invalid information inserted");
 
         try {
-            CategoryDAO.delete(categoriesToDelete);
+            if (CategoryDAO.delete(categoryIdsList) == -1)
+                return new Response("233", "Invalid information inserted");
         } catch (SQLException e) {
+            System.err.printf("[ERROR] Category deletion error: %s%n", e.getMessage());
             return new Response("234", "Category in use");
         }
 
