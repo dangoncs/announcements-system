@@ -1,12 +1,18 @@
 package services;
 
+import java.sql.SQLException;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
 import dao.AccountDAO;
 import entities.Account;
-import operations.Operation;
+import operations.account.CreateAccountOp;
+import operations.account.DeleteAccountOp;
+import operations.account.ReadAccountOp;
+import operations.account.UpdateAccountOp;
 import responses.AccountResponse;
 import responses.Response;
-
-import java.sql.SQLException;
 
 public class AccountService {
 
@@ -23,31 +29,25 @@ public class AccountService {
     }
 
     public static int getAccountRole(String userId) {
-        return userId.matches("\\d{7}") ? 0 : 1;
+        return userId.matches("\\d{7}") && (!userId.equals("0000000")) ? 0 : 1;
     }
 
-    public static Response create(Operation operation) {
-        String userId = operation.getElementValue("user");
-        String password = operation.getElementValue("password");
-        String name = operation.getElementValue("name");
+    public static Response create(String operationJson) throws JsonSyntaxException {
+        CreateAccountOp createAccountOp = new Gson().fromJson(operationJson, CreateAccountOp.class);
+
+        String userId = createAccountOp.user();
+        String password = createAccountOp.password();
+        String name = createAccountOp.name();
 
         if (userId == null || password == null || name == null)
             return new Response("101", "Fields missing");
 
-        if (isNotValidUser(userId) || isNotValidPassword(password) || name.isBlank()) {
-            return new Response(
-                    "102",
-                    "Invalid information inserted: user or password"
-            );
-        }
+        if (isNotValidUser(userId) || isNotValidPassword(password) || name.isBlank())
+            return new Response("102", "Invalid information inserted: user or password");
 
         try {
-            if (new AccountDAO().read(userId) != null) {
-                return new Response(
-                        "103",
-                        "Already exists an account with the username"
-                );
-            }
+            if (new AccountDAO().read(userId) != null)
+                return new Response("103", "Already exists an account with the username");
 
             new AccountDAO().create(userId, truncateString(name), password);
         } catch (SQLException e) {
@@ -58,9 +58,11 @@ public class AccountService {
         return new Response("100", "Successful account creation");
     }
 
-    public static Response read(Operation operation, LoginService loginService) {
-        String userId = operation.getElementValue("user");
-        String token = operation.getElementValue("token");
+    public static Response read(String operationJson, LoginService loginService) throws JsonSyntaxException {
+        ReadAccountOp readAccountOp = new Gson().fromJson(operationJson, ReadAccountOp.class);
+
+        String userId = readAccountOp.user();
+        String token = readAccountOp.token();
         String loggedInUserId = loginService.getLoggedInUserId();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
@@ -74,8 +76,7 @@ public class AccountService {
         if (loggedInUserRole != 1 && !userId.equals(loggedInUserId)) {
             return new Response(
                     "113",
-                    "Invalid Permission, user does not have permission to visualize other users data"
-            );
+                    "Invalid Permission, user does not have permission to visualize other users data");
         }
 
         Account account;
@@ -88,22 +89,21 @@ public class AccountService {
             return new Response("115", "Unknown error");
         }
 
-        String responseCode = (getAccountRole(account.userId()) == 0) ? "110" : "111";
-
         return new AccountResponse(
-                responseCode,
+                "11" + getAccountRole(userId),
                 "Returns all information of the account",
                 account.userId(),
                 account.name(),
-                account.password()
-        );
+                account.password());
     }
 
-    public static Response update(Operation operation, LoginService loginService) {
-        String userId = operation.getElementValue("user");
-        String password = operation.getElementValue("password");
-        String name = operation.getElementValue("name");
-        String token = operation.getElementValue("token");
+    public static Response update(String operationJson, LoginService loginService) throws JsonSyntaxException {
+        UpdateAccountOp updateAccountOp = new Gson().fromJson(operationJson, UpdateAccountOp.class);
+
+        String userId = updateAccountOp.user();
+        String name = updateAccountOp.name();
+        String password = updateAccountOp.password();
+        String token = updateAccountOp.token();
         String loggedInUserId = loginService.getLoggedInUserId();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
@@ -117,8 +117,7 @@ public class AccountService {
         if (loggedInUserRole != 1 && !userId.equals(loggedInUserId)) {
             return new Response(
                     "122",
-                    "Invalid Permission, user does not have permission to update other users data"
-            );
+                    "Invalid Permission, user does not have permission to update other users data");
         }
 
         try {
@@ -141,9 +140,11 @@ public class AccountService {
         return new Response("120", "Account successfully updated");
     }
 
-    public static Response delete(Operation operation, LoginService loginService) {
-        String userId = operation.getElementValue("user");
-        String token = operation.getElementValue("token");
+    public static Response delete(String operationJson, LoginService loginService) throws JsonSyntaxException {
+        DeleteAccountOp deleteAccountOp = new Gson().fromJson(operationJson, DeleteAccountOp.class);
+
+        String userId = deleteAccountOp.user();
+        String token = deleteAccountOp.token();
         String loggedInUserId = loginService.getLoggedInUserId();
         String loggedInUserToken = loginService.getLoggedInUserToken();
         int loggedInUserRole = loginService.getLoggedInUserRole();
@@ -160,8 +161,7 @@ public class AccountService {
         if (loggedInUserRole != 1 && !userId.equals(loggedInUserId)) {
             return new Response(
                     "133",
-                    "Invalid Permission, user does not have permission to delete other users data"
-            );
+                    "Invalid Permission, user does not have permission to delete other users data");
         }
 
         try {
