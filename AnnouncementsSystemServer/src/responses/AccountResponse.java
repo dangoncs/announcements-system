@@ -15,7 +15,7 @@ public class AccountResponse extends Response {
     @Override
     public String toString() {
         return "AccountResponse{" +
-                ", user='" + user + '\'' +
+                "user='" + user + '\'' +
                 ", name='" + name + '\'' +
                 ", password='" + password + '\'' +
                 ", response='" + response + '\'' +

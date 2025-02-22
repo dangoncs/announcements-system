@@ -1,7 +1,8 @@
 package services.accountservice;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import operations.Operation;
+
 import responses.Response;
 import services.AccountService;
 
@@ -20,10 +21,9 @@ public class CreateAccountTest {
         jsonObject.addProperty("password", "1122");
         jsonObject.addProperty("name", "Danilo");
 
-        Operation operation = new Operation();
-        operation.setJsonObject(jsonObject);
+        String operationJson = new Gson().toJson(jsonObject);
 
-        Response response = AccountService.create(operation);
+        Response response = AccountService.create(operationJson);
         System.out.printf("Ao tentar criar nova conta, recebi: %s%n", response);
     }
 
@@ -31,10 +31,9 @@ public class CreateAccountTest {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("user", "1234567");
 
-        Operation operation = new Operation();
-        operation.setJsonObject(jsonObject);
+        String operationJson = new Gson().toJson(jsonObject);
 
-        Response response = AccountService.create(operation);
+        Response response = AccountService.create(operationJson);
         System.out.printf("Ao tentar criar conta com campos faltando, recebi: %s%n", response);
     }
 
@@ -44,10 +43,9 @@ public class CreateAccountTest {
         jsonObject.addProperty("password", "123");
         jsonObject.addProperty("name", "John Doe");
 
-        Operation operation = new Operation();
-        operation.setJsonObject(jsonObject);
+        String operationJson = new Gson().toJson(jsonObject);
 
-        Response response = AccountService.create(operation);
+        Response response = AccountService.create(operationJson);
         System.out.printf("Ao tentar criar conta com dados inválidos, recebi: %s%n", response);
     }
 
@@ -57,10 +55,9 @@ public class CreateAccountTest {
         jsonObject.addProperty("password", "6789");
         jsonObject.addProperty("name", "Joãozinho");
 
-        Operation operation = new Operation();
-        operation.setJsonObject(jsonObject);
+        String operationJson = new Gson().toJson(jsonObject);
 
-        Response response = AccountService.create(operation);
+        Response response = AccountService.create(operationJson);
         System.out.printf("Ao tentar criar conta com usuário já existente, recebi: %s%n", response);
     }
 }

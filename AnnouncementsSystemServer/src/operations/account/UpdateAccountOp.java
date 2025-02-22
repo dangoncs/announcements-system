@@ -1,4 +1,4 @@
 package operations.account;
 
-public record UpdateAccountOp(String user, String name, String password, String token) {
+public record UpdateAccountOp(String token, String user, String name, String password) {
 }

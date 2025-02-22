@@ -1,6 +1,3 @@
-import main.ServerThread;
-import responses.Response;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,21 +5,24 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.ServerThread;
+
 public class JsonTest {
 
 	public static void main(String[] args) throws IOException {
-		String input;
+		ServerThread server = new ServerThread(null);
 
-		do {
-			System.out.print("Digite o JSON: ");
+		try (BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))) {
+			while (true) {
+				System.out.print("Digite o JSON ou \"0\" para sair: ");
+				String input = stdIn.readLine();
 
-			try (BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))) {
-				input = stdIn.readLine();
+				if (input.equals("0"))
+					break;
+
+				System.out.println(server.processJson(input));
 			}
-
-			Response response = new ServerThread().processJson(input);
-			System.out.printf("Resposta: %s%n", response);
-		} while (input != null && !input.equalsIgnoreCase("exit"));
+		}
 	}
 
 	public static List<String> scanJsonFromFile(String filePath) throws IOException {
@@ -30,7 +30,7 @@ public class JsonTest {
 
 		try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
 			String line;
-			while((line = in.readLine()) != null)
+			while ((line = in.readLine()) != null)
 				lines.add(line);
 		}
 

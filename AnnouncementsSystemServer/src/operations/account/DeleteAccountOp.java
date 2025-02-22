@@ -1,4 +1,4 @@
 package operations.account;
 
-public record DeleteAccountOp(String user, String token) {
+public record DeleteAccountOp(String token, String user) {
 }

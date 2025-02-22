@@ -7,6 +7,7 @@ import com.google.gson.JsonSyntaxException;
 
 import dao.AccountDAO;
 import entities.Account;
+import entities.User;
 import operations.account.CreateAccountOp;
 import operations.account.DeleteAccountOp;
 import operations.account.ReadAccountOp;
@@ -58,19 +59,19 @@ public class AccountService {
         return new Response("100", "Successful account creation");
     }
 
-    public static Response read(String operationJson, LoginService loginService) throws JsonSyntaxException {
+    public static Response read(String operationJson, User userData) throws JsonSyntaxException {
         ReadAccountOp readAccountOp = new Gson().fromJson(operationJson, ReadAccountOp.class);
 
         String userId = readAccountOp.user();
         String token = readAccountOp.token();
-        String loggedInUserId = loginService.getLoggedInUserId();
-        String loggedInUserToken = loginService.getLoggedInUserToken();
-        int loggedInUserRole = loginService.getLoggedInUserRole();
+        String loggedInUserId = userData.userId();
+        String loggedInUserToken = userData.token();
+        int loggedInUserRole = userData.role();
 
         if (userId == null || userId.isBlank())
             userId = loggedInUserId;
 
-        if (token == null || token.equals(loggedInUserToken))
+        if (token == null || !token.equals(loggedInUserToken))
             return new Response("112", "Invalid or empty token");
 
         if (loggedInUserRole != 1 && !userId.equals(loggedInUserId)) {
@@ -97,16 +98,16 @@ public class AccountService {
                 account.password());
     }
 
-    public static Response update(String operationJson, LoginService loginService) throws JsonSyntaxException {
+    public static Response update(String operationJson, User userData) throws JsonSyntaxException {
         UpdateAccountOp updateAccountOp = new Gson().fromJson(operationJson, UpdateAccountOp.class);
 
         String userId = updateAccountOp.user();
         String name = updateAccountOp.name();
         String password = updateAccountOp.password();
         String token = updateAccountOp.token();
-        String loggedInUserId = loginService.getLoggedInUserId();
-        String loggedInUserToken = loginService.getLoggedInUserToken();
-        int loggedInUserRole = loginService.getLoggedInUserRole();
+        String loggedInUserId = userData.userId();
+        String loggedInUserToken = userData.token();
+        int loggedInUserRole = userData.role();
 
         if (userId == null || userId.isBlank())
             userId = loggedInUserId;
@@ -145,9 +146,9 @@ public class AccountService {
 
         String userId = deleteAccountOp.user();
         String token = deleteAccountOp.token();
-        String loggedInUserId = loginService.getLoggedInUserId();
-        String loggedInUserToken = loginService.getLoggedInUserToken();
-        int loggedInUserRole = loginService.getLoggedInUserRole();
+        String loggedInUserId = loginService.getLoggedInUser().userId();
+        String loggedInUserToken = loginService.getLoggedInUser().token();
+        int loggedInUserRole = loginService.getLoggedInUser().role();
 
         if (userId == null || userId.isBlank())
             userId = loggedInUserId;
@@ -173,7 +174,7 @@ public class AccountService {
         }
 
         if (userId.equals(loggedInUserId))
-            loginService.setNoLongerLoggedIn(true);
+            loginService.handleAccountDeletion();
 
         return new Response("130", "Account successfully deleted");
     }
