@@ -1,13 +1,13 @@
 package dao;
 
-import entities.Category;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import entities.Category;
 
 public class CategoryDAO {
 
@@ -61,7 +61,27 @@ public class CategoryDAO {
         }
     }
 
-    public static List<Category> read() throws SQLException {
+    public static Category read(String categoryId) throws SQLException {
+        String sql = "SELECT * FROM category";
+
+        try (Connection conn = Database.connect()) {
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ResultSet rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    String name = rs.getString("name");
+                    String description = rs.getString("description");
+
+                    return new Category(categoryId, name, description, null);
+                }
+
+                return null;
+            }
+        }
+    }
+
+    public static List<Category> readAll(String userId) throws SQLException {
+        List<String> subscribedCategories = UserCategoryDAO.read(userId);
         String sql = "SELECT * FROM category";
 
         try (Connection conn = Database.connect()) {
@@ -73,8 +93,9 @@ public class CategoryDAO {
                     String categoryId = rs.getString("category_id");
                     String name = rs.getString("name");
                     String description = rs.getString("description");
+                    String subscribed = (subscribedCategories.contains(categoryId)) ? "true" : "false";
 
-                    categoryList.add(new Category(categoryId, name, description));
+                    categoryList.add(new Category(categoryId, name, description, subscribed));
                 }
 
                 return categoryList;
