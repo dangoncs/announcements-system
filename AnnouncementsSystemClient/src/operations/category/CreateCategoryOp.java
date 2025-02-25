@@ -1,23 +1,23 @@
 package operations.category;
 
+import java.util.List;
+
 import entities.Category;
 import operations.Operation;
 
-import java.util.List;
-
-public class UpdateCategoryOperation extends Operation {
+public class CreateCategoryOp extends Operation {
     private final String token;
     private final List<Category> categories;
 
-    public UpdateCategoryOperation(String token, List<Category> categories) {
-        super("9");
+    public CreateCategoryOp(String token, List<Category> categories) {
+        super("7");
         this.token = token;
         this.categories = categories;
     }
 
     @Override
     public String toString() {
-        return "UpdateCategoryOperation{" +
+        return "CreateCategoryOperation{" +
                 "token='" + token + '\'' +
                 ", categories=" + categories +
                 ", op='" + op + '\'' +

@@ -2,11 +2,11 @@ package operations.authentication;
 
 import operations.Operation;
 
-public class LoginOperation extends Operation {
+public class LoginOp extends Operation {
     private final String user;
     private final String password;
 
-    public LoginOperation(String user, String password) {
+    public LoginOp(String user, String password) {
         super("5");
         this.user = user;
         this.password = password;
