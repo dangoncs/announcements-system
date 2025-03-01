@@ -2,12 +2,12 @@ package operations.account;
 
 import operations.Operation;
 
-public class CreateAccountOperation extends Operation {
+public class CreateAccountOp extends Operation {
     private final String user;
     private final String password;
     private final String name;
 
-    public CreateAccountOperation(String user, String password, String name) {
+    public CreateAccountOp(String user, String password, String name) {
         super("1");
         this.user = user;
         this.password = password;

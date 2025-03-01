@@ -2,11 +2,11 @@ package operations.account;
 
 import operations.Operation;
 
-public class DeleteAccountOperation extends Operation {
+public class DeleteAccountOp extends Operation {
     private final String token;
     private final String user;
-    
-    public DeleteAccountOperation(String user, String token) {
+
+    public DeleteAccountOp(String user, String token) {
         super("4");
         this.user = user;
         this.token = token;

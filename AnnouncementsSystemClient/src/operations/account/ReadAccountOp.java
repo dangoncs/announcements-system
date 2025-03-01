@@ -2,11 +2,11 @@ package operations.account;
 
 import operations.Operation;
 
-public class ReadAccountOperation extends Operation {
+public class ReadAccountOp extends Operation {
     private final String user;
     private final String token;
 
-    public ReadAccountOperation(String user, String token) {
+    public ReadAccountOp(String user, String token) {
         super("2");
         this.user = user;
         this.token = token;
