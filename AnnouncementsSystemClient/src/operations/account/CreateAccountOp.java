@@ -1,21 +1,8 @@
 package operations.account;
 
-import operations.Operation;
+public record CreateAccountOp(String op, String user, String name, String password) {
 
-public class CreateAccountOp extends Operation {
-    private final String user;
-    private final String password;
-    private final String name;
-
-    public CreateAccountOp(String user, String password, String name) {
-        super("1");
-        this.user = user;
-        this.password = password;
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "Operation [op=" + op + ", user=" + user + ", name=" + name + ", password=" + password + "]";
+    public CreateAccountOp(String user, String name, String password) {
+        this("1", user, name, password);
     }
 }

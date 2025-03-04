@@ -1,127 +1,157 @@
 package gui.home;
 
-import gui.account.DeleteAccountGUI;
-import gui.account.ReadAccountGUI;
-import gui.account.UpdateAccountGUI;
-import gui.category.CreateCategoryGUI;
-import gui.category.DeleteCategoryGUI;
-import gui.category.ReadCategoryGUI;
-import gui.category.UpdateCategoryGUI;
-import gui.connection.ConnectionGUI;
-import gui.ClientWindow;
-import main.Client;
-import operations.authentication.LogoutOperation;
-import responses.Response;
+import java.awt.BorderLayout;
+import java.awt.Font;
 
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.io.IOException;
+import gui.Window;
+import gui.account.DeleteAccountGUI;
+import gui.account.ReadAccountGUI;
+import gui.account.UpdateAccountGUI;
+import gui.announcement.CreateAnnouncementGUI;
+import gui.announcement.DeleteAnnouncementGUI;
+import gui.announcement.ReadAnnouncementsGUI;
+import gui.announcement.UpdateAnnouncementGUI;
+import gui.authentication.LogoutGUI;
+import gui.category.CreateCategoryGUI;
+import gui.category.DeleteCategoryGUI;
+import gui.category.ReadCategoryGUI;
+import gui.category.SubscribeToCategoryGUI;
+import gui.category.UnsubscribeFromCategoryGUI;
+import gui.category.UpdateCategoryGUI;
+import main.Client;
 
-public class HomeGUI {
+public class HomeGUI extends JPanel {
     private final Client client;
-    private final ClientWindow clientWindow;
+    private final Window window;
 
-    public HomeGUI(Client client, ClientWindow clientWindow) {
+    public HomeGUI(Client client, Window window) {
         this.client = client;
-        this.clientWindow = clientWindow;
+        this.window = window;
 
         setupGUI();
     }
 
     private void setupGUI() {
-        JPanel contentPane = new JPanel();
-        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        contentPane.setLayout(new BorderLayout(5, 5));
+        setBorder(new EmptyBorder(5, 5, 5, 5));
+        setLayout(new BorderLayout(5, 5));
 
-        String windowTitle = (client.isAdmin()) ? "Painel do Admin" : "Painel do Usuário";
+        String windowTitle = (client.getUserData().isAdmin()) ? "Painel do Admin" : "Opções";
         JLabel lblWindowTitle = new JLabel(windowTitle);
         lblWindowTitle.setFont(new Font("Tahoma", Font.BOLD, 20));
-        contentPane.add(lblWindowTitle, BorderLayout.NORTH);
+
+        JPanel accountPanel = setupAccountPanel();
+        JPanel categoryPanel = setupCategoryPanel();
+        JPanel announcementPanel = setupAnnouncementPanel();
+        JPanel subscriptionPanel = setupSubscriptionPanel();
 
         JPanel center = new JPanel();
         center.setBorder(new EmptyBorder(5, 5, 5, 5));
-        contentPane.add(center, BorderLayout.CENTER);
-
-        JPanel accountPanel = new JPanel();
-        accountPanel.setBorder(new TitledBorder(null, "Conta", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         center.add(accountPanel);
+        center.add(announcementPanel);
+        center.add(categoryPanel);
+        center.add(subscriptionPanel);
 
+        JButton btnLogout = new JButton("Fazer logout e desconectar");
+        btnLogout.addActionListener(_ -> window.showContentPane(new LogoutGUI(client, window)));
+
+        add(lblWindowTitle, BorderLayout.NORTH);
+        add(center, BorderLayout.CENTER);
+        add(btnLogout, BorderLayout.SOUTH);
+    }
+
+    private JPanel setupAccountPanel() {
         JButton btnReadAccount = new JButton("Ver dados");
-        btnReadAccount.addActionListener(_ -> new ReadAccountGUI(client, clientWindow));
-        accountPanel.add(btnReadAccount);
+        btnReadAccount.addActionListener(_ -> window.showContentPane(new ReadAccountGUI(client, window)));
 
         JButton btnUpdateAccount = new JButton("Atualizar dados");
-        btnUpdateAccount.addActionListener(_ -> new UpdateAccountGUI(client, clientWindow));
-        accountPanel.add(btnUpdateAccount);
+        btnUpdateAccount.addActionListener(_ -> window.showContentPane(new UpdateAccountGUI(client, window)));
 
         JButton btnDeleteAccount = new JButton("Excluir");
-        btnDeleteAccount.addActionListener(_ -> new DeleteAccountGUI(client, clientWindow));
+        btnDeleteAccount.addActionListener(_ -> window.showContentPane(new DeleteAccountGUI(client, window)));
+
+        JPanel accountPanel = new JPanel();
+        accountPanel.setBorder(
+                new TitledBorder(null, "Conta", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        accountPanel.add(btnReadAccount);
+        accountPanel.add(btnUpdateAccount);
         accountPanel.add(btnDeleteAccount);
 
-        if(client.isAdmin()) {
-            JPanel categoryPanel = new JPanel();
-            categoryPanel.setBorder(new TitledBorder(null, "Categoria de Avisos", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            center.add(categoryPanel);
+        return accountPanel;
+    }
 
-            JButton btnCreateCategory = new JButton("Criar");
-            btnCreateCategory.addActionListener(_ -> new CreateCategoryGUI(client, clientWindow));
+    private JPanel setupAnnouncementPanel() {
+        JButton btnReadAnnouncements = new JButton("Ver");
+        btnReadAnnouncements.addActionListener(_ -> window.showContentPane(new ReadAnnouncementsGUI(client, window)));
+
+        JButton btnCreateAnnouncement = new JButton("Criar");
+        btnCreateAnnouncement.addActionListener(_ -> window.showContentPane(new CreateAnnouncementGUI(client, window)));
+
+        JButton btnUpdateAnnouncement = new JButton("Atualizar");
+        btnUpdateAnnouncement.addActionListener(_ -> window.showContentPane(new UpdateAnnouncementGUI(client, window)));
+
+        JButton btnDeleteAnnouncement = new JButton("Excluir");
+        btnDeleteAnnouncement.addActionListener(_ -> window.showContentPane(new DeleteAnnouncementGUI(client, window)));
+
+        JPanel announcementPanel = new JPanel();
+        announcementPanel.setBorder(
+                new TitledBorder(null, "Avisos", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        announcementPanel.add(btnReadAnnouncements);
+
+        if (client.getUserData().isAdmin()) {
+            announcementPanel.add(btnCreateAnnouncement);
+            announcementPanel.add(btnUpdateAnnouncement);
+            announcementPanel.add(btnDeleteAnnouncement);
+        }
+
+        return announcementPanel;
+    }
+
+    private JPanel setupCategoryPanel() {
+        JButton btnCreateCategory = new JButton("Criar");
+        btnCreateCategory.addActionListener(_ -> window.showContentPane(new CreateCategoryGUI(client, window)));
+
+        JButton btnReadCategory = new JButton("Ver");
+        btnReadCategory.addActionListener(_ -> window.showContentPane(new ReadCategoryGUI(client, window)));
+
+        JButton btnUpdateCategory = new JButton("Atualizar");
+        btnUpdateCategory.addActionListener(_ -> window.showContentPane(new UpdateCategoryGUI(client, window)));
+
+        JButton btnDeleteCategory = new JButton("Excluir");
+        btnDeleteCategory.addActionListener(_ -> window.showContentPane(new DeleteCategoryGUI(client, window)));
+
+        JPanel categoryPanel = new JPanel();
+        categoryPanel.setBorder(
+                new TitledBorder(null, "Categoria de Avisos", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        categoryPanel.add(btnReadCategory);
+
+        if (client.getUserData().isAdmin()) {
             categoryPanel.add(btnCreateCategory);
-
-            JButton btnReadCategory = new JButton("Ver");
-            btnReadCategory.addActionListener(_ -> new ReadCategoryGUI(client, clientWindow));
-            categoryPanel.add(btnReadCategory);
-
-            JButton btnUpdateCategory = new JButton("Atualizar");
-            btnUpdateCategory.addActionListener(_ -> new UpdateCategoryGUI(client, clientWindow));
             categoryPanel.add(btnUpdateCategory);
-
-            JButton btnDeleteCategory = new JButton("Excluir");
-            btnDeleteCategory.addActionListener(_ -> new DeleteCategoryGUI(client, clientWindow));
             categoryPanel.add(btnDeleteCategory);
         }
 
-        JButton btnLogout = new JButton("Fazer logout e desconectar");
-        btnLogout.addActionListener(_ -> logoutActionHandler());
-        contentPane.add(btnLogout, BorderLayout.SOUTH);
-
-        clientWindow.showContentPane(contentPane);
+        return categoryPanel;
     }
 
-    private void logoutActionHandler() {
-        LogoutOperation logoutOp = new LogoutOperation(client.getLoggedInUserToken());
-        String responseJson;
+    private JPanel setupSubscriptionPanel() {
+        JButton btnSubscribe = new JButton("Inscrever-se em uma categoria");
+        btnSubscribe.addActionListener(_ -> window.showContentPane(new SubscribeToCategoryGUI(client, window)));
 
-        try {
-            responseJson = client.sendToServer(logoutOp);
-        } catch (IOException e) {
-            clientWindow.showErrorMessage("Erro ao comunicar com o servidor", e.getLocalizedMessage());
-            return;
-        }
+        JButton btnUnsubscribe = new JButton("Desinscrever-se de uma categoria");
+        btnUnsubscribe.addActionListener(_ -> window.showContentPane(new UnsubscribeFromCategoryGUI(client, window)));
 
-        Response logoutResponse = new Response(responseJson);
-        String responseCode = logoutResponse.getResponseCode();
-        String message = logoutResponse.getMessage();
+        JPanel subscriptionPanel = new JPanel();
+        subscriptionPanel.setBorder(
+                new TitledBorder(null, "Inscrições", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        subscriptionPanel.add(btnSubscribe);
+        subscriptionPanel.add(btnUnsubscribe);
 
-        if(!responseCode.equals("010")) {
-            clientWindow.showErrorMessage("Erro ao realizar logout", message);
-            return;
-        }
-
-        try {
-            client.disconnect();
-        } catch (IOException e) {
-            clientWindow.showErrorMessage("Erro ao desconectar", e.getLocalizedMessage());
-            clientWindow.dispose();
-            return;
-        }
-
-        new ConnectionGUI(clientWindow);
-        clientWindow.showSuccessMessage(message);
+        return subscriptionPanel;
     }
 }
