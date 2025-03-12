@@ -1,4 +1,6 @@
 package operations.announcement;
 
-public record UpdateAnnouncementOp(String op, String token, String id, String title, String text, String categoryId) {
+import entities.Announcement;
+
+public record UpdateAnnouncementOp(String op, String token, Announcement announcement) {
 }

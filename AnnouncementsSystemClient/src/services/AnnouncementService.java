@@ -13,8 +13,8 @@ import operations.announcement.CreateAnnouncementOp;
 import operations.announcement.DeleteAnnouncementOp;
 import operations.announcement.ReadAnnouncementOp;
 import operations.announcement.UpdateAnnouncementOp;
+import responses.ReadAnnouncementsResponse;
 import responses.Response;
-import responses.announcement.ReadAnnouncementsResponse;
 
 public class AnnouncementService {
     private final Client client;
@@ -23,11 +23,11 @@ public class AnnouncementService {
         this.client = client;
     }
 
-    public void create(String title, String text, String categoryId)
+    public void create(Announcement announcement)
             throws IOException, JsonSyntaxException, UnsuccessfulOperationException {
         String token = client.getUserData().token();
 
-        CreateAnnouncementOp createAnnouncementOp = new CreateAnnouncementOp("11", token, title, text, categoryId);
+        CreateAnnouncementOp createAnnouncementOp = new CreateAnnouncementOp("11", token, announcement);
         String opJson = new Gson().toJson(createAnnouncementOp);
         String responseJson = client.sendToServer(opJson);
         Response responseObj = new Gson().fromJson(responseJson, Response.class);
@@ -55,11 +55,11 @@ public class AnnouncementService {
         return announcements;
     }
 
-    public void update(String id, String title, String text, String categoryId)
+    public void update(Announcement announcement)
             throws IOException, JsonSyntaxException, UnsuccessfulOperationException {
         String token = client.getUserData().token();
 
-        UpdateAnnouncementOp updateAnnouncementOp = new UpdateAnnouncementOp("13", token, id, title, text, categoryId);
+        UpdateAnnouncementOp updateAnnouncementOp = new UpdateAnnouncementOp("13", token, announcement);
         String opJson = new Gson().toJson(updateAnnouncementOp);
         String responseJson = client.sendToServer(opJson);
         Response responseObj = new Gson().fromJson(responseJson, Response.class);

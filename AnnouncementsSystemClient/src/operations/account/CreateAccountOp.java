@@ -1,4 +1,6 @@
 package operations.account;
 
-public record CreateAccountOp(String op, String user, String name, String password) {
+import entities.Account;
+
+public record CreateAccountOp(String op, Account account) {
 }

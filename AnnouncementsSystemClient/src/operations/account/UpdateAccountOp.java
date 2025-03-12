@@ -1,4 +1,6 @@
 package operations.account;
 
-public record UpdateAccountOp(String op, String token, String user, String name, String password) {
+import entities.Account;
+
+public record UpdateAccountOp(String op, String token, Account account) {
 }

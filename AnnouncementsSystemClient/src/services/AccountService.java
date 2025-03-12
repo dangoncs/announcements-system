@@ -12,8 +12,8 @@ import operations.account.CreateAccountOp;
 import operations.account.DeleteAccountOp;
 import operations.account.ReadAccountOp;
 import operations.account.UpdateAccountOp;
+import responses.ReadAccountResponse;
 import responses.Response;
-import responses.account.ReadAccountResponse;
 
 public class AccountService {
     private final Client client;
@@ -22,9 +22,8 @@ public class AccountService {
         this.client = client;
     }
 
-    public void create(String userId, String name, String password)
-            throws IOException, JsonSyntaxException, UnsuccessfulOperationException {
-        CreateAccountOp createAccountOp = new CreateAccountOp("1", userId, name, password);
+    public void create(Account account) throws IOException, JsonSyntaxException, UnsuccessfulOperationException {
+        CreateAccountOp createAccountOp = new CreateAccountOp("1", account);
         String opJson = new Gson().toJson(createAccountOp);
         String responseJson = client.sendToServer(opJson);
         Response responseObj = new Gson().fromJson(responseJson, Response.class);
@@ -52,11 +51,10 @@ public class AccountService {
         return account;
     }
 
-    public void update(String userId, String name, String password)
-            throws IOException, JsonSyntaxException, UnsuccessfulOperationException {
+    public void update(Account account) throws IOException, JsonSyntaxException, UnsuccessfulOperationException {
         String token = client.getUserData().token();
 
-        UpdateAccountOp updateAccountOp = new UpdateAccountOp("3", token, userId, name, password);
+        UpdateAccountOp updateAccountOp = new UpdateAccountOp("3", token, account);
         String opJson = new Gson().toJson(updateAccountOp);
         String responseJson = client.sendToServer(opJson);
         Response responseObj = new Gson().fromJson(responseJson, Response.class);
