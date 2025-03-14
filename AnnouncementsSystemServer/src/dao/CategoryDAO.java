@@ -11,58 +11,23 @@ import entities.Category;
 
 public class CategoryDAO {
 
-    private static int updateName(Connection conn, Category category) throws SQLException {
-        String sql = "UPDATE category SET name = ? WHERE category_id = ?";
+    private CategoryDAO() {}
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, category.name());
-            ps.setString(2, category.id());
-
-            return ps.executeUpdate();
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        }
-    }
-
-    private static int updateDescription(Connection conn, Category category) throws SQLException {
-        String sql = "UPDATE category SET description = ? WHERE category_id = ?";
-
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, category.description());
-            ps.setString(2, category.id());
-
-            return ps.executeUpdate();
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        }
-    }
-
-    public static void create(List<Category> categoriesList) throws SQLException {
+    public static void create(String name, String description) throws SQLException {
         String sql = "INSERT INTO category (name, description) VALUES (?, ?)";
 
         try (Connection conn = Database.connect()) {
-            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, name);
+                ps.setString(2, description);
 
-            for (Category category : categoriesList) {
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setString(1, category.name());
-                    ps.setString(2, category.description());
-
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    conn.rollback();
-                    throw e;
-                }
+                ps.executeUpdate();
             }
-
-            conn.commit();
         }
     }
 
     public static Category read(String categoryId) throws SQLException {
-        String sql = "SELECT * FROM category";
+        String sql = "SELECT name, description FROM category WHERE category_id = ?";
 
         try (Connection conn = Database.connect()) {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -72,7 +37,7 @@ public class CategoryDAO {
                     String name = rs.getString("name");
                     String description = rs.getString("description");
 
-                    return new Category(categoryId, name, description, null);
+                    return new Category(categoryId, name, description);
                 }
 
                 return null;
@@ -82,7 +47,7 @@ public class CategoryDAO {
 
     public static List<Category> readAll(String userId) throws SQLException {
         List<String> subscribedCategories = UserCategoryDAO.read(userId);
-        String sql = "SELECT * FROM category";
+        String sql = "SELECT category_id, name, description FROM category";
 
         try (Connection conn = Database.connect()) {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -93,7 +58,7 @@ public class CategoryDAO {
                     String categoryId = rs.getString("category_id");
                     String name = rs.getString("name");
                     String description = rs.getString("description");
-                    String subscribed = (subscribedCategories.contains(categoryId)) ? "true" : "false";
+                    boolean subscribed = subscribedCategories.contains(categoryId);
 
                     categoryList.add(new Category(categoryId, name, description, subscribed));
                 }
@@ -103,53 +68,41 @@ public class CategoryDAO {
         }
     }
 
-    public static int update(List<Category> categoriesList) throws SQLException {
+    public static int updateName(String categoryId, String name) throws SQLException {
+        String sql = "UPDATE category SET name = ? WHERE category_id = ?";
+
         try (Connection conn = Database.connect()) {
-            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, name);
+                ps.setString(2, categoryId);
 
-            for (Category category : categoriesList) {
-                if (category.name() != null && !category.name().isBlank()) {
-                    if (updateName(conn, category) == 0) {
-                        conn.rollback();
-                        return -1;
-                    }
-                }
-
-                if (category.description() != null && !category.description().isBlank()) {
-                    if (updateDescription(conn, category) == 0) {
-                        conn.rollback();
-                        return -1;
-                    }
-                }
+                return ps.executeUpdate();
             }
-
-            conn.commit();
-            return categoriesList.size();
         }
     }
 
-    public static int delete(List<String> categoryIdsList) throws SQLException {
+    public static int updateDescription(String categoryId, String description) throws SQLException {
+        String sql = "UPDATE category SET description = ? WHERE category_id = ?";
+
+        try (Connection conn = Database.connect()) {
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, description);
+                ps.setString(2, categoryId);
+
+                return ps.executeUpdate();
+            }
+        }
+    }
+
+    public static int delete(String categoryId) throws SQLException {
         String sql = "DELETE FROM category WHERE category_id = ?";
 
         try (Connection conn = Database.connect()) {
-            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, categoryId);
 
-            for (String categoryId : categoryIdsList) {
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setString(1, categoryId);
-
-                    if (ps.executeUpdate() == 0) {
-                        conn.rollback();
-                        return -1;
-                    }
-                } catch (SQLException e) {
-                    conn.rollback();
-                    throw e;
-                }
+                return ps.executeUpdate();
             }
-
-            conn.commit();
-            return categoryIdsList.size();
         }
     }
 }

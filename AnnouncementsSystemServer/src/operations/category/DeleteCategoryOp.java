@@ -1,6 +1,4 @@
 package operations.category;
 
-import java.util.ArrayList;
-
-public record DeleteCategoryOp(String token, ArrayList<String> categoryIds) {
+public record DeleteCategoryOp(String token, String id) {
 }

@@ -9,6 +9,8 @@ import java.util.List;
 
 public class UserCategoryDAO {
 
+    private UserCategoryDAO() {}
+
     public static void create(String userId, String categoryId) throws SQLException {
         String sql = "INSERT INTO user_category (user_id, category_id) VALUES (?, ?)";
 

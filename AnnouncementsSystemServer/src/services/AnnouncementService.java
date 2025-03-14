@@ -76,7 +76,7 @@ public class AnnouncementService {
                 announcementsList = AnnouncementDAO.readAll();
             else
                 for (String categoryId : UserCategoryDAO.read(loggedInUserId))
-                    announcementsList.addAll(AnnouncementDAO.read(categoryId));
+                    announcementsList.addAll(AnnouncementDAO.readByCategory(categoryId));
         } catch (SQLException e) {
             System.err.printf("[ERROR] Announcement read error: %s%n", e.getMessage());
             return new Response("315", Response.UNKNOWN_ERROR);

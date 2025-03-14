@@ -1,4 +1,4 @@
 package entities;
 
-public record Account(String userId, String password, String name) {
+public record Account(String userId, String password, String name, int role) {
 }
