@@ -7,78 +7,27 @@ import com.google.gson.JsonSyntaxException;
 
 import dao.AccountDAO;
 import entities.Account;
+import entities.User;
+import main.Server;
 import operations.authentication.LoginOp;
 import operations.authentication.LogoutOp;
 import responses.LoginResponse;
 import responses.Response;
 
 public class LoginService {
-    private String loggedInUserId;
-    private String loggedInUserToken;
-    private int loggedInUserRole;
+    private User loggedInUser;
     private boolean noLongerLoggedIn;
 
-    String generateToken(String userId) {
+    public String generateToken(String userId) {
         return userId;
     }
 
-    public Response login(String operationJson) throws JsonSyntaxException {
-        LoginOp loginOp = new Gson().fromJson(operationJson, LoginOp.class);
-
-        String userId = loginOp.user();
-        String password = loginOp.password();
-
-        if (userId == null || password == null)
-            return new Response("002", "Fields missing");
-
-        if (loggedInUserId != null || loggedInUserToken != null)
-            return new Response("004", "Already logged in");
-
-        Account account;
-        try {
-            account = new AccountDAO().read(userId);
-            if (account == null || !password.equals(account.password()))
-                return new Response("003", "Login failed");
-        } catch (SQLException e) {
-            System.err.printf("[ERROR] Authentication error: %s%n", e.getMessage());
-            return new Response("005", "Unknown error");
-        }
-
-        this.loggedInUserId = userId;
-        this.loggedInUserToken = generateToken(userId);
-        this.loggedInUserRole = AccountService.getAccountRole(userId);
-
-        return new LoginResponse("00" + loggedInUserRole, "Successful login", loggedInUserToken);
+    public User getLoggedInUser() {
+        return loggedInUser;
     }
 
-    public Response logout(String operationJson) throws JsonSyntaxException {
-        LogoutOp logoutOp = new Gson().fromJson(operationJson, LogoutOp.class);
-
-        String token = logoutOp.token();
-
-        if (token == null)
-            return new Response("011", "Fields missing");
-
-        if (loggedInUserId == null || loggedInUserToken == null)
-            return new Response("012", "User not logged in");
-
-        if (!token.equals(loggedInUserToken))
-            return new Response("013", "Logout failed");
-
-        noLongerLoggedIn = true;
-        return new Response("010", "Successful logout");
-    }
-
-    public String getLoggedInUserId() {
-        return this.loggedInUserId;
-    }
-
-    public String getLoggedInUserToken() {
-        return this.loggedInUserToken;
-    }
-
-    public int getLoggedInUserRole() {
-        return this.loggedInUserRole;
+    public void setLoggedInUser(User loggedInUser) {
+        this.loggedInUser = loggedInUser;
     }
 
     public boolean isNoLongerLoggedIn() {
@@ -87,5 +36,54 @@ public class LoginService {
 
     public void setNoLongerLoggedIn(boolean noLongerLoggedIn) {
         this.noLongerLoggedIn = noLongerLoggedIn;
+    }
+
+    public Response login(String operationJson) throws JsonSyntaxException {
+        LoginOp loginOp = new Gson().fromJson(operationJson, LoginOp.class);
+
+        String userId = loginOp.user();
+        String password = loginOp.password();
+
+        if (loggedInUser != null)
+            return new Response("146", LoginResponse.ALREADY_LOGGED_IN);
+
+        if (userId == null || password == null)
+            return new Response("141", Response.MISSING_FIELDS);
+
+        Account account;
+        try {
+            account = AccountDAO.read(userId);
+            if (account == null || !password.equals(account.password()))
+                return new Response("144", Response.INVALID_INFORMATION);
+        } catch (SQLException e) {
+            System.err.printf("[ERROR] Authentication error: %s%n", e.getMessage());
+            return new Response("145", Response.UNKNOWN_ERROR);
+        }
+
+        String loggedInUserToken = generateToken(userId);
+        int loggedInUserRole = account.role();
+
+        loggedInUser = new User(userId, loggedInUserToken, loggedInUserRole);
+        Server.addToLoggedInUsers(loggedInUser);
+
+        return new LoginResponse("140", Response.SUCCESS, loggedInUser);
+    }
+
+    public Response logout(String operationJson) throws JsonSyntaxException {
+        LogoutOp logoutOp = new Gson().fromJson(operationJson, LogoutOp.class);
+
+        String token = logoutOp.token();
+
+        if (loggedInUser == null || noLongerLoggedIn)
+            return new Response("156", LoginResponse.NOT_LOGGED_IN);
+
+        if (token == null)
+            return new Response("151", Response.MISSING_FIELDS);
+
+        if (!token.equals(loggedInUser.token()))
+            return new Response("152", Response.INVALID_TOKEN);
+
+        noLongerLoggedIn = true;
+        return new Response("150", Response.SUCCESS);
     }
 }

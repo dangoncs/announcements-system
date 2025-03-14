@@ -1,25 +1,17 @@
 package responses;
 
-public class AccountResponse extends Response {
-    private final String user;
-    private final String name;
-    private final String password;
+import entities.Account;
 
-    public AccountResponse(String response, String message, String user, String name, String password) {
+public class AccountResponse extends Response {
+    public static final String DUPLICATE_USERNAME = "An account with the same username already exists";
+    private final Account account;
+
+    public AccountResponse(String response, String message, Account account) {
         super(response, message);
-        this.user = user;
-        this.name = name;
-        this.password = password;
+        this.account = account;
     }
 
-    @Override
-    public String toString() {
-        return "AccountResponse{" +
-                "user='" + user + '\'' +
-                ", name='" + name + '\'' +
-                ", password='" + password + '\'' +
-                ", response='" + response + '\'' +
-                ", message='" + message + '\'' +
-                '}';
+    public Account getAccount() {
+        return account;
     }
 }

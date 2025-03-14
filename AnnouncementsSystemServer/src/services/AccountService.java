@@ -17,6 +17,9 @@ import responses.Response;
 
 public class AccountService {
 
+    private AccountService() {
+    }
+
     private static String truncateString(String str) {
         return (str.length() > 40) ? str.substring(0, 40) : str;
     }
@@ -29,10 +32,6 @@ public class AccountService {
         return !password.matches("\\d{4}");
     }
 
-    public static int getAccountRole(String userId) {
-        return userId.matches("\\d{7}") && (!userId.equals("0000000")) ? 0 : 1;
-    }
-
     public static Response create(String operationJson) throws JsonSyntaxException {
         CreateAccountOp createAccountOp = new Gson().fromJson(operationJson, CreateAccountOp.class);
 
@@ -41,29 +40,29 @@ public class AccountService {
         String name = createAccountOp.name();
 
         if (userId == null || password == null || name == null)
-            return new Response("101", "Fields missing");
+            return new Response("101", Response.MISSING_FIELDS);
 
         if (isNotValidUser(userId) || isNotValidPassword(password) || name.isBlank())
-            return new Response("102", "Invalid information inserted: user or password");
+            return new Response("104", Response.INVALID_INFORMATION);
 
         try {
-            if (new AccountDAO().read(userId) != null)
-                return new Response("103", "Already exists an account with the username");
+            if (AccountDAO.read(userId) != null)
+                return new Response("106", AccountResponse.DUPLICATE_USERNAME);
 
-            new AccountDAO().create(userId, truncateString(name), password);
+            AccountDAO.create(userId, truncateString(name), password);
         } catch (SQLException e) {
             System.err.printf("[ERROR] Account creation error: %s%n", e.getMessage());
-            return new Response("104", "Unknown error");
+            return new Response("105", Response.UNKNOWN_ERROR);
         }
 
-        return new Response("100", "Successful account creation");
+        return new Response("100", Response.SUCCESS);
     }
 
     public static Response read(String operationJson, User userData) throws JsonSyntaxException {
         ReadAccountOp readAccountOp = new Gson().fromJson(operationJson, ReadAccountOp.class);
 
-        String userId = readAccountOp.user();
         String token = readAccountOp.token();
+        String userId = readAccountOp.user();
         String loggedInUserId = userData.userId();
         String loggedInUserToken = userData.token();
         int loggedInUserRole = userData.role();
@@ -71,40 +70,35 @@ public class AccountService {
         if (userId == null || userId.isBlank())
             userId = loggedInUserId;
 
-        if (token == null || !token.equals(loggedInUserToken))
-            return new Response("112", "Invalid or empty token");
+        if (token == null)
+            return new Response("111", Response.MISSING_FIELDS);
 
-        if (loggedInUserRole != 1 && !userId.equals(loggedInUserId)) {
-            return new Response(
-                    "113",
-                    "Invalid Permission, user does not have permission to visualize other users data");
-        }
+        if (!token.equals(loggedInUserToken))
+            return new Response("112", Response.INVALID_TOKEN);
+
+        if (loggedInUserRole != 1 && !userId.equals(loggedInUserId))
+            return new Response("113", Response.INSUFFICIENT_PERMISSIONS);
 
         Account account;
         try {
-            account = new AccountDAO().read(userId);
+            account = AccountDAO.read(userId);
             if (account == null)
-                return new Response("114", "User not found ( Admin Only )");
+                return new Response("114", Response.INVALID_INFORMATION);
         } catch (SQLException e) {
             System.err.printf("[ERROR] Account read error: %s%n", e.getMessage());
-            return new Response("115", "Unknown error");
+            return new Response("115", Response.UNKNOWN_ERROR);
         }
 
-        return new AccountResponse(
-                "11" + getAccountRole(userId),
-                "Returns all information of the account",
-                account.userId(),
-                account.name(),
-                account.password());
+        return new AccountResponse("110", Response.SUCCESS, account);
     }
 
     public static Response update(String operationJson, User userData) throws JsonSyntaxException {
         UpdateAccountOp updateAccountOp = new Gson().fromJson(operationJson, UpdateAccountOp.class);
 
+        String token = updateAccountOp.token();
         String userId = updateAccountOp.user();
         String name = updateAccountOp.name();
         String password = updateAccountOp.password();
-        String token = updateAccountOp.token();
         String loggedInUserId = userData.userId();
         String loggedInUserToken = userData.token();
         int loggedInUserRole = userData.role();
@@ -112,40 +106,42 @@ public class AccountService {
         if (userId == null || userId.isBlank())
             userId = loggedInUserId;
 
-        if (token == null || !token.equals(loggedInUserToken))
-            return new Response("121", "Invalid or empty token");
+        if (token == null)
+            return new Response("121", Response.MISSING_FIELDS);
 
-        if (loggedInUserRole != 1 && !userId.equals(loggedInUserId)) {
-            return new Response(
-                    "122",
-                    "Invalid Permission, user does not have permission to update other users data");
-        }
+        if (!token.equals(loggedInUserToken))
+            return new Response("122", Response.INVALID_TOKEN);
+
+        if (loggedInUserRole != 1 && !userId.equals(loggedInUserId))
+            return new Response("123", Response.INSUFFICIENT_PERMISSIONS);
 
         try {
-            if (name != null && !name.isBlank())
-                if (new AccountDAO().updateName(userId, truncateString(name)) == 0)
-                    return new Response("123", "No user or token found ( Admin Only )");
+            Account account = AccountDAO.read(userId);
+            if (account == null)
+                return new Response("124", Response.INVALID_INFORMATION);
 
             if (password != null && !password.isBlank()) {
-                if (getAccountRole(userId) != 1 && isNotValidPassword(password))
-                    return new Response("125", "Invalid information inserted");
+                if (account.role() != 1 && isNotValidPassword(password))
+                    return new Response("124", Response.INVALID_INFORMATION);
 
-                if (new AccountDAO().updatePassword(userId, password) == 0)
-                    return new Response("123", "No user or token found ( Admin Only )");
+                AccountDAO.updatePassword(userId, password);
             }
+
+            if (name != null && !name.isBlank())
+                AccountDAO.updateName(userId, truncateString(name));
         } catch (SQLException e) {
             System.err.printf("[ERROR] Account update error: %s%n", e.getMessage());
-            return new Response("124", "Unknown error");
+            return new Response("125", Response.UNKNOWN_ERROR);
         }
 
-        return new Response("120", "Account successfully updated");
+        return new Response("120", Response.SUCCESS);
     }
 
     public static Response delete(String operationJson, LoginService loginService) throws JsonSyntaxException {
         DeleteAccountOp deleteAccountOp = new Gson().fromJson(operationJson, DeleteAccountOp.class);
 
-        String userId = deleteAccountOp.user();
         String token = deleteAccountOp.token();
+        String userId = deleteAccountOp.user();
         String loggedInUserId = loginService.getLoggedInUser().userId();
         String loggedInUserToken = loginService.getLoggedInUser().token();
         int loggedInUserRole = loginService.getLoggedInUser().role();
@@ -154,28 +150,25 @@ public class AccountService {
             userId = loggedInUserId;
 
         if (token == null)
-            return new Response("131", "Fields missing");
+            return new Response("131", Response.MISSING_FIELDS);
 
         if (!token.equals(loggedInUserToken))
-            return new Response("132", "Invalid Token");
+            return new Response("132", Response.INVALID_TOKEN);
 
-        if (loggedInUserRole != 1 && !userId.equals(loggedInUserId)) {
-            return new Response(
-                    "133",
-                    "Invalid Permission, user does not have permission to delete other users data");
-        }
+        if (loggedInUserRole != 1 && !userId.equals(loggedInUserId))
+            return new Response("133", Response.INSUFFICIENT_PERMISSIONS);
 
         try {
-            if (new AccountDAO().delete(userId) == 0)
-                return new Response("134", "User not found ( Admin Only )");
+            if (AccountDAO.delete(userId) == 0)
+                return new Response("134", Response.INVALID_INFORMATION);
         } catch (SQLException e) {
             System.err.printf("[ERROR] Account deletion error: %s%n", e.getMessage());
-            return new Response("135", "Unknown error");
+            return new Response("135", Response.UNKNOWN_ERROR);
         }
 
         if (userId.equals(loggedInUserId))
-            loginService.handleAccountDeletion();
+            loginService.setNoLongerLoggedIn(true);
 
-        return new Response("130", "Account successfully deleted");
+        return new Response("130", Response.SUCCESS);
     }
 }

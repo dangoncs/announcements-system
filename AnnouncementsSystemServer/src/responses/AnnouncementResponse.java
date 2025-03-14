@@ -12,12 +12,7 @@ public class AnnouncementResponse extends Response {
         this.announcements = announcements;
     }
 
-    @Override
-    public String toString() {
-        return "AnnouncementResponse{" +
-                "announcements=" + announcements +
-                ", response='" + response + '\'' +
-                ", message='" + message + '\'' +
-                '}';
+    public List<Announcement> getAnnouncements() {
+        return announcements;
     }
 }

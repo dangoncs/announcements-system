@@ -1,8 +1,8 @@
 package responses;
 
-import entities.Category;
-
 import java.util.List;
+
+import entities.Category;
 
 public class CategoryResponse extends Response {
     private final List<Category> categories;
@@ -12,12 +12,7 @@ public class CategoryResponse extends Response {
         this.categories = categories;
     }
 
-    @Override
-    public String toString() {
-        return "CategoryResponse{" +
-                "categories=" + categories +
-                ", response='" + response + '\'' +
-                ", message='" + message + '\'' +
-                '}';
+    public List<Category> getCategories() {
+        return categories;
     }
 }

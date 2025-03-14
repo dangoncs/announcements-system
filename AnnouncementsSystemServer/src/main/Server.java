@@ -11,47 +11,59 @@ import entities.User;
 import gui.ServerWindow;
 
 public class Server {
-	private ServerSocket serverSocket;
-	private static List<User> loggedInUsers;
+	private final int port;
+	private ServerSocket socket;
+	private static final List<User> loggedInUsers = new ArrayList<>();
 
 	public static void main(String[] ignoredArgs) {
 		SwingUtilities.invokeLater(ServerWindow::new);
 	}
 
-	public void startConnectionLoop(ServerSocket serverSocket) {
-		this.serverSocket = serverSocket;
+	public Server(int port) {
+		this.port = port;
+	}
 
-		while (serverSocket != null && !serverSocket.isClosed()) {
-			try {
-				new ServerThread(serverSocket.accept()).start();
-			} catch (IOException e) {
-				System.err.printf("[AVISO] Socket não aceitou conexão (%s)%n", e.getLocalizedMessage());
+	public void startConnectionLoop() throws IOException {
+		try (ServerSocket serverSocket = new ServerSocket(port)) {
+			this.socket = serverSocket;
+
+			while (!serverSocket.isClosed()) {
+				try {
+					new ServerThread(serverSocket.accept()).start();
+				} catch (IOException e) {
+					System.err.printf("[WARNING] Socket did not accept connection (%s)%n", e.getLocalizedMessage());
+				}
 			}
 		}
 	}
 
-	public void closeSocket() throws IOException {
-		if (serverSocket == null || serverSocket.isClosed())
+	public void closeSocket() {
+		if (socket == null || socket.isClosed())
 			return;
 
-		serverSocket.close();
+		try {
+			socket.close();
+		} catch (IOException e) {
+			System.err.printf("[ERROR] Could not close gracefully: %s%n", e.getMessage());
+			System.err.println("Exiting the program now.");
+		}
+
+		System.exit(0);
 	}
 
 	public static synchronized void addToLoggedInUsers(User user) {
-		if (loggedInUsers == null)
-			loggedInUsers = new ArrayList<>();
-
 		loggedInUsers.add(user);
 	}
 
 	public static synchronized void removeFromLoggedInUsers(User user) {
-		if (loggedInUsers == null)
-			loggedInUsers = new ArrayList<>();
-
 		loggedInUsers.remove(user);
 	}
 
 	public static List<User> getLoggedInUsers() {
 		return loggedInUsers;
+	}
+
+	public int getPort() {
+		return port;
 	}
 }
