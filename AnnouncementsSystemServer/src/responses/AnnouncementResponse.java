@@ -7,8 +7,8 @@ import entities.Announcement;
 public class AnnouncementResponse extends Response {
     private final List<Announcement> announcements;
 
-    public AnnouncementResponse(String response, String message, List<Announcement> announcements) {
-        super(response, message);
+    public AnnouncementResponse(String responseCode, String message, List<Announcement> announcements) {
+        super(responseCode, message);
         this.announcements = announcements;
     }
 

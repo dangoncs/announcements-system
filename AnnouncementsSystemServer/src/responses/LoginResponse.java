@@ -7,8 +7,8 @@ public class LoginResponse extends Response {
     public static final String NOT_LOGGED_IN = "User not logged in";
     private final User user;
 
-    public LoginResponse(String response, String message, User user) {
-        super(response, message);
+    public LoginResponse(String responseCode, String message, User user) {
+        super(responseCode, message);
         this.user = user;
     }
 

@@ -9,29 +9,27 @@ import java.util.List;
 
 public class UserCategoryDAO {
 
-    private UserCategoryDAO() {}
+    private UserCategoryDAO() {
+    }
 
     public static void create(String userId, String categoryId) throws SQLException {
         String sql = "INSERT INTO user_category (user_id, category_id) VALUES (?, ?)";
 
-        try (Connection conn = Database.connect()) {
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, userId);
-                ps.setString(2, categoryId);
+        try (Connection conn = Database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, userId);
+            ps.setString(2, categoryId);
 
-                ps.executeUpdate();
-            }
+            ps.executeUpdate();
         }
     }
 
     public static List<String> read(String userId) throws SQLException {
         String sql = "SELECT c.category_id FROM category c JOIN user_category uc ON c.category_id = uc.category_id WHERE uc.user_id = ?";
 
-        try (Connection conn = Database.connect()) {
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, userId);
+        try (Connection conn = Database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, userId);
 
-                ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
                 List<String> categories = new ArrayList<>();
 
                 while (rs.next()) {
@@ -47,12 +45,10 @@ public class UserCategoryDAO {
     public static int delete(String userId, String categoryId) throws SQLException {
         String sql = "DELETE FROM user_category WHERE user_id = ? AND category_id = ?";
 
-        try (Connection conn = Database.connect()) {
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, userId);
-                ps.setString(2, categoryId);
-                return ps.executeUpdate();
-            }
+        try (Connection conn = Database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, userId);
+            ps.setString(2, categoryId);
+            return ps.executeUpdate();
         }
     }
 }
